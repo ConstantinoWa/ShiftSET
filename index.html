@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>輪班行事曆</title>
+<title>Shift Go v.03271605</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -362,15 +362,140 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .btn-backup.import { border-color:var(--ot); color:var(--ot); }
 .backup-hint { font-size:.6rem; color:var(--text-mute); margin-top:8px; line-height:1.5; }
 
-@media(max-width:430px){ .cell{min-height:76px;padding:5px 4px 4px;} .month-display{font-size:1.9rem;} .quota-grid{grid-template-columns:1fr;} .q-number{font-size:1.2rem;} }
+@media(max-width:360px){
+  /* 折疊手機外屏 / 超小螢幕（如 Z Flip 外屏 ~260px、Z Fold 外屏 ~374px） */
+  html { font-size: 13px; }
+  .cell { min-height: 62px; padding: 3px 2px; }
+  .dnum { font-size: .68rem; }
+  .ban-lbl { font-size: .38rem; }
+  .s-badge { font-size: .5rem; padding: 1px 2px; }
+  .l-badge { font-size: .46rem; }
+  .hol-lbl { font-size: .34rem; }
+  .month-display { font-size: 1.5rem; }
+  .quota-grid { grid-template-columns: 1fr; }
+  .q-number { font-size: 1rem; }
+  .top-bar { padding: 8px 10px; }
+  .body-wrap { padding: 6px 6px 0; }
+  .cal-grid { gap: 2px; }
+  .dow-row { gap: 2px; }
+  .nav-btn { width: 30px; height: 30px; font-size: .85rem; }
+  .today-pill { padding: 5px 9px; font-size: .6rem; }
+  .ot-card-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media(min-width:600px) and (max-width:900px){
+  /* 折疊手機展開內屏（如 Z Fold 展開 ~904px 半分、Z Flip 展開 ~428px） */
+  html { font-size: 15px; }
+  .cell { min-height: 92px; padding: 7px 6px; }
+  .dnum { font-size: .85rem; }
+  .ban-lbl { font-size: .52rem; }
+  .s-badge { font-size: .64rem; padding: 2px 5px; }
+  .l-badge { font-size: .58rem; }
+  .month-display { font-size: 2.4rem; }
+  .quota-grid { grid-template-columns: 1fr 1fr; }
+  .body-wrap { padding: 14px 20px 0; }
+  .cal-grid { gap: 3px; }
+  .dow-row { gap: 3px; }
+}
+
+@media(max-width:430px){
+  /* 手機小螢幕 */
+  html { font-size: 14px; }
+  .cell { min-height: 72px; padding: 4px 3px; }
+  .cell-head { gap: 1px; }
+  .dnum { font-size: .72rem; }
+  .ban-lbl { font-size: .42rem; }
+  .s-badge { font-size: .54rem; padding: 1px 3px; }
+  .l-badge { font-size: .5rem; }
+  .month-display { font-size: 1.7rem; }
+  .quota-grid { grid-template-columns: 1fr; }
+  .q-number { font-size: 1.1rem; }
+  .top-bar { padding: 10px 12px 10px; }
+  .body-wrap { padding: 8px 8px 0; }
+  .cal-grid { gap: 2px; }
+  .dow-row { gap: 2px; }
+  .ot-card-inner { flex-direction: column; align-items: flex-start; }
+  .section-label { font-size: .52rem; }
+}
+
+@media(min-width:431px) and (max-width:768px){
+  /* 平板 */
+  html { font-size: 15px; }
+  .cell { min-height: 88px; padding: 6px 5px; }
+  .dnum { font-size: .82rem; }
+  .ban-lbl { font-size: .5rem; }
+  .month-display { font-size: 2.2rem; }
+  .quota-grid { grid-template-columns: 1fr 1fr; }
+  .body-wrap { padding: 12px 16px 0; }
+}
+
+@media(min-width:769px){
+  /* 電腦大螢幕 */
+  html { font-size: 16px; }
+  #appWrap { max-width: 860px; margin: 0 auto; }
+  .top-bar { max-width: 860px; margin: 0 auto; left: 0; right: 0; }
+  .cell { min-height: 100px; padding: 8px 7px; }
+  .dnum { font-size: .9rem; }
+  .ban-lbl { font-size: .54rem; }
+  .s-badge { font-size: .68rem; padding: 3px 6px; }
+  .l-badge { font-size: .62rem; }
+  .month-display { font-size: 2.8rem; }
+  .quota-grid { grid-template-columns: 1fr 1fr; }
+  .body-wrap { padding: 16px 24px 0; }
+  .cal-grid { gap: 4px; }
+  .dow-row { gap: 4px; }
+  .hol-lbl { font-size: .45rem; }
+  .note-lbl { font-size: .56rem; }
+}
+@media(orientation:landscape) and (max-height:500px){
+  /* 手機橫向 */
+  html { font-size: 15px; }
+  .cell { min-height: 80px; padding: 5px 5px; }
+  .dnum { font-size: .85rem; }
+  .ban-lbl { font-size: .5rem; }
+  .s-badge { font-size: .65rem; padding: 2px 5px; }
+  .l-badge { font-size: .58rem; }
+  .month-display { font-size: 2rem; }
+  .top-bar { padding: 8px 16px; }
+  .body-wrap { padding: 8px 16px 0; }
+  .cal-grid { gap: 3px; }
+  .dow-row { gap: 3px; }
+  .hol-lbl { font-size: .42rem; }
+}
 </style>
 </head>
 <body>
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">輪班<span>行事曆</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03271605</span></div>
   <div class="setup-sub">初次使用設定</div>
+
+  <!-- 使用說明 -->
+  <div class="setup-card" style="border-color:var(--accent);margin-bottom:14px;">
+    <h2 style="color:var(--accent)">📌 使用前請先閱讀</h2>
+    <div style="font-size:.72rem;color:var(--text-dim);line-height:1.8;display:flex;flex-direction:column;gap:8px;">
+      <div>
+        <span style="color:var(--text);font-weight:700">📱 iOS（iPhone / iPad）</span><br>
+        用 Safari 開啟此網址 → 點底部 <span style="color:var(--accent)">分享 □↑</span> → 選「<span style="color:var(--accent)">加入主畫面</span>」<br>
+        之後從桌面圖示開啟，資料永久保存，不會因關閉消失。
+      </div>
+      <div>
+        <span style="color:var(--text);font-weight:700">🤖 Android</span><br>
+        用 Chrome 開啟此網址 → 點右上角選單 ⋮ → 選「<span style="color:var(--accent)">新增至主畫面</span>」<br>
+        之後從桌面圖示開啟，資料永久保存。
+      </div>
+      <div>
+        <span style="color:var(--text);font-weight:700">💻 電腦</span><br>
+        直接用瀏覽器開啟網址即可，資料自動保存在瀏覽器中。
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:8px;">
+        <span style="color:var(--ot);font-weight:700">⚠ 注意</span><br>
+        資料儲存在本機瀏覽器，換瀏覽器或換手機資料不會自動轉移。<br>
+        換手機前請先在「資料備份」區塊匯出 JSON，新手機匯入即可還原所有設定與班表。
+      </div>
+    </div>
+  </div>
 
   <!-- 1. 今日番號校正 -->
   <div class="setup-card">
@@ -452,7 +577,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">輪班行事曆</div>
+      <div class="app-label" id="appLabel">Shift Go v.03271605</div>
       <div class="month-display" id="hdMonth"></div>
     </div>
     <div class="nav-cluster">
@@ -523,7 +648,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <button class="btn-backup import" onclick="document.getElementById('importFile').click()">⬆ 匯入還原</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       </div>
-      <div class="backup-hint">⚠ iOS Safari 關閉分頁後資料會消失，每次更動後請匯出備份，下次開啟再匯入還原。</div>
+      <div class="backup-hint">📦 備份用途：換手機、換瀏覽器、或意外清除瀏覽器資料時還原。平常加入主畫面使用不需要備份。</div>
     </div>
   </div>
 
