@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>輪班行事曆</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d1117; --surface:#161b24; --surface2:#1e2535; --surface3:#252e42;
+  --border:#2a3349; --border2:#36405c;
+  --text:#e2e8f5; --text-dim:#6b7899; --text-mute:#3d4d6a;
+  --early:#22c97a; --early-dim:rgba(34,201,122,.15);
+  --late:#f97316;  --late-dim:rgba(249,115,22,.15);
+  --mid:#60a5fa;   --mid-dim:rgba(96,165,250,.15);
+  --off:#3d4d6a;   --off-dim:rgba(61,77,106,.15);
+  --hol:#f43f5e;   --hol-dim:rgba(244,63,94,.18);
+  --makeup:#a78bfa;--makeup-dim:rgba(167,139,250,.10);
+  --cons:#c084fc;  --cons-dim:rgba(192,132,252,.15);
+  --comp:#34d4c8;  --comp-dim:rgba(52,212,200,.15);
+  --other:#fb923c; --other-dim:rgba(251,146,60,.15);
+  --ot:#fbbf24;
+  --accent:#4f80ff; --today-ring:#f5c518;
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;min-height:100vh;}
+
+/* ══ SETUP WIZARD ══ */
+#setupWrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 16px 60px;
+}
+.setup-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: .06em;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.setup-logo span { color: var(--accent); }
+.setup-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 28px;
+}
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 12px;
+}
+.setup-card h2 {
+  font-size: .68rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 14px;
+}
+.sf-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
+.sf { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
+.sf label { font-size: .68rem; color: var(--text-dim); }
+.sf input, .sf select {
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); padding: 8px 10px; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: .82rem; outline: none; width: 100%;
+}
+.sf input:focus, .sf select:focus { border-color: var(--accent); }
+.setup-hint { font-size: .62rem; color: var(--text-mute); margin-top: 3px; }
+.setup-preview {
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  min-height: 32px;
+}
+
+/* rotation builder */
+.rot-builder { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.rot-day-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.rot-day-num {
+  font-family: 'DM Mono', monospace;
+  font-size: .55rem;
+  color: var(--text-mute);
+}
+.rot-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.rot-btn.rb-early { background: var(--early-dim); color: var(--early); border-color: var(--early); }
+.rot-btn.rb-late  { background: var(--late-dim);  color: var(--late);  border-color: var(--late); }
+.rot-btn.rb-mid   { background: var(--mid-dim);   color: var(--mid);   border-color: var(--mid); }
+.rot-btn.rb-off   { background: var(--off-dim);   color: var(--off);   border-color: var(--off); }
+
+.rot-ctrl { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.rot-len-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.rot-len-row label { font-size: .7rem; color: var(--text-dim); white-space: nowrap; }
+.rot-len-row input { width: 64px; background: var(--surface2); border: 1px solid var(--border2); color: var(--text); padding: 7px 10px; border-radius: var(--radius-sm); font-family: 'DM Mono', monospace; font-size: .82rem; outline: none; text-align: center; }
+
+.btn-setup-next {
+  width: 100%; max-width: 480px;
+  background: var(--accent); border: none; color: #fff;
+  padding: 14px; border-radius: var(--radius);
+  cursor: pointer; font-family: inherit; font-size: .95rem; font-weight: 700;
+  transition: opacity .15s; margin-top: 4px;
+}
+.btn-setup-next:hover { opacity: .85; }
+.setup-error {
+  font-size: .7rem; color: var(--hol);
+  padding: 6px 10px; background: rgba(244,63,94,.1);
+  border-radius: var(--radius-sm); margin-top: 6px; display: none;
+}
+
+/* shift legend mini */
+.shift-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.sl-item { display: flex; align-items: center; gap: 4px; font-size: .65rem; color: var(--text-dim); }
+.sl-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ══ CALENDAR APP (hidden until setup done) ══ */
+#appWrap { display: none; padding: 0 0 80px; }
+
+/* sticky top bar */
+.top-bar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(13,17,23,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.top-bar-left { display: flex; flex-direction: column; gap: 1px; }
+.app-label { font-family: 'DM Mono', monospace; font-size: .55rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-dim); }
+.month-display { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; line-height: 1; letter-spacing: .04em; }
+.month-display span { color: var(--accent); }
+.nav-cluster { display: flex; align-items: center; gap: 6px; }
+.nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+.nav-btn:hover { background: var(--surface3); border-color: var(--accent); }
+.today-pill { font-family: 'DM Mono', monospace; font-size: .65rem; padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text-dim); cursor: pointer; transition: all .15s; }
+.today-pill:hover { border-color: var(--accent); color: var(--accent); }
+.settings-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); color: var(--text-dim); cursor: pointer; font-size: .85rem; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.body-wrap { padding: 12px 12px 0; }
+
+/* calendar */
+.dow-row { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 2px; }
+.dow-cell { text-align: center; font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .1em; padding: 4px 0; color: var(--text-mute); }
+.dow-cell.is-sun { color: var(--hol); }
+.dow-cell.is-sat { color: var(--accent); }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 16px; }
+
+.cell {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  min-height: 90px; padding: 7px 6px 5px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: border-color .15s; position: relative; overflow: hidden;
+}
+.cell::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; border-radius:3px 0 0 3px; background:transparent; transition:background .15s; }
+.cell.has-early::before { background: var(--early); }
+.cell.has-late::before  { background: var(--late); }
+.cell.has-mid::before   { background: var(--mid); }
+.cell.has-off::before   { background: var(--off); }
+.cell:hover { border-color: var(--border2); background: var(--surface2); }
+.cell.empty { background:transparent; border-color:transparent; cursor:default; pointer-events:none; }
+.cell.is-today { border-color: var(--today-ring); border-width:2px; background:rgba(245,197,24,.05); box-shadow:0 0 0 1px var(--today-ring) inset; }
+.cell.is-today .dnum { color: var(--today-ring); }
+.cell.is-sun .dnum { color: var(--hol); }
+.cell.is-sat .dnum { color: #818cf8; }
+.cell.is-holiday { background: var(--surface); }
+.cell.is-holiday .dnum { color: var(--hol); }
+.cell.is-makeup { background: var(--makeup-dim); }
+.cell.has-off .dnum { font-weight: 700; }
+.cell.leave-cons  { border-color:var(--cons)  !important; background:var(--cons-dim)  !important; }
+.cell.leave-cons  .dnum { color:var(--cons)  !important; }
+.cell.leave-comp  { border-color:var(--comp)  !important; background:var(--comp-dim)  !important; }
+.cell.leave-comp  .dnum { color:var(--comp)  !important; }
+.cell.leave-other { border-color:var(--other) !important; background:var(--other-dim) !important; }
+.cell.leave-other .dnum { color:var(--other) !important; }
+
+.cell-head { display:flex; justify-content:space-between; align-items:flex-start; gap:2px; }
+.dnum { font-family:'DM Mono',monospace; font-size:.78rem; font-weight:500; color:var(--text); line-height:1; flex-shrink:0; }
+.cell-meta { display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:0; }
+.ban-lbl { font-family:'DM Mono',monospace; font-size:.48rem; font-weight:700; color:var(--text-dim); line-height:1; }
+.hol-lbl { font-size:.38rem; line-height:1.2; text-align:left; word-break:keep-all; max-width:100%; margin-top:auto; }
+.hol-lbl.is-hol { color:var(--hol); }
+.hol-lbl.is-makeup { color:var(--makeup); }
+.s-badge { font-size:.6rem; font-weight:700; padding:2px 5px; border-radius:var(--radius-sm); width:fit-content; }
+.s-early { background:var(--early-dim); color:var(--early); }
+.s-late  { background:var(--late-dim);  color:var(--late); }
+.s-mid   { background:var(--mid-dim);   color:var(--mid); }
+.s-off   { background:var(--off-dim);   color:var(--off); }
+.l-badge { font-size:.56rem; font-weight:600; padding:1px 5px; border-radius:var(--radius-sm); width:100%; text-align:center; }
+.l-cons  { background:var(--cons-dim);  color:var(--cons); }
+.l-comp  { background:var(--comp-dim);  color:var(--comp); }
+.l-other { background:var(--other-dim); color:var(--other); }
+.ot-badge { font-size:.5rem; padding:1px 4px; border-radius:3px; background:rgba(251,191,36,.12); color:var(--ot); width:fit-content; }
+.note-lbl { font-size:.5rem; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.section-label { font-family:'DM Mono',monospace; font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-mute); padding:0 2px; margin-bottom:8px; }
+.stats-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:16px; }
+.stat-chip { display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:5px 12px 5px 8px; font-family:'DM Mono',monospace; font-size:.68rem; }
+.stat-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.stat-chip strong { font-weight:700; }
+
+.quota-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.q-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:13px 15px; }
+.q-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.q-title { font-size:.65rem; color:var(--text-dim); letter-spacing:.06em; }
+.q-number { font-family:'DM Mono',monospace; font-size:1.5rem; font-weight:500; line-height:1; }
+.q-denom { font-size:.7rem; color:var(--text-dim); }
+.q-track { background:var(--surface3); border-radius:4px; height:4px; overflow:hidden; }
+.q-fill { height:100%; border-radius:4px; transition:width .5s cubic-bezier(.34,1.56,.64,1); }
+.q-sub { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--text-dim); margin-top:6px; }
+
+.ot-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:13px 15px; margin-bottom:16px; }
+.ot-card-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.ot-label { font-size:.65rem; color:var(--text-dim); margin-bottom:3px; }
+.ot-big { font-family:'DM Mono',monospace; font-size:1.8rem; font-weight:500; color:var(--ot); line-height:1; }
+.ot-eq { font-size:.65rem; color:var(--text-dim); margin-top:3px; font-family:'DM Mono',monospace; }
+.ot-input-row { display:flex; align-items:center; gap:6px; }
+.ot-input-row input { width:72px; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:7px 10px; border-radius:var(--radius-sm); font-family:'DM Mono',monospace; font-size:.82rem; outline:none; text-align:center; }
+.ot-input-row input:focus { border-color:var(--accent); }
+.ot-unit { font-size:.7rem; color:var(--text-dim); }
+.btn-add { background:var(--accent); border:none; color:#fff; padding:7px 14px; border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; font-size:.75rem; font-weight:700; transition:opacity .15s; }
+.btn-add:hover { opacity:.85; }
+.btn-reset { background:var(--surface3); border:1px solid var(--border2); color:var(--text-dim); padding:7px 11px; border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; font-size:.72rem; transition:all .15s; }
+.btn-reset:hover { border-color:var(--hol); color:var(--hol); }
+
+.legend { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:.62rem; color:var(--text-dim); }
+.leg-swatch { width:18px; height:12px; border-radius:3px; flex-shrink:0; }
+
+/* quarter */
+.quarter-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:10px; overflow:hidden; }
+.quarter-hd { display:flex; justify-content:space-between; align-items:center; padding:10px 14px 8px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+.quarter-hd-left { font-family:'DM Mono',monospace; font-size:.72rem; font-weight:700; letter-spacing:.06em; }
+.quarter-hd-right { font-size:.6rem; color:var(--text-dim); font-family:'DM Mono',monospace; }
+.quarter-body { padding:0 10px 10px; }
+.quarter-body.collapsed { display:none; }
+.q-month-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; align-items:center; padding:6px 4px; border-bottom:1px solid var(--border); }
+.q-month-row:last-child { border-bottom:none; }
+.q-month-name { font-size:.65rem; font-weight:700; color:var(--text-dim); font-family:'DM Mono',monospace; }
+.q-cell { text-align:center; font-family:'DM Mono',monospace; font-size:.65rem; }
+.q-cell-val { font-weight:700; font-size:.72rem; }
+.q-col-hd { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:8px 4px 4px; }
+.q-col-hd-cell { text-align:center; font-size:.52rem; font-family:'DM Mono',monospace; color:var(--text-mute); letter-spacing:.04em; }
+.q-total-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:6px 4px 2px; border-top:1px solid var(--border2); margin-top:2px; }
+.q-total-lbl { font-size:.58rem; color:var(--text-dim); font-family:'DM Mono',monospace; font-weight:700; }
+.q-total-val { text-align:center; font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; }
+
+/* bottom sheet */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.overlay.open { opacity:1; pointer-events:all; }
+.sheet { background:var(--surface); border:1px solid var(--border2); border-radius:22px 22px 0 0; padding:8px 20px 40px; width:100%; max-width:520px; transform:translateY(32px); transition:transform .28s cubic-bezier(.22,1,.36,1); }
+.overlay.open .sheet { transform:translateY(0); }
+.sheet-handle { width:38px; height:4px; border-radius:2px; background:var(--border2); margin:10px auto 18px; }
+.sheet-hd { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.sheet-title { font-size:.92rem; font-weight:700; }
+.sheet-close { width:26px; height:26px; border-radius:50%; background:var(--surface3); border:none; color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.82rem; }
+.sheet-meta { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--text-dim); padding:6px 10px; background:var(--surface2); border-radius:var(--radius-sm); margin-bottom:8px; }
+.sheet-hol { font-size:.65rem; padding:5px 10px; border-radius:var(--radius-sm); margin-bottom:14px; }
+.sheet-hol.hol { background:rgba(244,63,94,.12); color:var(--hol); }
+.sheet-hol.mkp { background:rgba(167,139,250,.12); color:var(--makeup); }
+.fg { margin-bottom:12px; }
+.fg>label { display:block; font-family:'DM Mono',monospace; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:7px; }
+.fg input[type=text] { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:10px 12px; border-radius:var(--radius); font-family:inherit; font-size:.88rem; outline:none; }
+.fg input[type=text]:focus { border-color:var(--accent); }
+.fg input[type=number] { width:90px; background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:10px 12px; border-radius:var(--radius); font-family:'DM Mono',monospace; font-size:.88rem; outline:none; }
+.fg input[type=number]:focus { border-color:var(--accent); }
+.fg .hint { font-size:.6rem; color:var(--text-mute); margin-top:4px; }
+.opts { display:flex; gap:5px; flex-wrap:wrap; }
+.opt { flex:1; min-width:54px; padding:9px 4px; border-radius:var(--radius); border:1.5px solid var(--border); background:var(--surface2); cursor:pointer; text-align:center; font-size:.72rem; font-weight:600; color:var(--text-dim); transition:all .12s; user-select:none; }
+.opt:hover { border-color:var(--border2); }
+.opt.on-early { background:var(--early-dim); color:var(--early); border-color:var(--early); }
+.opt.on-late  { background:var(--late-dim);  color:var(--late);  border-color:var(--late); }
+.opt.on-mid   { background:var(--mid-dim);   color:var(--mid);   border-color:var(--mid); }
+.opt.on-off   { background:var(--off-dim);   color:var(--off);   border-color:var(--off); }
+.opt.on-cons  { background:var(--cons-dim);  color:var(--cons);  border-color:var(--cons); }
+.opt.on-comp  { background:var(--comp-dim);  color:var(--comp);  border-color:var(--comp); }
+.opt.on-other { background:var(--other-dim); color:var(--other); border-color:var(--other); }
+.sheet-btns { display:flex; gap:8px; margin-top:16px; }
+.btn-save { flex:1; background:var(--accent); border:none; color:#fff; padding:13px; border-radius:var(--radius); cursor:pointer; font-family:inherit; font-size:.88rem; font-weight:700; transition:opacity .15s; }
+.btn-save:hover { opacity:.85; }
+.btn-del { background:var(--surface2); border:1px solid var(--border2); color:var(--text-dim); padding:13px 17px; border-radius:var(--radius); cursor:pointer; font-family:inherit; font-size:.8rem; transition:all .15s; }
+.btn-del:hover { background:rgba(244,63,94,.1); color:var(--hol); border-color:var(--hol); }
+
+/* special period */
+.sp-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+.sp-row {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+.sp-row .sf { min-width: 90px; }
+.sp-del {
+  background: none; border: 1px solid var(--border2); color: var(--hol);
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  font-size: .8rem; display:flex; align-items:center; justify-content:center;
+  flex-shrink: 0; align-self: flex-end;
+  transition: background .15s;
+}
+.sp-del:hover { background: rgba(244,63,94,.15); }
+.btn-add-sp {
+  background: var(--surface2); border: 1px dashed var(--border2);
+  color: var(--text-dim); width:100%; padding: 8px;
+  border-radius: var(--radius); cursor: pointer; font-family:inherit;
+  font-size: .75rem; transition: border-color .15s, color .15s;
+}
+.btn-add-sp:hover { border-color: var(--accent); color: var(--accent); }
+.sp-skip-row { display:flex; align-items:center; gap:6px; }
+.sp-skip-row input[type=checkbox] { width:14px; height:14px; cursor:pointer; accent-color: var(--accent); }
+.sp-skip-row label { font-size:.65rem; color:var(--text-dim); cursor:pointer; }
+
+/* ── JSON BACKUP ── */
+.backup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 15px;
+  margin-bottom: 10px;
+}
+.backup-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.btn-backup {
+  flex:1; min-width:100px; padding:10px 8px; border-radius:var(--radius);
+  border:1px solid var(--border2); background:var(--surface2); color:var(--text-dim);
+  cursor:pointer; font-family:inherit; font-size:.78rem; font-weight:600;
+  text-align:center; transition:all .15s;
+}
+.btn-backup:hover { border-color:var(--accent); color:var(--accent); }
+.btn-backup.export { border-color:var(--comp); color:var(--comp); }
+.btn-backup.import { border-color:var(--ot); color:var(--ot); }
+.backup-hint { font-size:.6rem; color:var(--text-mute); margin-top:8px; line-height:1.5; }
+
+@media(max-width:430px){ .cell{min-height:76px;padding:5px 4px 4px;} .month-display{font-size:1.9rem;} .quota-grid{grid-template-columns:1fr;} .q-number{font-size:1.2rem;} }
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP WIZARD ══ -->
+<div id="setupWrap">
+  <div class="setup-logo">輪班<span>行事曆</span></div>
+  <div class="setup-sub">初次使用設定</div>
+
+  <!-- 1. 今日番號校正 -->
+  <div class="setup-card">
+    <h2>01 ── 今日番號校正</h2>
+    <div class="sf-row">
+      <div class="sf">
+        <label>今天是哪一番？</label>
+        <input type="number" id="sTodayBan" min="1" max="32" value="1" placeholder="例：5">
+      </div>
+      <div class="sf">
+        <label>今天日期</label>
+        <input type="date" id="sTodayDate">
+      </div>
+    </div>
+    <div class="setup-hint">打開這個行事曆的當天是第幾番，輸入後往後都會自動推算</div>
+  </div>
+
+  <!-- 2. 輪班週期 -->
+  <div class="setup-card">
+    <h2>02 ── 輪班週期設定</h2>
+    <div class="rot-len-row">
+      <label>循環天數</label>
+      <input type="number" id="sRotLen" min="2" max="32" value="16">
+      <span style="font-size:.72rem;color:var(--text-dim)">天一循環</span>
+    </div>
+    <div class="shift-legend">
+      <div class="sl-item"><div class="sl-dot" style="background:var(--early)"></div>早 = 早班</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--late)"></div>晚 = 晚班</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--mid)"></div>小 = 小夜</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--off)"></div>休 = 休假</div>
+    </div>
+    <p style="font-size:.65rem;color:var(--text-dim);margin-bottom:8px">點每一番指定班別（循環天數改變後會重設）</p>
+    <div class="rot-builder" id="rotBuilder"></div>
+    <div class="setup-preview" id="rotPreview">請設定循環天數與班別…</div>
+  </div>
+
+  <!-- 3. 假別總量 -->
+  <div class="setup-card">
+    <h2>03 ── 假別總量</h2>
+    <div class="sf-row">
+      <div class="sf" style="flex:2">
+        <label>服務年資（自動帶入慰休假天數）</label>
+        <select id="sSeniority" onchange="updateConsFromSeniority()">
+          <option value="7">滿1年未滿3年　→　7天</option>
+          <option value="14">滿3年未滿6年　→　14天</option>
+          <option value="21">滿6年未滿9年　→　21天</option>
+          <option value="28" selected>滿9年未滿14年　→　28天</option>
+          <option value="30">滿14年以上　→　30天</option>
+        </select>
+      </div>
+      <div class="sf" style="min-width:72px">
+        <label>慰休假天數</label>
+        <input type="number" id="sConsTotal" min="0" max="30" value="28">
+      </div>
+    </div>
+    <div class="setup-hint">依公務人員請假規則第7條，最高30天（年資滿14年）</div>
+    <div class="sf-row" style="margin-top:10px">
+      <div class="sf">
+        <label>你的名字（選填）</label>
+        <input type="text" id="sName" placeholder="顯示在標題">
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 特別上班/休假期間 -->
+  <div class="setup-card">
+    <h2>04 ── 特別排班期間（選填）</h2>
+    <p style="font-size:.64rem;color:var(--text-dim);margin-bottom:10px">例如春節特別上班、颱風假等，該期間不依輪番，改為指定班別</p>
+    <div class="sp-list" id="spList"></div>
+    <button class="btn-add-sp" onclick="addSpRow()">＋ 新增特別期間</button>
+  </div>
+
+  <div class="setup-error" id="setupErr">請確認所有欄位都已填寫</div>
+  <button class="btn-setup-next" onclick="startApp()">✓ 建立行事曆</button>
+  <p style="font-size:.6rem;color:var(--text-mute);margin-top:10px;text-align:center">設定會儲存在本機，重新整理不會消失</p>
+</div>
+
+<!-- ══ CALENDAR APP ══ -->
+<div id="appWrap">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="app-label" id="appLabel">輪班行事曆</div>
+      <div class="month-display" id="hdMonth"></div>
+    </div>
+    <div class="nav-cluster">
+      <button class="nav-btn" onclick="chM(-1)">‹</button>
+      <button class="today-pill" onclick="goToday()">今天</button>
+      <button class="nav-btn" onclick="chM(1)">›</button>
+      <button class="settings-btn" onclick="reopenSetup()" title="重新設定">⚙</button>
+    </div>
+  </div>
+
+  <div class="body-wrap">
+    <div class="dow-row" id="dowRow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="legend">
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--early-dim);border:1px solid var(--early)"></div>早班</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--late-dim);border:1px solid var(--late)"></div>晚班</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--mid-dim);border:1px solid var(--mid)"></div>小夜</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--off-dim);border:1px solid var(--off)"></div>排休</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--hol-dim);border:1px solid var(--hol)"></div>國定假日</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--cons-dim);border:1px solid var(--cons)"></div>慰休</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--comp-dim);border:1px solid var(--comp)"></div>補休</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--other-dim);border:1px solid var(--other)"></div>其他補休</div>
+    </div>
+
+    <div class="section-label">本月班次統計</div>
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="section-label">假別餘額</div>
+    <div class="quota-grid">
+      <div class="q-card">
+        <div class="q-top"><div><div class="q-title">慰休假</div><div class="q-number" id="consNum" style="color:var(--cons)">0</div></div><div class="q-denom">/ <span id="consMax">28</span> 天</div></div>
+        <div class="q-track"><div class="q-fill" id="consFill" style="background:var(--cons)"></div></div>
+        <div class="q-sub" id="consSub">已使用 0 天，剩餘 28 天</div>
+      </div>
+      <div class="q-card">
+        <div class="q-top"><div><div class="q-title">補休</div><div class="q-number" id="compNum" style="color:var(--comp)">0</div></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
+        <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
+        <div class="q-sub" id="compSub">加班折算 0 天可用</div>
+      </div>
+    </div>
+
+    <div class="section-label">加班紀錄</div>
+    <div class="ot-card">
+      <div class="ot-card-inner">
+        <div>
+          <div class="ot-label">累積加班時數</div>
+          <div class="ot-big"><span id="otH">0</span> <span style="font-size:.9rem;color:var(--text-dim)">h</span></div>
+          <div class="ot-eq" id="otEq">= 0 天可用 + 0h 未滿</div>
+        </div>
+        <div class="ot-input-row">
+          <input type="number" id="otInput" min="0" max="24" step="0.5" placeholder="0">
+          <span class="ot-unit">h</span>
+          <button class="btn-add" onclick="addOT()">＋新增</button>
+          <button class="btn-reset" onclick="resetOT()">歸零</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:6px">季度統計</div>
+    <div id="quarterSection"></div>
+
+    <!-- ══ BACKUP ══ -->
+    <div class="section-label" style="margin-top:6px">資料備份</div>
+    <div class="backup-card">
+      <div class="backup-row">
+        <button class="btn-backup export" onclick="exportJSON()">⬇ 匯出備份</button>
+        <button class="btn-backup import" onclick="document.getElementById('importFile').click()">⬆ 匯入還原</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+      </div>
+      <div class="backup-hint">⚠ iOS Safari 關閉分頁後資料會消失，每次更動後請匯出備份，下次開啟再匯入還原。</div>
+    </div>
+  </div>
+
+  <!-- bottom sheet -->
+  <div class="overlay" id="overlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hd">
+        <div class="sheet-title" id="shTitle"></div>
+        <button class="sheet-close" onclick="closeSheet()">✕</button>
+      </div>
+      <div class="sheet-meta" id="shMeta"></div>
+      <div class="sheet-hol" id="shHol" style="display:none"></div>
+      <div class="fg">
+        <label>班別</label>
+        <div class="opts">
+          <div class="opt" id="so-early" onclick="pS('early')">☀ 早班</div>
+          <div class="opt" id="so-late"  onclick="pS('late')">🌙 晚班</div>
+          <div class="opt" id="so-mid"   onclick="pS('mid')">🌛 小夜</div>
+          <div class="opt" id="so-off"   onclick="pS('off')">💤 休</div>
+          <div class="opt" id="so-null"  onclick="pS(null)">— 無</div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>假別</label>
+        <div class="opts">
+          <div class="opt" id="lo-cons"  onclick="pL('cons')">✦ 慰休</div>
+          <div class="opt" id="lo-comp"  onclick="pL('comp')">↺ 補休</div>
+          <div class="opt" id="lo-other" onclick="pL('other')">＋其他補休</div>
+          <div class="opt" id="lo-null"  onclick="pL(null)">— 無</div>
+        </div>
+      </div>
+      <div class="fg" id="leaveHoursFg" style="display:none">
+        <label>請假時數（從加班時數扣除）</label>
+        <div class="opts">
+          <div class="opt" id="lh-8" onclick="pLH(8)">全天　8h</div>
+          <div class="opt" id="lh-4" onclick="pLH(4)">半天　4h</div>
+        </div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-top:5px">目前加班餘額：<span id="otBalance" style="color:var(--ot);font-weight:700"></span></div>
+      </div>
+      <div class="fg">
+        <label>當天加班時數</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="eOT" min="0" max="24" step="0.5" placeholder="0">
+          <span style="font-size:.78rem;color:var(--text-dim)">小時（儲存時自動累計）</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>備註</label>
+        <input type="text" id="eNote" placeholder="換班、外勤…">
+      </div>
+      <div class="sheet-btns">
+        <button class="btn-del" onclick="clearDay()">清除此天</button>
+        <button class="btn-save" onclick="saveDay()">儲存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAIWAN HOLIDAYS ══ -->
+<script>
+const TW_HOL = {
+  "2025-01-01":{label:"元旦",type:"hol"},"2025-01-27":{label:"除夕前一日",type:"hol"},
+  "2025-01-28":{label:"除夕",type:"hol"},"2025-01-29":{label:"春節初一",type:"hol"},
+  "2025-01-30":{label:"春節初二",type:"hol"},"2025-01-31":{label:"春節初三",type:"hol"},
+  "2025-02-08":{label:"補上班",type:"mkp"},"2025-02-28":{label:"和平紀念日",type:"hol"},
+  "2025-04-03":{label:"兒童節補假",type:"hol"},"2025-04-04":{label:"兒童節",type:"hol"},
+  "2025-04-05":{label:"清明節",type:"hol"},"2025-04-06":{label:"清明補假",type:"hol"},
+  "2025-05-01":{label:"勞動節",type:"hol"},"2025-05-30":{label:"端午補假",type:"hol"},
+  "2025-05-31":{label:"端午節",type:"hol"},"2025-09-27":{label:"教師節連假",type:"hol"},
+  "2025-09-28":{label:"教師節",type:"hol"},"2025-09-29":{label:"教師節補假",type:"hol"},
+  "2025-10-04":{label:"中秋連假",type:"hol"},"2025-10-05":{label:"中秋連假",type:"hol"},
+  "2025-10-06":{label:"中秋節",type:"hol"},"2025-10-10":{label:"國慶日",type:"hol"},
+  "2025-10-11":{label:"國慶連假",type:"hol"},"2025-10-12":{label:"國慶連假",type:"hol"},
+  "2025-10-24":{label:"光復節補假",type:"hol"},"2025-10-25":{label:"台灣光復節",type:"hol"},
+  "2025-10-26":{label:"光復節連假",type:"hol"},"2025-12-25":{label:"行憲紀念日",type:"hol"},
+  "2026-01-01":{label:"元旦",type:"hol"},"2026-02-14":{label:"春節連假",type:"hol"},
+  "2026-02-15":{label:"小年夜",type:"hol"},"2026-02-16":{label:"除夕",type:"hol"},
+  "2026-02-17":{label:"春節初一",type:"hol"},"2026-02-18":{label:"春節初二",type:"hol"},
+  "2026-02-19":{label:"春節初三",type:"hol"},"2026-02-20":{label:"小年夜補假",type:"hol"},
+  "2026-02-21":{label:"春節連假",type:"hol"},"2026-02-22":{label:"春節連假",type:"hol"},
+  "2026-02-27":{label:"和平紀念補假",type:"hol"},"2026-02-28":{label:"和平紀念日",type:"hol"},
+  "2026-03-01":{label:"和平紀念連假",type:"hol"},"2026-04-03":{label:"兒童節補假",type:"hol"},
+  "2026-04-04":{label:"兒童節",type:"hol"},"2026-04-05":{label:"清明節",type:"hol"},
+  "2026-04-06":{label:"清明補假",type:"hol"},"2026-05-01":{label:"勞動節",type:"hol"},
+  "2026-05-02":{label:"勞動節連假",type:"hol"},"2026-05-03":{label:"勞動節連假",type:"hol"},
+  "2026-06-19":{label:"端午節",type:"hol"},"2026-06-20":{label:"端午節連假",type:"hol"},
+  "2026-06-21":{label:"端午節連假",type:"hol"},"2026-09-25":{label:"中秋節",type:"hol"},
+  "2026-09-26":{label:"中秋節連假",type:"hol"},"2026-09-27":{label:"中秋節連假",type:"hol"},
+  "2026-09-28":{label:"教師節",type:"hol"},"2026-10-09":{label:"國慶日補假",type:"hol"},
+  "2026-10-10":{label:"國慶日",type:"hol"},"2026-10-11":{label:"國慶連假",type:"hol"},
+  "2026-10-24":{label:"光復節連假",type:"hol"},"2026-10-25":{label:"台灣光復節",type:"hol"},
+  "2026-10-26":{label:"光復節補假",type:"hol"},"2026-12-25":{label:"行憲紀念日",type:"hol"},
+  "2026-12-26":{label:"行憲紀念連假",type:"hol"},"2026-12-27":{label:"行憲紀念連假",type:"hol"},
+};
+
+// ══ SPECIAL PERIODS SETUP ══
+let spCounter = 0;
+
+function addSpRow(data) {
+  const id = spCounter++;
+  const div = document.createElement('div');
+  div.className = 'sp-row';
+  div.id = 'sp-' + id;
+  div.innerHTML = `
+    <div class="sf">
+      <label>開始日期</label>
+      <input type="date" id="sp-start-${id}" value="${data?.start||''}">
+    </div>
+    <div class="sf">
+      <label>結束日期</label>
+      <input type="date" id="sp-end-${id}" value="${data?.end||''}">
+    </div>
+    <div class="sf" style="min-width:72px">
+      <label>班別</label>
+      <select id="sp-shift-${id}">
+        <option value="early"${data?.shift==='early'?' selected':''}>早班</option>
+        <option value="late"${data?.shift==='late'?' selected':''}>晚班</option>
+        <option value="mid"${data?.shift==='mid'?' selected':''}>小夜</option>
+        <option value="off"${(!data?.shift||data?.shift==='off')?' selected':''}>休假</option>
+      </select>
+    </div>
+    <div class="sp-skip-row">
+      <input type="checkbox" id="sp-skip-${id}" ${data?.skip?'checked':''}>
+      <label for="sp-skip-${id}">跳過番號計算</label>
+    </div>
+    <button class="sp-del" onclick="document.getElementById('sp-${id}').remove()">✕</button>
+  `;
+  document.getElementById('spList').appendChild(div);
+}
+
+function collectSpPeriods() {
+  const rows = document.querySelectorAll('.sp-row');
+  const result = [];
+  rows.forEach(row => {
+    const id = row.id.replace('sp-','');
+    const start = document.getElementById('sp-start-'+id)?.value;
+    const end   = document.getElementById('sp-end-'+id)?.value;
+    const shift = document.getElementById('sp-shift-'+id)?.value;
+    const skip  = document.getElementById('sp-skip-'+id)?.checked;
+    if (start && end) result.push({ start, end, shift, skip });
+  });
+  return result;
+}
+
+function updateConsFromSeniority() {
+  const v = document.getElementById('sSeniority')?.value;
+  if (v) document.getElementById('sConsTotal').value = v;
+}
+const SHIFT_CYCLE = ['early','late','mid','off'];
+let rotPattern = []; // array of shift strings, length = rotLen
+
+function initSetup() {
+  // set today date default
+  const td = new Date();
+  document.getElementById('sTodayDate').value = td.toISOString().split('T')[0];
+
+  // check if already configured
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || 'null');
+  if (cfg) {
+    applyConfig(cfg);
+    return;
+  }
+  buildRotBuilder(16);
+  document.getElementById('sRotLen').addEventListener('input', () => {
+    const n = parseInt(document.getElementById('sRotLen').value) || 16;
+    buildRotBuilder(Math.min(32, Math.max(2, n)));
+  });
+}
+
+function buildRotBuilder(n) {
+  rotPattern = Array(n).fill('off');
+  const wrap = document.getElementById('rotBuilder');
+  wrap.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'rot-day-cell';
+    cell.innerHTML = `<div class="rot-day-num">${i+1}</div>
+      <div class="rot-btn rb-off" id="rb-${i}" onclick="cycleRot(${i})">休</div>`;
+    wrap.appendChild(cell);
+  }
+  updateRotPreview();
+}
+
+const SL_MAP = { early:'早', late:'晚', mid:'小', off:'休' };
+const SL_CLS = { early:'rb-early', late:'rb-late', mid:'rb-mid', off:'rb-off' };
+const CYCLE_ORDER = ['early','late','mid','off'];
+
+function cycleRot(i) {
+  const cur = rotPattern[i];
+  const next = CYCLE_ORDER[(CYCLE_ORDER.indexOf(cur) + 1) % CYCLE_ORDER.length];
+  rotPattern[i] = next;
+  const btn = document.getElementById('rb-' + i);
+  btn.className = 'rot-btn ' + SL_CLS[next];
+  btn.textContent = SL_MAP[next];
+  updateRotPreview();
+}
+
+function updateRotPreview() {
+  document.getElementById('rotPreview').textContent =
+    '循環：' + rotPattern.map(s => SL_MAP[s]).join(' → ');
+}
+
+function startApp() {
+  const todayBan = parseInt(document.getElementById('sTodayBan').value);
+  const todayDate = document.getElementById('sTodayDate').value;
+  const consTotal = parseInt(document.getElementById('sConsTotal').value) || 28;
+  const name = document.getElementById('sName').value.trim();
+  const rotLen = rotPattern.length;
+
+  if (!todayBan || !todayDate || rotLen < 2) {
+    const err = document.getElementById('setupErr');
+    err.style.display = 'block';
+    err.textContent = '請確認今日番號、日期與輪班週期都已設定';
+    return;
+  }
+
+  const spPeriods = collectSpPeriods();
+  const cfg = { todayBan, todayDate, rotPattern:[...rotPattern], consTotal, name, spPeriods };
+  localStorage.setItem('ss_config', JSON.stringify(cfg));
+  applyConfig(cfg);
+}
+
+function applyConfig(cfg) {
+  // restore special period rows in setup UI if reopening
+  const spList = document.getElementById('spList');
+  if (spList) {
+    spList.innerHTML = '';
+    spCounter = 0;
+    (cfg.spPeriods||[]).forEach(sp => addSpRow(sp));
+  }
+  // restore seniority select
+  const senEl = document.getElementById('sSeniority');
+  if (senEl && cfg.consTotal) {
+    const opts = [7,14,21,28,30];
+    const closest = opts.reduce((a,b) => Math.abs(b-cfg.consTotal)<Math.abs(a-cfg.consTotal)?b:a);
+    senEl.value = closest;
+    document.getElementById('sConsTotal').value = cfg.consTotal;
+  }
+  document.getElementById('setupWrap').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+  if (cfg.name) {
+    document.getElementById('appLabel').textContent = cfg.name + ' 的輪班行事曆';
+  }
+  document.getElementById('consMax').textContent = cfg.consTotal;
+  initCalendar(cfg);
+}
+
+function reopenSetup() {
+  if (!confirm('重新設定會清除目前設定（班表紀錄不受影響），確定嗎？')) return;
+  localStorage.removeItem('ss_config');
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('setupWrap').style.display = 'flex';
+  buildRotBuilder(parseInt(document.getElementById('sRotLen').value) || 16);
+}
+
+// ══ CALENDAR LOGIC ══
+const SN = { early:'早', late:'晚', mid:'小', off:'休' };
+const LN = { cons:'慰', comp:'補', other:'他補' };
+const DOW = ['日','一','二','三','四','五','六'];
+const MN  = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+const today = new Date();
+let cY = today.getFullYear(), cM = today.getMonth();
+let eKey = null, pShift = undefined, pLeave = null, pLeaveHours = 8;
+let ROTATION = [], ANCHOR = new Date(), ANCHOR_BAN = 1, CONS_TOTAL = 28;
+let SP_PERIODS = []; // [{ start:'YYYY-MM-DD', end:'YYYY-MM-DD', shift:'early'|..., skip:bool }]
+// pre-built lookup: key -> shift (for override) and key -> true (for skip)
+let SP_OVERRIDE = {}, SP_SKIP_KEYS = new Set();
+
+function buildSpLookup() {
+  SP_OVERRIDE = {};
+  SP_SKIP_KEYS = new Set();
+  SP_PERIODS.forEach(p => {
+    const s = new Date(p.start), e = new Date(p.end);
+    for (let d = new Date(s); d <= e; d.setDate(d.getDate()+1)) {
+      const key = k(d.getFullYear(), d.getMonth(), d.getDate());
+      SP_OVERRIDE[key] = p.shift;
+      if (p.skip) SP_SKIP_KEYS.add(key);
+    }
+  });
+}
+
+let dayData  = JSON.parse(localStorage.getItem('ss_day') || '{}');
+let otHours  = parseFloat(localStorage.getItem('ss_ot') || '0');
+
+function persist() {
+  localStorage.setItem('ss_day', JSON.stringify(dayData));
+  localStorage.setItem('ss_ot', otHours.toString());
+}
+
+function k(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+function initCalendar(cfg) {
+  ROTATION = cfg.rotPattern;
+  const parts = cfg.todayDate.split('-');
+  ANCHOR = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  ANCHOR_BAN = cfg.todayBan;
+  CONS_TOTAL = cfg.consTotal;
+  SP_PERIODS = cfg.spPeriods || [];
+  buildSpLookup();
+  render();
+}
+
+function getBan(date) {
+  const d0 = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const ky = k(d0.getFullYear(), d0.getMonth(), d0.getDate());
+
+  // if this day is in a skip-period, don't show a ban number
+  if (SP_SKIP_KEYS.has(ky)) return null;
+
+  const anchor = new Date(ANCHOR.getFullYear(), ANCHOR.getMonth(), ANCHOR.getDate());
+  let diff = Math.round((d0 - anchor) / 86400000);
+
+  // subtract number of skip-days that fall between anchor and d0
+  // to keep ban numbers continuous after special periods
+  let skipCount = 0;
+  SP_SKIP_KEYS.forEach(sk => {
+    const sd = new Date(sk);
+    if (diff > 0 && sd > anchor && sd < d0) skipCount++;
+    if (diff < 0 && sd < anchor && sd > d0) skipCount--;
+  });
+  diff -= skipCount;
+
+  return ((ANCHOR_BAN - 1 + diff) % ROTATION.length + ROTATION.length) % ROTATION.length + 1;
+}
+
+function getAutoShift(date) {
+  const ky = k(date.getFullYear(), date.getMonth(), date.getDate());
+  if (SP_OVERRIDE[ky] !== undefined) return SP_OVERRIDE[ky];
+  const ban = getBan(date);
+  if (ban === null) return 'off';
+  return ROTATION[ban - 1];
+}
+
+function chM(d) { cM+=d; if(cM>11){cM=0;cY++;} if(cM<0){cM=11;cY--;} render(); }
+function goToday() { cY=today.getFullYear(); cM=today.getMonth(); render(); }
+
+function addOT() {
+  const v = parseFloat(document.getElementById('otInput').value);
+  if (isNaN(v)||v<=0){alert('請輸入有效時數');return;}
+  otHours = Math.round((otHours+v)*10)/10;
+  document.getElementById('otInput').value = '';
+  persist(); renderQuota();
+}
+function resetOT() {
+  if (!confirm('確認歸零加班時數？')) return;
+  otHours = 0; persist(); renderQuota();
+}
+
+function render() {
+  document.getElementById('hdMonth').innerHTML = `${MN[cM]} <span>${cY}</span>`;
+  document.getElementById('dowRow').innerHTML =
+    DOW.map((d,i)=>`<div class="dow-cell ${i===0?'is-sun':i===6?'is-sat':''}">${d}</div>`).join('');
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const fd  = new Date(cY,cM,1).getDay();
+  const dim = new Date(cY,cM+1,0).getDate();
+  for(let i=0;i<fd;i++) grid.innerHTML+=`<div class="cell empty"></div>`;
+
+  const stats = {early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+
+  for(let d=1;d<=dim;d++){
+    const ky = k(cY,cM,d);
+    const rec = dayData[ky]||{};
+    const date = new Date(cY,cM,d);
+    const dow = date.getDay();
+    const ban = getBan(date);
+    const autoShift = getAutoShift(date);
+    const shift = rec.shift !== undefined ? rec.shift : autoShift;
+    const hw = TW_HOL[ky];
+    const isTd = cY===today.getFullYear()&&cM===today.getMonth()&&d===today.getDate();
+
+    let cls='cell';
+    if(isTd) cls+=' is-today';
+    if(dow===0) cls+=' is-sun';
+    if(dow===6) cls+=' is-sat';
+    if(hw?.type==='hol') cls+=' is-holiday';
+    if(hw?.type==='mkp') cls+=' is-makeup';
+    if(rec.leave) cls+=` leave-${rec.leave}`;
+    else if(shift) cls+=` has-${shift}`;
+
+    const holHtml = hw?`<div class="hol-lbl is-${hw.type}">${hw.label}</div>`:'';
+    const stag = shift?`<div class="s-badge s-${shift}">${SN[shift]}</div>`:'';
+    const ltag = rec.leave?`<div class="l-badge l-${rec.leave}">${LN[rec.leave]}${rec.leaveHours===4?' ½':''}</div>`:'';
+    const ottag= rec.ot?`<div class="ot-badge">+${rec.ot}h</div>`:'';
+    const ntag = rec.note?`<div class="note-lbl">${rec.note}</div>`:'';
+
+    grid.innerHTML+=`<div class="${cls}" onclick="openSheet('${ky}',${d},${dow})">
+      <div class="cell-head">
+        <div class="dnum">${d}</div>
+        <div class="cell-meta"><div class="ban-lbl">${ban !== null ? ban+'番' : ''}</div></div>
+      </div>
+      ${stag}${ltag}${ottag}${ntag}${holHtml}
+    </div>`;
+
+    if(shift && !rec.leave) stats[shift]++;
+    if(rec.leave==='cons') stats.cons++;
+    if(rec.leave==='comp') stats.comp++;
+    if(rec.leave==='other') stats.other++;
+  }
+  renderStats(stats); renderQuota(); renderQuarter();
+}
+
+function renderStats(s) {
+  document.getElementById('statsRow').innerHTML =
+    [{k:'early',c:'var(--early)',l:'早班'},{k:'late',c:'var(--late)',l:'晚班'},
+     {k:'mid',c:'var(--mid)',l:'小夜'},{k:'off',c:'var(--off)',l:'排休'}]
+    .map(i=>`<div class="stat-chip"><div class="stat-dot" style="background:${i.c}"></div>${i.l}&nbsp;<strong>${s[i.k]}</strong></div>`)
+    .join('');
+}
+
+function renderQuota() {
+  let cU=0, cpH=0;
+  Object.values(dayData).forEach(r=>{
+    if(r.leave==='cons') cU++;
+    if((r.leave==='comp'||r.leave==='other')&&r.leaveHours) cpH+=r.leaveHours;
+  });
+  const ct = CONS_TOTAL;
+  document.getElementById('consNum').textContent = cU;
+  document.getElementById('consMax').textContent = ct;
+  document.getElementById('consFill').style.width = Math.min(100,cU/ct*100)+'%';
+  document.getElementById('consSub').textContent = `已使用 ${cU} 天，剩餘 ${ct-cU} 天`;
+  const totalEarned = otHours + cpH;
+  document.getElementById('otH').textContent = otHours;
+  document.getElementById('otEq').textContent = `= ${Math.floor(otHours/8)} 天可用 + ${Math.round((otHours%8)*10)/10}h 未滿`;
+  document.getElementById('compMax').textContent = Math.floor(totalEarned/8);
+  document.getElementById('compNum').textContent = (cpH/8).toFixed(1).replace('.0','')+'天';
+  document.getElementById('compFill').style.width = totalEarned>0?Math.min(100,cpH/totalEarned*100)+'%':'0%';
+  document.getElementById('compSub').textContent = `已扣 ${cpH}h，餘 ${otHours}h（${Math.floor(otHours/8)}天${Math.round((otHours%8)*10)/10}h）`;
+}
+
+function calcCompHoursUsed(excludeKey) {
+  let total=0;
+  Object.entries(dayData).forEach(([k,r])=>{
+    if(k===excludeKey) return;
+    if((r.leave==='comp'||r.leave==='other')&&r.leaveHours) total+=r.leaveHours;
+  });
+  return total;
+}
+
+function renderQuarter() {
+  const QUARTERS = [
+    {label:'Q1　一～三月',color:'#60a5fa',months:[0,1,2]},
+    {label:'Q2　四～六月',color:'#22c97a',months:[3,4,5]},
+    {label:'Q3　七～九月',color:'#f97316',months:[6,7,8]},
+    {label:'Q4　十～十二月',color:'#c084fc',months:[9,10,11]},
+  ];
+  const COLS = [
+    {key:'early',label:'早',color:'var(--early)'},{key:'late',label:'晚',color:'var(--late)'},
+    {key:'mid',label:'小',color:'var(--mid)'},{key:'off',label:'休',color:'var(--off)'},
+    {key:'cons',label:'慰',color:'var(--cons)'},{key:'comp',label:'補',color:'var(--comp)'},
+    {key:'other',label:'他補',color:'var(--other)'},
+  ];
+  const MNS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  function calcM(y,m){
+    const dim=new Date(y,m+1,0).getDate();
+    const s={early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+    for(let d=1;d<=dim;d++){
+      const ky=k(y,m,d); const rec=dayData[ky]||{};
+      const shift=rec.shift!==undefined?rec.shift:getAutoShift(new Date(y,m,d));
+      if(rec.leave==='cons') s.cons++;
+      else if(rec.leave==='comp') s.comp++;
+      else if(rec.leave==='other') s.other++;
+      else if(shift) s[shift]++;
+    }
+    return s;
+  }
+  const curQ=Math.floor(cM/3);
+  document.getElementById('quarterSection').innerHTML = QUARTERS.map((q,qi)=>{
+    const ms=q.months.map(m=>({m,s:calcM(cY,m)}));
+    const tot={early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+    ms.forEach(({s})=>COLS.forEach(c=>{tot[c.key]+=s[c.key];}));
+    const tL=tot.cons+tot.comp+tot.other;
+    const isOpen=qi===curQ;
+    return `<div class="quarter-block">
+      <div class="quarter-hd" onclick="toggleQ(this)">
+        <div class="quarter-hd-left" style="color:${q.color}">${q.label}</div>
+        <div class="quarter-hd-right">慰${tot.cons} 補${tot.comp} 他補${tot.other} 共${tL}天 ▾</div>
+      </div>
+      <div class="quarter-body${isOpen?'':' collapsed'}">
+        <div class="q-col-hd"><div class="q-col-hd-cell"></div>${COLS.map(c=>`<div class="q-col-hd-cell" style="color:${c.color}">${c.label}</div>`).join('')}</div>
+        ${ms.map(({m,s})=>`<div class="q-month-row"><div class="q-month-name">${MNS[m]}</div>${COLS.map(c=>`<div class="q-cell" style="color:${c.color}"><div class="q-cell-val">${s[c.key]||'—'}</div></div>`).join('')}</div>`).join('')}
+        <div class="q-total-row"><div class="q-total-lbl">合計</div>${COLS.map(c=>`<div class="q-total-val" style="color:${c.color}">${tot[c.key]}</div>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleQ(hd){
+  const b=hd.nextElementSibling; b.classList.toggle('collapsed');
+  const r=hd.querySelector('.quarter-hd-right');
+  r.textContent=r.textContent.replace(b.classList.contains('collapsed')?'▾':'▸',b.classList.contains('collapsed')?'▸':'▾');
+}
+
+function openSheet(ky,d,dow){
+  eKey=ky;
+  const rec=dayData[ky]||{};
+  const date=new Date(cY,cM,d);
+  const ban=getBan(date);
+  const auto=getAutoShift(date);
+  const hw=TW_HOL[ky];
+  document.getElementById('shTitle').textContent=`${cY} / ${cM+1} / ${d}（${DOW[dow]}）`;
+  document.getElementById('shMeta').textContent=`${ban!==null?'第 '+ban+' 番　':'特別排班期間　'}循環班別：${SN[auto]}`;
+  document.getElementById('eNote').value=rec.note||'';
+  document.getElementById('eOT').value=rec.ot||'';
+  const holEl=document.getElementById('shHol');
+  if(hw){holEl.style.display='block';holEl.className=`sheet-hol ${hw.type}`;holEl.textContent=(hw.type==='mkp'?'🗓 補上班日：':'🎌 國定假日：')+hw.label;}
+  else holEl.style.display='none';
+  pShift=rec.shift!==undefined?rec.shift:undefined;
+  pLeave=rec.leave||null;
+  pLeaveHours=rec.leaveHours||8;
+  const fg=document.getElementById('leaveHoursFg');
+  fg.style.display=(pLeave==='comp'||pLeave==='other')?'block':'none';
+  if(fg.style.display==='block'){
+    const avail=Math.round((otHours-calcCompHoursUsed(ky)+(rec.leaveHours||0))*10)/10;
+    document.getElementById('otBalance').textContent=avail+'h 可用';
+  }
+  updS(); updL(); updLH();
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSheet(){document.getElementById('overlay').classList.remove('open');eKey=null;}
+
+function pS(v){pShift=v;updS();}
+function pL(v){
+  pLeave=v; updL();
+  const fg=document.getElementById('leaveHoursFg');
+  fg.style.display=(v==='comp'||v==='other')?'block':'none';
+  if(fg.style.display==='block'){
+    const prevLH=eKey?((dayData[eKey]||{}).leaveHours||0):0;
+    const avail=Math.round((otHours-calcCompHoursUsed(eKey)+prevLH)*10)/10;
+    document.getElementById('otBalance').textContent=avail+'h 可用';
+  }
+}
+function pLH(h){pLeaveHours=h;updLH();}
+
+function updS(){['early','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
+function updL(){['cons','comp','other','null'].forEach(v=>{const el=document.getElementById('lo-'+v);if(!el)return;el.className='opt';if(pLeave===(v==='null'?null:v))el.classList.add('on-'+v);});}
+function updLH(){[4,8].forEach(h=>{const el=document.getElementById('lh-'+h);if(!el)return;el.className='opt'+(pLeaveHours===h?' on-early':'');});}
+
+function saveDay(){
+  if(!eKey) return;
+  const note=document.getElementById('eNote').value.trim();
+  const newOT=parseFloat(document.getElementById('eOT').value)||0;
+  const prevRec=dayData[eKey]||{};
+  const prevOT=prevRec.ot||0;
+  const prevLH=prevRec.leaveHours||0;
+  const rec={};
+  if(pShift!==undefined) rec.shift=pShift;
+  if(pLeave){rec.leave=pLeave;if(pLeave==='comp'||pLeave==='other')rec.leaveHours=pLeaveHours;}
+  if(note) rec.note=note;
+  if(newOT>0) rec.ot=newOT;
+  if(Object.keys(rec).length===0){delete dayData[eKey];}else{dayData[eKey]=rec;}
+  const newLH=(rec.leave==='comp'||rec.leave==='other')?(rec.leaveHours||0):0;
+  otHours=Math.max(0,Math.round((otHours-prevOT+newOT+prevLH-newLH)*10)/10);
+  persist(); closeSheet(); render();
+}
+function clearDay(){
+  if(eKey){
+    const rec=dayData[eKey]||{};
+    if(rec.ot) otHours=Math.max(0,Math.round((otHours-rec.ot)*10)/10);
+    if((rec.leave==='comp'||rec.leave==='other')&&rec.leaveHours) otHours=Math.round((otHours+rec.leaveHours)*10)/10;
+    delete dayData[eKey];
+  }
+  persist(); closeSheet(); render();
+}
+
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeSheet();});
+
+function exportJSON() {
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+  const payload = {
+    v: 1,
+    exported: new Date().toISOString(),
+    config: cfg,
+    day: dayData,
+    ot: otHours,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const ts = `${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  const name = cfg.name ? cfg.name : 'ShareShift';
+  a.href = url;
+  a.download = `${name}-backup-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!d.day) { alert('格式錯誤，請選擇正確的備份檔案'); return; }
+      const ts = d.exported ? d.exported.replace('T',' ').slice(0,16) : '不明';
+      const name = d.config?.name || '';
+      if (!confirm(`確認匯入備份？\n${name ? '姓名：'+name+'\n' : ''}匯出時間：${ts}\n\n這會覆蓋目前所有資料。`)) return;
+      dayData = d.day;
+      otHours = d.ot || 0;
+      if (d.config) {
+        localStorage.setItem('ss_config', JSON.stringify(d.config));
+        persist();
+        applyConfig(d.config);
+      } else {
+        persist();
+        render();
+      }
+      alert('✅ 匯入成功！');
+    } catch(err) {
+      alert('匯入失敗，請確認檔案格式正確');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+let touchStartX=0;
+document.addEventListener('touchstart',e=>{if(document.getElementById('overlay').classList.contains('open'))return;touchStartX=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(document.getElementById('overlay').classList.contains('open'))return;const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>60)chM(dx<0?1:-1);},{passive:true});
+
+initSetup();
+</script>
+</body>
+</html>
