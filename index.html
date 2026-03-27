@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03271634</title>
+<title>Shift Go v.03271727</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -468,7 +468,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03271634</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03271727</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -562,8 +562,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
   <!-- 4. 特別上班/休假期間 -->
   <div class="setup-card">
-    <h2>04 ── 特別排班期間（選填）</h2>
-    <p style="font-size:.64rem;color:var(--text-dim);margin-bottom:10px">例如春節特別上班、颱風假等，該期間不依輪番，改為指定班別</p>
+    <h2>04 ── 春節特別排班<span style="font-weight:400;color:var(--ot);font-size:.62rem;margin-left:6px">⚠ 填入後才能計算正確日數</span></h2>
+    <p style="font-size:.64rem;color:var(--text-dim);margin-bottom:10px">春節期間特別排班，不依輪番規則，需手動指定每段的班別，系統才能正確推算前後番號</p>
     <div class="sp-list" id="spList"></div>
     <button class="btn-add-sp" onclick="addSpRow()">＋ 新增特別期間</button>
   </div>
@@ -577,7 +577,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03271634</div>
+      <div class="app-label" id="appLabel">Shift Go v.03271727</div>
       <div class="month-display" id="hdMonth"></div>
     </div>
     <div class="nav-cluster">
@@ -891,7 +891,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03271634';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03271727';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
