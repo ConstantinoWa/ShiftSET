@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03281437</title>
+<title>Shift Go v.03281620</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -115,6 +115,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   transition: all .12s;
 }
 .rot-btn.rb-early { background: var(--early-dim); color: var(--early); border-color: var(--early); }
+.rot-btn.rb-mid2  { background: var(--mid2-dim);  color: var(--mid2);  border-color: var(--mid2); }
 .rot-btn.rb-late  { background: var(--late-dim);  color: var(--late);  border-color: var(--late); }
 .rot-btn.rb-mid   { background: var(--mid-dim);   color: var(--mid);   border-color: var(--mid); }
 .rot-btn.rb-off   { background: var(--off-dim);   color: var(--off);   border-color: var(--off); }
@@ -788,13 +789,107 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 [data-theme="light"] .settings-overlay,
 [data-theme="light"] .quick-overlay { background: rgba(0,0,0,.35); }
 
+
+/* ── COLOR PALETTE PICKER ── */
+.cp-palette-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.cp-palette-overlay.open { opacity: 1; pointer-events: all; }
+.cp-palette-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px 18px 0 0;
+  padding: 10px 16px 32px;
+  width: 100%; max-width: 480px;
+  transform: translateY(20px);
+  transition: transform .2s cubic-bezier(.22,1,.36,1);
+}
+.cp-palette-overlay.open .cp-palette-sheet { transform: translateY(0); }
+.cp-palette-title {
+  font-size: .72rem; font-weight: 700;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 8px 0 12px;
+  text-align: center;
+}
+.cp-palette-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.cp-preset {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform .12s, border-color .12s;
+  flex-shrink: 0;
+}
+.cp-preset:hover, .cp-preset.selected { transform: scale(1.18); border-color: var(--text); }
+.cp-custom-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.cp-custom-swatch {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 2px solid var(--border2); overflow: hidden;
+  position: relative; flex-shrink: 0; cursor: pointer;
+}
+.cp-custom-swatch input[type=color] {
+  position: absolute; inset: -4px;
+  width: calc(100%+8px); height: calc(100%+8px);
+  opacity: 0; cursor: pointer; border: none; padding: 0;
+}
+.cp-custom-label { font-size: .72rem; color: var(--text-dim); }
+.cp-palette-cancel {
+  width: 100%; padding: 11px; margin-top: 10px;
+  border-radius: var(--radius); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text-dim);
+  cursor: pointer; font-family: inherit; font-size: .82rem;
+  transition: all .15s;
+}
+.cp-palette-cancel:hover { border-color: var(--hol); color: var(--hol); }
+
+
+/* ── CONFIRM DIALOG ── */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.confirm-overlay.open { opacity: 1; pointer-events: all; }
+.confirm-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); padding: 22px 20px 18px;
+  width: 88%; max-width: 320px;
+  transform: scale(.93); transition: transform .18s cubic-bezier(.22,1,.36,1);
+  margin: 20px;
+}
+.confirm-overlay.open .confirm-box { transform: scale(1); }
+.confirm-title { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+.confirm-msg { font-size: .72rem; color: var(--text-dim); text-align: center; margin-bottom: 18px; line-height: 1.5; }
+.confirm-btns { display: flex; gap: 8px; }
+.confirm-btn-cancel { flex:1; padding:11px; border-radius:var(--radius); border:1px solid var(--border2); background:var(--surface2); color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.85rem; transition:all .12s; }
+.confirm-btn-cancel:hover { border-color:var(--accent); color:var(--accent); }
+.confirm-btn-ok { flex:1; padding:11px; border-radius:var(--radius); border:none; background:var(--hol); color:#fff; cursor:pointer; font-family:inherit; font-size:.85rem; font-weight:700; transition:opacity .12s; }
+.confirm-btn-ok:hover { opacity:.85; }
+
 </style>
 </head>
 <body>
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03281437</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03281620</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -849,11 +944,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     </div>
     <div class="shift-legend">
       <div class="sl-item"><div class="sl-dot" style="background:var(--early)"></div>早 = 早班</div>
-      <div class="sl-item"><div class="sl-dot" style="background:var(--late)"></div>晚 = 晚班</div>
-      <div class="sl-item"><div class="sl-dot" style="background:var(--mid)"></div>小 = 小夜</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--mid2)"></div>中 = 中班</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--late)"></div>晚 = 晚/大夜</div>
+      <div class="sl-item"><div class="sl-dot" style="background:var(--mid)"></div>小夜 = 小夜</div>
       <div class="sl-item"><div class="sl-dot" style="background:var(--off)"></div>休 = 休假</div>
     </div>
-    <p style="font-size:.65rem;color:var(--text-dim);margin-bottom:8px">點每一番指定班別（循環天數改變後會重設）</p>
+    <p style="font-size:.65rem;color:var(--text-dim);margin-bottom:8px">點每一番切換班別：早→中→晚→小夜→休（循環天數改變後會重設）</p>
     <div class="rot-builder" id="rotBuilder"></div>
     <div class="setup-preview" id="rotPreview">請設定循環天數與班別…</div>
   </div>
@@ -903,7 +999,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03281437</div>
+      <div class="app-label" id="appLabel">Shift Go v.03281620</div>
       <div class="month-display" id="hdMonth"></div>
     </div>
     <div class="nav-cluster">
@@ -991,10 +1087,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <div class="q-track"><div class="q-fill" id="consFill" style="background:var(--cons)"></div></div>
         <div class="q-sub" id="consSub">已使用 0 天，剩餘 28 天</div>
       </div>
-      <div class="q-card">
+      <div class="q-card" onmousedown="startCompLongPress(event)" onmouseup="cancelCompLongPress()" onmouseleave="cancelCompLongPress()" ontouchstart="startCompLongPress(event)" ontouchmove="cancelCompLongPress()" style="cursor:pointer;touch-action:manipulation;">
         <div class="q-top"><div><div class="q-title">補休</div><div class="q-number" id="compNum" style="color:var(--comp)">0</div></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
         <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
         <div class="q-sub" id="compSub">加班折算 0 天可用</div>
+        <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;">
+          <span>⏳ 長按歸零</span>
+          <span id="lastResetHint"></span>
+        </div>
       </div>
     </div>
 
@@ -1134,6 +1234,34 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 </div>
 
 <!-- ══ TAIWAN HOLIDAYS ══ -->
+<div id="cellHintBubble">⏳ 長按編輯</div>
+
+<!-- ══ COLOR PALETTE OVERLAY ══ -->
+<div class="cp-palette-overlay" id="cpPaletteOverlay">
+  <div class="cp-palette-sheet">
+    <div class="cp-palette-title" id="cpPaletteTitle">選擇顏色</div>
+    <div class="cp-palette-grid" id="cpPaletteGrid"></div>
+    <div class="cp-custom-row">
+      <div class="cp-custom-swatch" id="cpCustomSwatch" style="background:#ffffff">
+        <input type="color" id="cpCustomInput" value="#ffffff" oninput="cpCustomChange(this.value)">
+      </div>
+      <div class="cp-custom-label">自訂顏色（點色塊開啟色盤）</div>
+    </div>
+    <button class="cp-palette-cancel" onclick="closeCpPalette()">取消</button>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">補休歸零</div>
+    <div class="confirm-msg" id="confirmMsg">加班時數歸零後無法還原</div>
+    <div class="confirm-btns">
+      <button class="confirm-btn-cancel" onclick="closeConfirm()">取消</button>
+      <button class="confirm-btn-ok" id="confirmOkBtn" onclick="doConfirm()">歸零</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const TW_HOL = {
   "2025-01-01":{label:"元旦",type:"hol"},"2025-01-27":{label:"除夕前一日",type:"hol"},
@@ -1296,8 +1424,46 @@ function resetColors() {
 const SHIFT_CYCLE = ['early','late','mid','off'];
 let rotPattern = []; // array of shift strings, length = rotLen
 
+const SL_MAP = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
+const SL_CLS = { early:'rb-early', mid2:'rb-mid2', late:'rb-late', mid:'rb-mid', off:'rb-off' };
+const CYCLE_ORDER = ['early','mid2','late','mid','off'];
+
+function buildRotBuilder(n) {
+  rotPattern = Array(n).fill('off');
+  const wrap = document.getElementById('rotBuilder');
+  wrap.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'rot-day-cell';
+    cell.innerHTML = '<div class="rot-day-num">'+(i+1)+'</div>'
+      +'<div class="rot-btn rb-off" id="rb-'+i+'" onclick="cycleRot('+i+')">'+SL_MAP['off']+'</div>';
+    wrap.appendChild(cell);
+  }
+  updateRotPreview();
+}
+
+function buildColorPickers() {
+  const el = document.getElementById('colorPickerGrid');
+  if (!el) return;
+  const saved = JSON.parse(localStorage.getItem('sg_colors') || '{}');
+  const items = [
+    {k:'early',label:'早班'},{k:'mid2',label:'中班'},
+    {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
+    {k:'off',label:'排休'},{k:'cons',label:'慰休'},
+    {k:'comp',label:'補休'},{k:'other',label:'補放假'},
+    {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
+  ];
+  el.innerHTML = items.map(i => {
+    const v = saved[i.k] || DEFAULT_COLORS[i.k];
+    return '<div class="cp-chip" onclick="pickColor(\''+i.k+'\',\''+v+'\')">'
+      +'<div class="cp-dot" data-key="'+i.k+'" style="background:'+v+'"></div>'
+      +'<div class="cp-text">'+i.label+'</div>'
+      +'</div>';
+  }).join('');
+}
+
 function initSetup() {
-  // set today date default
+  // pre-fill today's date
   const td = new Date();
   document.getElementById('sTodayDate').value = td.toISOString().split('T')[0];
 
@@ -1313,24 +1479,6 @@ function initSetup() {
     buildRotBuilder(Math.min(32, Math.max(2, n)));
   });
 }
-
-function buildRotBuilder(n) {
-  rotPattern = Array(n).fill('off');
-  const wrap = document.getElementById('rotBuilder');
-  wrap.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'rot-day-cell';
-    cell.innerHTML = `<div class="rot-day-num">${i+1}</div>
-      <div class="rot-btn rb-off" id="rb-${i}" onclick="cycleRot(${i})">休</div>`;
-    wrap.appendChild(cell);
-  }
-  updateRotPreview();
-}
-
-const SL_MAP = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
-const SL_CLS = { early:'rb-early', mid2:'rb-mid2', late:'rb-late', mid:'rb-mid', off:'rb-off' };
-const CYCLE_ORDER = ['early','mid2','late','mid','off'];
 
 function cycleRot(i) {
   const cur = rotPattern[i];
@@ -1386,7 +1534,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03281437';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03281620';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -1672,6 +1820,11 @@ function renderQuota() {
   document.getElementById('compNum').textContent = (cpH/8).toFixed(1).replace('.0','')+'天';
   document.getElementById('compFill').style.width = totalEarned>0?Math.min(100,cpH/totalEarned*100)+'%':'0%';
   document.getElementById('compSub').textContent = `已扣 ${cpH}h，餘 ${otHours}h（${Math.floor(otHours/8)}天${Math.round((otHours%8)*10)/10}h）`;
+  const lrEl = document.getElementById('lastResetHint');
+  if (lrEl) {
+    const lr = localStorage.getItem('ss_last_comp_reset') || '';
+    lrEl.textContent = lr ? '上次歸零 ' + lr : '';
+  }
 }
 
 function calcCompHoursUsed(excludeKey) {
@@ -1865,95 +2018,15 @@ let touchStartX=0;
 document.addEventListener('touchstart',e=>{if(document.getElementById('overlay').classList.contains('open'))return;touchStartX=e.touches[0].clientX;},{passive:true});
 document.addEventListener('touchend',e=>{if(document.getElementById('overlay').classList.contains('open'))return;const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>60)chM(dx<0?1:-1);},{passive:true});
 
-
-// ── COLOR PICKER LOGIC ──
-let _cpCurrentKey = null;
-(function(){
-  const inp = document.createElement('input');
-  inp.type = 'color'; inp.id = 'hiddenColorInput';
-  inp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
-  document.body.appendChild(inp);
-  inp.addEventListener('input', function(){
-    if (!_cpCurrentKey) return;
-    const dot = document.querySelector('.cp-dot[data-key="'+_cpCurrentKey+'"]');
-    if (dot) dot.style.background = inp.value;
-    saveColor(_cpCurrentKey, inp.value);
-  });
-})();
-
-function pickColor(key, currentVal) {
-  _cpCurrentKey = key;
-  const inp = document.getElementById('hiddenColorInput');
-  inp.value = currentVal;
-  inp.click();
-}
-
-function buildColorPickers() {
-  const el = document.getElementById('colorPickerGrid');
-  if (!el) return;
-  const saved = JSON.parse(localStorage.getItem('sg_colors') || '{}');
-  const items = [
-    {k:'early',label:'早班'},{k:'mid2',label:'中班'},
-    {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
-    {k:'off',label:'排休'},{k:'cons',label:'慰休'},
-    {k:'comp',label:'補休'},{k:'other',label:'補放假'},
-    {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
-  ];
-  el.innerHTML = items.map(i => {
-    const v = saved[i.k] || DEFAULT_COLORS[i.k];
-    return '<div class="cp-chip" onclick="pickColor(\''+i.k+'\',\''+v+'\')">'
-      +'<div class="cp-dot" data-key="'+i.k+'" style="background:'+v+'"></div>'
-      +'<div class="cp-text">'+i.label+'</div>'
-      +'</div>';
-  }).join('');
-}
-
-// ── QUICK MARK ──
-let _qKey = null, _qD = null, _qDow = null, _longTimer = null, _shiftLocked = true, _touchStartX = 0, _touchStartY = 0;
-
-function startLongPress(ky, d, dow, e) {
-  // prevent scroll during long press attempt
-  if (e.cancelable) e.preventDefault();
-  const touch = e.touches ? e.touches[0] : e;
-  _touchStartX = touch.clientX;
-  _touchStartY = touch.clientY;
-  showCellHint(touch.clientX, touch.clientY);
-  _longTimer = setTimeout(() => {
-    hideCellHint();
-    openQuick(ky, d, dow);
-  }, 480);
-}
-function cancelLongPress(e) {
-  // cancel if finger moved too much (scroll intent)
-  if (e && e.touches) {
-    const t = e.touches[0] || e.changedTouches[0];
-    if (t) {
-      const dx = Math.abs(t.clientX - _touchStartX);
-      const dy = Math.abs(t.clientY - _touchStartY);
-      if (dx > 8 || dy > 8) {
-        clearTimeout(_longTimer);
-        hideCellHint();
-        return;
-      }
-    }
-  }
-  if (e && e.type !== 'touchmove') {
-    clearTimeout(_longTimer);
-    hideCellHint();
-  }
-}
-
 function openQuick(ky, d, dow) {
   _qKey = ky; _qD = d; _qDow = dow;
   _shiftLocked = true;
   document.getElementById('qDate').textContent =
     cY + ' / ' + (cM+1) + ' / ' + d + '（' + DOW[dow] + '）';
-  // reset lock UI
   document.getElementById('shiftBtns').style.opacity = '.35';
   document.getElementById('shiftBtns').style.pointerEvents = 'none';
   document.getElementById('shiftLockBtn').textContent = '🔒 鎖定';
   document.getElementById('shiftLockBtn').style.color = 'var(--text-dim)';
-  // hide comp hours
   document.getElementById('compHoursRow').style.display = 'none';
   document.getElementById('quickOverlay').classList.add('open');
 }
@@ -2292,12 +2365,124 @@ function doExport(btn) {
   }, 100);
 }
 
+// ── COMP CARD LONG PRESS ──
+let _compTimer = null;
+let _confirmCb = null;
+let _lastCompReset = localStorage.getItem('ss_last_comp_reset') || '';
+
+function showConfirm(title, msg, okLabel, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').textContent = okLabel;
+  _confirmCb = cb;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  _compTimer = null; // reset so next long press works
+  _confirmCb = null;
+}
+function doConfirm() {
+  const cb = _confirmCb;  // save before closeConfirm clears it
+  closeConfirm();
+  if (cb) cb();
+}
+function startCompLongPress(e) {
+  if (e.cancelable) e.preventDefault();
+  const touch = e.touches ? e.touches[0] : e;
+  showCellHint(touch.clientX, touch.clientY);
+  clearTimeout(_compTimer);
+  _compTimer = setTimeout(() => {
+    hideCellHint();
+    showConfirm('補休歸零', '確認將加班時數歸零？此操作無法還原。', '歸零', () => {
+      otHours = 0;
+      const now = new Date();
+      _lastCompReset = (now.getMonth()+1) + '/' + now.getDate() + ' ' +
+        String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+      localStorage.setItem('ss_last_comp_reset', _lastCompReset);
+      persist(); renderQuota();
+    });
+  }, 600);
+}
+function cancelCompLongPress() {
+  clearTimeout(_compTimer);
+  _compTimer = null;
+  hideCellHint();
+}
+
+// ── COLOR PALETTE ──
+const COLOR_PRESETS = [
+  '#f43f5e','#fb923c','#f59e0b','#eab308',
+  '#84cc16','#22c55e','#22c97a','#10b981',
+  '#14b8a6','#34d4c8','#06b6d4','#60a5fa',
+  '#3b82f6','#818cf8','#a78bfa','#c084fc',
+  '#e879f9','#f472b6','#ffffff','#94a3b8',
+  '#64748b','#3d4d6a','#1e293b','#0d1117',
+];
+
+let _cpKey = null;
+
+function pickColor(key, currentVal) {
+  _cpKey = key;
+  const overlay = document.getElementById('cpPaletteOverlay');
+  const items = [
+    {k:'early',label:'早班'},{k:'mid2',label:'中班'},
+    {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
+    {k:'off',label:'排休'},{k:'cons',label:'慰休'},
+    {k:'comp',label:'補休'},{k:'other',label:'補放假'},
+    {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
+  ];
+  const item = items.find(i => i.k === key);
+  document.getElementById('cpPaletteTitle').textContent = '選擇顏色 — ' + (item ? item.label : key);
+
+  // Build preset grid
+  const grid = document.getElementById('cpPaletteGrid');
+  grid.innerHTML = COLOR_PRESETS.map(c => {
+    const sel = c.toLowerCase() === currentVal.toLowerCase() ? ' selected' : '';
+    return `<div class="cp-preset${sel}" style="background:${c}" onclick="cpSelectPreset('${c}')"></div>`;
+  }).join('');
+
+  // Set custom input to current value
+  const swatch = document.getElementById('cpCustomSwatch');
+  const inp = document.getElementById('cpCustomInput');
+  swatch.style.background = currentVal;
+  inp.value = currentVal;
+
+  overlay.classList.add('open');
+}
+
+function cpSelectPreset(val) {
+  if (!_cpKey) return;
+  // Update dot in picker grid
+  const dot = document.querySelector('.cp-dot[data-key="'+_cpKey+'"]');
+  if (dot) dot.style.background = val;
+  saveColor(_cpKey, val);
+  closeCpPalette();
+}
+
+function cpCustomChange(val) {
+  document.getElementById('cpCustomSwatch').style.background = val;
+  if (!_cpKey) return;
+  const dot = document.querySelector('.cp-dot[data-key="'+_cpKey+'"]');
+  if (dot) dot.style.background = val;
+  saveColor(_cpKey, val);
+}
+
+function closeCpPalette() {
+  document.getElementById('cpPaletteOverlay').classList.remove('open');
+  _cpKey = null;
+}
+
+document.getElementById('cpPaletteOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeCpPalette();
+});
+
 loadTheme();
 loadColors();
 buildColorPickers();
 initSetup();
 </script>
 
-<div id="cellHintBubble">⏳ 長按編輯</div>
+
 </body>
 </html>
