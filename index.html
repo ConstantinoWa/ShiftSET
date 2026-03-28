@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03281620</title>
+<title>Shift Go v.03282112</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -16,11 +16,11 @@
   --off:#3d4d6a;   --off-dim:rgba(61,77,106,.15);
   --hol:#f43f5e;   --hol-dim:rgba(244,63,94,.18);
   --makeup:#a78bfa;--makeup-dim:rgba(167,139,250,.10);
-  --cons:#c084fc;  --cons-dim:rgba(192,132,252,.15);
-  --comp:#34d4c8;  --comp-dim:rgba(52,212,200,.15);
-  --other:#fb923c; --other-dim:rgba(251,146,60,.15);
+  --cons:      #eab308;  --cons-dim:  rgba(234,179,8,.15);
+  --comp:      #14b8a6;  --comp-dim:  rgba(20,184,166,.15);
+  --other:     #f472b6;  --other-dim: rgba(244,114,182,.15);
   --ot:#fbbf24;
-  --accent:#4f80ff; --today-ring:#f5c518;
+  --accent:#4f80ff; --today-ring:#ffffff;
   --radius-sm:6px; --radius:10px; --radius-lg:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -191,8 +191,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.has-off::before   { background: var(--off); }
 .cell:hover { border-color: var(--border2); background: var(--surface2); }
 .cell.empty { background:transparent; border-color:transparent; cursor:default; pointer-events:none; }
-.cell.is-today { border-color: var(--today-ring); border-width:2px; background:rgba(245,197,24,.05); box-shadow:0 0 0 1px var(--today-ring) inset; }
-.cell.is-today .dnum { color: var(--today-ring); }
+.cell.is-today { border-color: #ffffff; border-width:2px; background:rgba(255,255,255,.04); box-shadow:0 0 0 1px #ffffff inset; }
+.cell.is-today .dnum { color: #ffffff; }
 .cell.is-sun .dnum { color: var(--hol); }
 
 .cell.is-holiday { background: var(--surface); }
@@ -221,7 +221,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .hol-lbl { font-size:.38rem; line-height:1.2; text-align:left; word-break:keep-all; max-width:100%; margin-top:auto; }
 .hol-lbl.is-hol { color:var(--hol); }
 .hol-lbl.is-makeup { color:var(--makeup); }
-.s-badge { font-size:.6rem; font-weight:700; padding:2px 5px; border-radius:var(--radius-sm); width:fit-content; }
+.s-badge { font-size:.6rem; font-weight:700; padding:2px 5px; border-radius:var(--radius-sm); width:calc(100% - 0px); text-align:center; display:block; }
 .s-early { background:var(--early-dim); color:var(--early); }
 .s-mid2  { background:var(--mid2-dim);  color:var(--mid2); }
 .s-late  { background:var(--late-dim);  color:var(--late); }
@@ -235,9 +235,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .note-lbl { font-size:.5rem; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 .section-label { font-family:'DM Mono',monospace; font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-mute); padding:0 2px; margin-bottom:8px; }
-.stats-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:16px; }
-.stat-chip { display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:5px 12px 5px 8px; font-family:'DM Mono',monospace; font-size:.68rem; }
-.stat-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.stats-row { display:flex; gap:4px; flex-wrap:nowrap; overflow-x:auto; margin-bottom:16px; scrollbar-width:none; }
+.stat-chip { display:flex; align-items:center; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:4px 8px 4px 6px; font-family:'DM Mono',monospace; font-size:.62rem; flex-shrink:0; }
+.stat-dot { width:7px; height:7px; border-radius:2px; flex-shrink:0; }
 .stat-chip strong { font-weight:700; }
 
 .quota-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
@@ -699,24 +699,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   margin-bottom: 10px;
 }
 .btn-share-img {
-  width: 100%;
-  background: linear-gradient(135deg, var(--accent), #7c3aed);
-  border: none;
-  color: #fff;
-  padding: 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: .88rem;
-  font-weight: 700;
-  transition: opacity .15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  flex:1; min-width:100px; padding:10px 8px; border-radius:var(--radius);
+  border:1px solid #818cf8; background:var(--surface2); color:#818cf8;
+  cursor:pointer; font-family:inherit; font-size:.78rem; font-weight:600;
+  text-align:center; transition:all .15s; width:100%;
 }
-.btn-share-img:hover { opacity: .88; }
-.btn-share-img:disabled { opacity: .5; cursor: wait; }
+.btn-share-img:hover { background:rgba(129,140,248,.12); }
+.btn-share-img:disabled { opacity:.5; cursor:wait; }
 .share-hint {
   font-size: .6rem;
   color: var(--text-mute);
@@ -889,7 +878,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03281620</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03282112</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -999,7 +988,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03281620</div>
+      <div class="app-label" id="appLabel">Shift Go v.03282112</div>
       <div class="month-display" id="hdMonth"></div>
     </div>
     <div class="nav-cluster">
@@ -1111,8 +1100,29 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <span class="ot-unit">h</span>
           <button class="btn-add" onclick="addOT()">＋新增</button>
           <button class="btn-reset" onclick="resetOT()">歸零</button>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:.68rem;color:var(--text-dim);white-space:nowrap;">
+            <input type="checkbox" id="otDetailToggle" onchange="toggleOTDetail()" style="accent-color:var(--accent);">記詳細
+          </label>
         </div>
       </div>
+      <!-- detail input (hidden by default) -->
+      <div id="otDetailRow" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <label style="font-size:.7rem;color:var(--text-dim);width:36px;flex-shrink:0;">日期</label>
+          <input type="date" id="otDate" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 10px;font-size:.78rem;font-family:inherit;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <label style="font-size:.7rem;color:var(--text-dim);width:36px;flex-shrink:0;">時段</label>
+          <input type="number" id="otStartH" min="0" max="23" placeholder="開始" style="width:60px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 8px;font-size:.78rem;font-family:inherit;text-align:center;" oninput="updateOTPreview()">
+          <span style="color:var(--text-dim);font-size:.75rem;">時 ─</span>
+          <input type="number" id="otEndH" min="0" max="48" placeholder="結束" style="width:60px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 8px;font-size:.78rem;font-family:inherit;text-align:center;" oninput="updateOTPreview()">
+          <span style="color:var(--text-dim);font-size:.75rem;">時</span>
+          <span id="otCalcPreview" style="font-size:.7rem;color:var(--comp);margin-left:4px;"></span>
+        </div>
+        <button class="btn-add" onclick="saveOTEntry()" style="width:100%;margin-top:2px;">＋ 新增詳細記錄</button>
+      </div>
+      <!-- OT log -->
+      <div id="otLogList" style="margin-top:8px;display:none;border-top:1px solid var(--border);padding-top:8px;"></div>
     </div>
 
     <div class="section-label" style="margin-top:6px">季度統計</div>
@@ -1352,9 +1362,9 @@ function updateConsFromSeniority() {
   if (v) document.getElementById('sConsTotal').value = v;
 }
 const DEFAULT_COLORS = {
-  early: '#22c97a', mid2: '#f59e0b', late: '#f43f5e',
-  mid: '#60a5fa', off: '#3d4d6a',
-  cons: '#c084fc', comp: '#34d4c8', other: '#fb923c',
+  early: '#10b981', mid2: '#f97316', late: '#3b82f6',
+  mid: '#a855f7', off: '#64748b',
+  cons: '#eab308', comp: '#14b8a6', other: '#f472b6',
   hol: '#f43f5e', accent: '#4f80ff'
 };
 
@@ -1534,7 +1544,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03281620';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03282112';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -1727,15 +1737,90 @@ function goToday() { cY=today.getFullYear(); cM=today.getMonth(); render(); }
 
 function addOT() {
   const v = parseFloat(document.getElementById('otInput').value);
-  if (isNaN(v)||v<=0){alert('請輸入有效時數');return;}
-  otHours = Math.round((otHours+v)*10)/10;
+  if (isNaN(v) || v <= 0) { alert('請輸入有效時數'); return; }
+  otHours = Math.round((otHours + v) * 10) / 10;
   document.getElementById('otInput').value = '';
   persist(); renderQuota();
 }
 function resetOT() {
-  if (!confirm('確認歸零加班時數？')) return;
-  otHours = 0; persist(); renderQuota();
+  showConfirm('歸零加班時數', '確認將累積加班時數歸零？此操作無法還原。', '歸零', () => {
+    otHours = 0; otLog = []; localStorage.removeItem('ss_ot_log');
+    persist(); renderQuota(); renderOTLog();
+  });
 }
+// ── OT DETAIL LOG ──
+let otLog = JSON.parse(localStorage.getItem('ss_ot_log') || '[]');
+
+function updateOTPreview() {
+  const s = parseInt(document.getElementById('otStartH').value);
+  const e = parseInt(document.getElementById('otEndH').value);
+  const prev = document.getElementById('otCalcPreview');
+  if (!prev) return;
+  if (!isNaN(s) && !isNaN(e) && e > s) {
+    prev.textContent = '＋' + (e - s) + 'h';
+    prev.style.color = 'var(--comp)';
+  } else if (!isNaN(s) && !isNaN(e)) {
+    prev.textContent = '結束須大於開始';
+    prev.style.color = 'var(--hol)';
+  } else {
+    prev.textContent = '';
+  }
+}
+
+function saveOTEntry() {
+  const date = document.getElementById('otDate').value;
+  const s = parseInt(document.getElementById('otStartH').value);
+  const e = parseInt(document.getElementById('otEndH').value);
+  const prev = document.getElementById('otCalcPreview');
+  if (!date || isNaN(s) || isNaN(e) || e <= s) {
+    if (prev) { prev.textContent = '請填寫完整資料'; prev.style.color = 'var(--hol)'; }
+    return;
+  }
+  const hours = e - s;
+  otLog.push({ date, start: s, end: e, hours });
+  localStorage.setItem('ss_ot_log', JSON.stringify(otLog));
+  otHours = Math.round((otHours + hours) * 10) / 10;
+  document.getElementById('otStartH').value = '';
+  document.getElementById('otEndH').value = '';
+  if (prev) prev.textContent = '';
+  persist(); renderQuota(); renderOTLog();
+}
+
+function deleteOTEntry(idx) {
+  const entry = otLog[idx];
+  if (!entry) return;
+  otHours = Math.max(0, Math.round((otHours - entry.hours) * 10) / 10);
+  otLog.splice(idx, 1);
+  localStorage.setItem('ss_ot_log', JSON.stringify(otLog));
+  persist(); renderQuota(); renderOTLog();
+}
+
+function renderOTLog() {
+  const el = document.getElementById('otLogList');
+  if (!el) return;
+  if (otLog.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div style="font-size:.62rem;color:var(--text-mute);margin-bottom:6px;font-family:monospace;">詳細加班記錄</div>'
+    + otLog.map((e, i) => {
+      const [y, m, d] = e.date.split('-');
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.72rem;">'
+        + '<span style="color:var(--text-dim);font-family:monospace">' + parseInt(m) + '/' + parseInt(d) + '</span>'
+        + '<span style="color:var(--text)">' + e.start + ':00 ─ ' + e.end + ':00</span>'
+        + '<span style="color:var(--comp);font-weight:700">+' + e.hours + 'h</span>'
+        + '<span style="cursor:pointer;color:var(--hol);padding:2px 8px;" onclick="deleteOTEntry(' + i + ')">✕</span>'
+        + '</div>';
+    }).join('');
+}
+
+function toggleOTDetail() {
+  const show = document.getElementById('otDetailToggle').checked;
+  document.getElementById('otDetailRow').style.display = show ? 'block' : 'none';
+  if (show && !document.getElementById('otDate').value) {
+    document.getElementById('otDate').value = new Date().toISOString().split('T')[0];
+  }
+}
+function openOTLog() {}
+function closeOTLog() {}
 
 function render() {
   document.getElementById('hdMonth').innerHTML = `${MN[cM]} <span>${cY}</span>`;
@@ -1796,8 +1881,8 @@ function render() {
 
 function renderStats(s) {
   document.getElementById('statsRow').innerHTML =
-    [{k:'early',c:'var(--early)',l:'早班'},{k:'mid2',c:'var(--mid2)',l:'中班'},{k:'late',c:'var(--late)',l:'晚(大夜)'},
-     {k:'mid',c:'var(--mid)',l:'小夜'},{k:'off',c:'var(--off)',l:'排休'}]
+    [{k:'early',c:'var(--early)',l:'早'},{k:'mid2',c:'var(--mid2)',l:'中'},{k:'late',c:'var(--late)',l:'晚'},
+     {k:'mid',c:'var(--mid)',l:'夜'},{k:'off',c:'var(--off)',l:'休'}]
     .map(i=>`<div class="stat-chip"><div class="stat-dot" style="background:${i.c}"></div>${i.l}&nbsp;<strong>${s[i.k]}</strong></div>`)
     .join('');
 }
@@ -1838,10 +1923,10 @@ function calcCompHoursUsed(excludeKey) {
 
 function renderQuarter() {
   const QUARTERS = [
-    {label:'Q1　一～三月',color:'#60a5fa',months:[0,1,2]},
-    {label:'Q2　四～六月',color:'#22c97a',months:[3,4,5]},
-    {label:'Q3　七～九月',color:'#f97316',months:[6,7,8]},
-    {label:'Q4　十～十二月',color:'#c084fc',months:[9,10,11]},
+    {label:'季1　一～三月',color:'#60a5fa',months:[0,1,2]},
+    {label:'季2　四～六月',color:'#22c97a',months:[3,4,5]},
+    {label:'季3　七～九月',color:'#f97316',months:[6,7,8]},
+    {label:'季4　十～十二月',color:'#c084fc',months:[9,10,11]},
   ];
   const COLS = [
     {key:'early',label:'早',color:'var(--early)'},{key:'mid2',label:'中',color:'var(--mid2)'},{key:'late',label:'晚',color:'var(--late)'},
@@ -2017,6 +2102,35 @@ function importJSON(e) {
 let touchStartX=0;
 document.addEventListener('touchstart',e=>{if(document.getElementById('overlay').classList.contains('open'))return;touchStartX=e.touches[0].clientX;},{passive:true});
 document.addEventListener('touchend',e=>{if(document.getElementById('overlay').classList.contains('open'))return;const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>60)chM(dx<0?1:-1);},{passive:true});
+
+// ── LONG PRESS ──
+let _qKey = null, _qD = null, _qDow = null, _longTimer = null, _shiftLocked = true;
+let _touchStartX = 0, _touchStartY = 0;
+
+function startLongPress(ky, d, dow, e) {
+  if (e.cancelable) e.preventDefault();
+  const touch = e.touches ? e.touches[0] : e;
+  _touchStartX = touch.clientX;
+  _touchStartY = touch.clientY;
+  showCellHint(touch.clientX, touch.clientY);
+  _longTimer = setTimeout(() => {
+    hideCellHint();
+    openQuick(ky, d, dow);
+  }, 480);
+}
+
+function cancelLongPress(e) {
+  if (e && e.touches) {
+    const t = e.touches[0] || e.changedTouches[0];
+    if (t) {
+      const dx = Math.abs(t.clientX - _touchStartX);
+      const dy = Math.abs(t.clientY - _touchStartY);
+      if (dx > 8 || dy > 8) { clearTimeout(_longTimer); hideCellHint(); return; }
+    }
+  }
+  if (e && e.type !== 'touchmove') { clearTimeout(_longTimer); hideCellHint(); }
+}
+
 
 function openQuick(ky, d, dow) {
   _qKey = ky; _qD = d; _qDow = dow;
@@ -2394,13 +2508,22 @@ function startCompLongPress(e) {
   clearTimeout(_compTimer);
   _compTimer = setTimeout(() => {
     hideCellHint();
-    showConfirm('補休歸零', '確認將加班時數歸零？此操作無法還原。', '歸零', () => {
-      otHours = 0;
+    showConfirm('補休歸零', '清除所有補休標記，並還原被扣的加班時數。確認繼續？', '確認清除', () => {
+      // Clear comp leave from dayData and restore otHours
+      let restored = 0;
+      Object.entries(dayData).forEach(([k, r]) => {
+        if (r.leave === 'comp' && r.leaveHours) {
+          restored += r.leaveHours;
+          delete r.leave; delete r.leaveHours;
+          if (Object.keys(r).length === 0) delete dayData[k];
+        }
+      });
+      otHours = Math.round((otHours + restored) * 10) / 10;
       const now = new Date();
       _lastCompReset = (now.getMonth()+1) + '/' + now.getDate() + ' ' +
         String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
       localStorage.setItem('ss_last_comp_reset', _lastCompReset);
-      persist(); renderQuota();
+      persist(); render(); renderQuota();
     });
   }, 600);
 }
@@ -2481,6 +2604,7 @@ loadTheme();
 loadColors();
 buildColorPickers();
 initSetup();
+renderOTLog();
 </script>
 
 
