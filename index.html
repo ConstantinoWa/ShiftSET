@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03271727</title>
+<title>Shift Go v.03281437</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -180,9 +180,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   min-height: 90px; padding: 7px 6px 5px; cursor: pointer;
   display: flex; flex-direction: column; gap: 3px;
   transition: border-color .15s; position: relative; overflow: hidden;
+  touch-action: manipulation;
 }
 .cell::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; border-radius:3px 0 0 3px; background:transparent; transition:background .15s; }
 .cell.has-early::before { background: var(--early); }
+.cell.has-mid2::before  { background: var(--mid2); }
 .cell.has-late::before  { background: var(--late); }
 .cell.has-mid::before   { background: var(--mid); }
 .cell.has-off::before   { background: var(--off); }
@@ -191,8 +193,16 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.is-today { border-color: var(--today-ring); border-width:2px; background:rgba(245,197,24,.05); box-shadow:0 0 0 1px var(--today-ring) inset; }
 .cell.is-today .dnum { color: var(--today-ring); }
 .cell.is-sun .dnum { color: var(--hol); }
-.cell.is-sat .dnum { color: #818cf8; }
+
 .cell.is-holiday { background: var(--surface); }
+.cell.is-holiday .dnum {
+  color: var(--hol);
+  border: 1.5px solid var(--hol);
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 1.3;
+}
+.cell.is-sat .dnum { color: var(--hol); }
 .cell.is-holiday .dnum { color: var(--hol); }
 .cell.is-makeup { background: var(--makeup-dim); }
 .cell.has-off .dnum { font-weight: 700; }
@@ -212,6 +222,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .hol-lbl.is-makeup { color:var(--makeup); }
 .s-badge { font-size:.6rem; font-weight:700; padding:2px 5px; border-radius:var(--radius-sm); width:fit-content; }
 .s-early { background:var(--early-dim); color:var(--early); }
+.s-mid2  { background:var(--mid2-dim);  color:var(--mid2); }
 .s-late  { background:var(--late-dim);  color:var(--late); }
 .s-mid   { background:var(--mid-dim);   color:var(--mid); }
 .s-off   { background:var(--off-dim);   color:var(--off); }
@@ -263,14 +274,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .quarter-hd-right { font-size:.6rem; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .quarter-body { padding:0 10px 10px; }
 .quarter-body.collapsed { display:none; }
-.q-month-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; align-items:center; padding:6px 4px; border-bottom:1px solid var(--border); }
+.q-month-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; align-items:center; padding:6px 4px; border-bottom:1px solid var(--border); }
 .q-month-row:last-child { border-bottom:none; }
 .q-month-name { font-size:.65rem; font-weight:700; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .q-cell { text-align:center; font-family:'DM Mono',monospace; font-size:.65rem; }
 .q-cell-val { font-weight:700; font-size:.72rem; }
-.q-col-hd { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:8px 4px 4px; }
+.q-col-hd { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:8px 4px 4px; }
 .q-col-hd-cell { text-align:center; font-size:.52rem; font-family:'DM Mono',monospace; color:var(--text-mute); letter-spacing:.04em; }
-.q-total-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:6px 4px 2px; border-top:1px solid var(--border2); margin-top:2px; }
+.q-total-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:6px 4px 2px; border-top:1px solid var(--border2); margin-top:2px; }
 .q-total-lbl { font-size:.58rem; color:var(--text-dim); font-family:'DM Mono',monospace; font-weight:700; }
 .q-total-val { text-align:center; font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; }
 
@@ -342,7 +353,42 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .sp-skip-row input[type=checkbox] { width:14px; height:14px; cursor:pointer; accent-color: var(--accent); }
 .sp-skip-row label { font-size:.65rem; color:var(--text-dim); cursor:pointer; }
 
-/* ── JSON BACKUP ── */
+/* ── SETTINGS MENU ── */
+.settings-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  z-index: 300; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.settings-overlay.open { opacity: 1; pointer-events: all; }
+.settings-sheet {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px 20px 0 0; padding: 8px 18px 36px;
+  width: 100%; max-width: 520px;
+  transform: translateY(30px); transition: transform .25s cubic-bezier(.22,1,.36,1);
+}
+.settings-overlay.open .settings-sheet { transform: translateY(0); }
+.settings-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 10px auto 16px; }
+.settings-title { font-size: .8rem; font-weight: 700; color: var(--text-dim); letter-spacing: .1em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 12px; }
+.settings-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 14px; border-radius: var(--radius);
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; margin-bottom: 8px; transition: border-color .15s;
+}
+.settings-item:hover { border-color: var(--accent); }
+.settings-item-left { display: flex; flex-direction: column; gap: 2px; }
+.settings-item-title { font-size: .82rem; font-weight: 600; color: var(--text); }
+.settings-item-sub { font-size: .62rem; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+.settings-item-arrow { color: var(--text-dim); font-size: .9rem; }
+.settings-danger {
+  margin-top: 14px; padding: 11px 14px; border-radius: var(--radius);
+  background: rgba(244,63,94,.08); border: 1px solid rgba(244,63,94,.25);
+  cursor: pointer; text-align: center; font-size: .78rem; color: var(--hol);
+  font-weight: 600; transition: background .15s;
+}
+.settings-danger:hover { background: rgba(244,63,94,.15); }
+
+
 .backup-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -360,6 +406,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .btn-backup:hover { border-color:var(--accent); color:var(--accent); }
 .btn-backup.export { border-color:var(--comp); color:var(--comp); }
 .btn-backup.import { border-color:var(--ot); color:var(--ot); }
+
 .backup-hint { font-size:.6rem; color:var(--text-mute); margin-top:8px; line-height:1.5; }
 
 @media(max-width:360px){
@@ -462,13 +509,292 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   .dow-row { gap: 3px; }
   .hol-lbl { font-size: .42rem; }
 }
+
+.lunar-lbl{font-size:.42rem;color:#a07c3a;margin-top:auto;line-height:1.1;text-align:left;}
+.lunar-lbl.is-first{color:#c9962a;font-weight:700;}
+
+/* ── COLOR PICKER ── */
+.color-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cp-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px 4px 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cp-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.3);
+  flex-shrink: 0;
+}
+.cp-text {
+  font-size: .62rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+#hiddenColorInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.btn-reset-colors {
+  font-size: .62rem; padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text-dim); cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.btn-reset-colors:hover { border-color: var(--hol); color: var(--hol); }
+
+
+/* ── QUICK MARK MENU ── */
+.quick-overlay {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.quick-overlay.open { opacity: 1; pointer-events: all; }
+.quick-menu {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 10px;
+  min-width: 220px;
+  max-width: 300px;
+  width: 90vw;
+  transform: scale(.92);
+  transition: transform .18s cubic-bezier(.22,1,.36,1);
+}
+.quick-overlay.open .quick-menu { transform: scale(1); }
+.quick-date {
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.quick-section-label {
+  font-size: .58rem;
+  color: var(--text-mute);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 5px;
+  margin-top: 8px;
+}
+.quick-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.quick-btn {
+  flex: 1;
+  min-width: 50px;
+  padding: 8px 4px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  text-align: center;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  transition: all .1s;
+  user-select: none;
+}
+.quick-btn.active { opacity: 1; }
+.quick-btn.qb-early { background: var(--early-dim); color: var(--early); border-color: var(--early); }
+.quick-btn.qb-mid2  { background: var(--mid2-dim);  color: var(--mid2);  border-color: var(--mid2); }
+.quick-btn.qb-late  { background: var(--late-dim);  color: var(--late);  border-color: var(--late); }
+.quick-btn.qb-mid   { background: var(--mid-dim);   color: var(--mid);   border-color: var(--mid); }
+.quick-btn.qb-off   { background: var(--off-dim);   color: var(--off);   border-color: var(--off); }
+.quick-btn.qb-cons  { background: var(--cons-dim);  color: var(--cons);  border-color: var(--cons); }
+.quick-btn.qb-comp  { background: var(--comp-dim);  color: var(--comp);  border-color: var(--comp); }
+.quick-btn.qb-other { background: var(--other-dim); color: var(--other); border-color: var(--other); }
+.quick-footer {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.quick-edit {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .72rem;
+  text-align: center;
+  transition: all .12s;
+}
+.quick-edit:hover { border-color: var(--accent); color: var(--accent); }
+.quick-clear {
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .72rem;
+  transition: all .12s;
+}
+.quick-clear:hover { border-color: var(--hol); color: var(--hol); }
+
+
+/* ── FLOATING HINT BUBBLE ── */
+#cellHintBubble {
+  position: fixed;
+  z-index: 500;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: .65rem;
+  color: var(--text);
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .15s, transform .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+#cellHintBubble.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* desktop hover hint */
+.cell { cursor: pointer; }
+
+
+/* ── SHARE IMAGE ── */
+.share-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 13px 15px;
+  margin-bottom: 10px;
+}
+.btn-share-img {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 700;
+  transition: opacity .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-share-img:hover { opacity: .88; }
+.btn-share-img:disabled { opacity: .5; cursor: wait; }
+.share-hint {
+  font-size: .6rem;
+  color: var(--text-mute);
+  margin-top: 7px;
+  line-height: 1.5;
+}
+/* canvas export area */
+#exportFrame {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 800px;
+  background: #0d1117;
+  padding: 20px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+
+.theme-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  position: relative;
+}
+.theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+.theme-btn::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  color: var(--text);
+  font-size: .6rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  border: 1px solid var(--border2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.theme-btn:hover::after { opacity: 1; }
+
+
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --bg:        #f2f0eb;
+  --surface:   #ffffff;
+  --surface2:  #ebe7e0;
+  --surface3:  #ddd9d0;
+  --border:    #d8d3c8;
+  --border2:   #c4beb0;
+  --text:      #1a1815;
+  --text-dim:  #7a7060;
+  --text-mute: #b0a898;
+}
+[data-theme="light"] body { background-image: none; }
+[data-theme="light"] .top-bar { background: rgba(242,240,235,.94); }
+[data-theme="light"] .overlay,
+[data-theme="light"] .settings-overlay,
+[data-theme="light"] .quick-overlay { background: rgba(0,0,0,.35); }
+
 </style>
 </head>
 <body>
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03271727</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03281437</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -577,14 +903,65 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03271727</div>
+      <div class="app-label" id="appLabel">Shift Go v.03281437</div>
       <div class="month-display" id="hdMonth"></div>
     </div>
     <div class="nav-cluster">
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" data-tip="切換深色/淺色">☀</button>
       <button class="nav-btn" onclick="chM(-1)">‹</button>
       <button class="today-pill" onclick="goToday()">今天</button>
       <button class="nav-btn" onclick="chM(1)">›</button>
-      <button class="settings-btn" onclick="reopenSetup()" title="重新設定">⚙</button>
+      <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
+    </div>
+  </div>
+
+  <!-- ══ SETTINGS OVERLAY ══ -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-sheet">
+      <div class="settings-handle"></div>
+      <div class="settings-title">⚙ 設定選項</div>
+
+      <div class="settings-item" onclick="editSection(1)">
+        <div class="settings-item-left">
+          <div class="settings-item-title">01 ─ 番號校正</div>
+          <div class="settings-item-sub" id="cfg-ban-sub">—</div>
+        </div>
+        <div class="settings-item-arrow">›</div>
+      </div>
+
+      <div class="settings-item" onclick="editSection(2)">
+        <div class="settings-item-left">
+          <div class="settings-item-title">02 ─ 輪班週期</div>
+          <div class="settings-item-sub" id="cfg-rot-sub">—</div>
+        </div>
+        <div class="settings-item-arrow">›</div>
+      </div>
+
+      <div class="settings-item" onclick="editSection(3)">
+        <div class="settings-item-left">
+          <div class="settings-item-title">03 ─ 假別 / 名字</div>
+          <div class="settings-item-sub" id="cfg-cons-sub">—</div>
+        </div>
+        <div class="settings-item-arrow">›</div>
+      </div>
+
+      <div class="settings-item" onclick="editSection(4)">
+        <div class="settings-item-left">
+          <div class="settings-item-title">04 ─ 春節特別排班</div>
+          <div class="settings-item-sub" id="cfg-sp-sub">—</div>
+        </div>
+        <div class="settings-item-arrow">›</div>
+      </div>
+
+      <div class="settings-danger" onclick="resetAll()">⚠ 重設輪班設定（清除番號、週期、名字、春節排班）<br><span style="font-size:.62rem;opacity:.8">班表記錄與加班時數不受影響</span></div>
+
+      <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text-dim)'">✕ 關閉</button>
+
+      <div style="margin-top:16px;">
+        <div class="settings-title">🎨 班別顏色自訂</div>
+        <div class="color-picker-grid" id="colorPickerGrid"></div>
+        <button class="btn-reset-colors" onclick="resetColors()">↺ 恢復預設顏色</button>
+      </div>
     </div>
   </div>
 
@@ -594,13 +971,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--early-dim);border:1px solid var(--early)"></div>早班</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--late-dim);border:1px solid var(--late)"></div>晚班</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--mid2-dim);border:1px solid var(--mid2)"></div>中班</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--late-dim);border:1px solid var(--late)"></div>晚(大夜)</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--mid-dim);border:1px solid var(--mid)"></div>小夜</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--off-dim);border:1px solid var(--off)"></div>排休</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--hol-dim);border:1px solid var(--hol)"></div>國定假日</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--cons-dim);border:1px solid var(--cons)"></div>慰休</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--comp-dim);border:1px solid var(--comp)"></div>補休</div>
-      <div class="leg-item"><div class="leg-swatch" style="background:var(--other-dim);border:1px solid var(--other)"></div>其他補休</div>
+      <div class="leg-item"><div class="leg-swatch" style="background:var(--other-dim);border:1px solid var(--other)"></div>補放假</div>
     </div>
 
     <div class="section-label">本月班次統計</div>
@@ -640,6 +1018,15 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="section-label" style="margin-top:6px">季度統計</div>
     <div id="quarterSection"></div>
 
+  <!-- ══ SHARE IMAGE ══ -->
+  <div class="section-label" style="margin-top:6px">分享班表</div>
+  <div class="share-card">
+    <button class="btn-share-img" onclick="exportCalImg()" id="btnShareImg">
+      產生當月班表圖片
+    </button>
+    <div class="share-hint">產生當月月曆圖片，可直接分享或儲存。</div>
+  </div>
+
     <!-- ══ BACKUP ══ -->
     <div class="section-label" style="margin-top:6px">資料備份</div>
     <div class="backup-card">
@@ -651,6 +1038,44 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <div class="backup-hint">📦 備份用途：換手機、換瀏覽器、或意外清除瀏覽器資料時還原。平常加入主畫面使用不需要備份。</div>
     </div>
   </div>
+
+  <!-- ══ QUICK MARK MENU ══ -->
+<div class="quick-overlay" id="quickOverlay">
+  <div class="quick-menu">
+    <div class="quick-date" id="qDate"></div>
+
+    <div class="quick-section-label" style="display:flex;align-items:center;justify-content:space-between;">
+      <span>班別</span>
+      <span id="shiftLockBtn" onclick="toggleShiftLock()" style="cursor:pointer;font-size:.75rem;padding:2px 8px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);">🔒 鎖定</span>
+    </div>
+    <div class="quick-row" id="shiftBtns" style="opacity:.35;pointer-events:none;">
+      <div class="quick-btn qb-early" onclick="quickSet('shift','early')">早</div>
+      <div class="quick-btn qb-mid2"  onclick="quickSet('shift','mid2')">中</div>
+      <div class="quick-btn qb-late"  onclick="quickSet('shift','late')">晚</div>
+      <div class="quick-btn qb-mid"   onclick="quickSet('shift','mid')">小夜</div>
+      <div class="quick-btn qb-off"   onclick="quickSet('shift','off')">休</div>
+    </div>
+
+    <div class="quick-section-label" style="margin-top:10px">假別</div>
+    <div class="quick-row">
+      <div class="quick-btn qb-cons"  onclick="quickSet('leave','cons')">慰休</div>
+      <div class="quick-btn qb-comp"  onclick="quickLeaveComp()">補休</div>
+      <div class="quick-btn qb-other" onclick="quickSet('leave','other')">補放假</div>
+    </div>
+    <div id="compHoursRow" style="display:none;margin-top:6px;">
+      <div class="quick-section-label">補休時數</div>
+      <div class="quick-row">
+        <div class="quick-btn qb-comp" onclick="quickSetComp(8)">全天 8h</div>
+        <div class="quick-btn qb-comp" onclick="quickSetComp(4)">半天 4h</div>
+      </div>
+    </div>
+
+    <div class="quick-footer">
+      <div class="quick-edit" onclick="quickOpenFull()">✎ 詳細編輯</div>
+      <div class="quick-clear" onclick="quickClear()">清除</div>
+    </div>
+  </div>
+</div>
 
   <!-- bottom sheet -->
   <div class="overlay" id="overlay">
@@ -677,7 +1102,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <div class="opts">
           <div class="opt" id="lo-cons"  onclick="pL('cons')">✦ 慰休</div>
           <div class="opt" id="lo-comp"  onclick="pL('comp')">↺ 補休</div>
-          <div class="opt" id="lo-other" onclick="pL('other')">＋其他補休</div>
+          <div class="opt" id="lo-other" onclick="pL('other')">＋補放假</div>
           <div class="opt" id="lo-null"  onclick="pL(null)">— 無</div>
         </div>
       </div>
@@ -798,6 +1223,76 @@ function updateConsFromSeniority() {
   const v = document.getElementById('sSeniority')?.value;
   if (v) document.getElementById('sConsTotal').value = v;
 }
+const DEFAULT_COLORS = {
+  early: '#22c97a', mid2: '#f59e0b', late: '#f43f5e',
+  mid: '#60a5fa', off: '#3d4d6a',
+  cons: '#c084fc', comp: '#34d4c8', other: '#fb923c',
+  hol: '#f43f5e', accent: '#4f80ff'
+};
+
+function loadTheme() {
+  const t = localStorage.getItem('sg_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  updateThemeBtn(t);
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('sg_theme', next);
+  updateThemeBtn(next);
+}
+function updateThemeBtn(t) {
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  if (t === 'light') {
+    btn.textContent = '🌙';
+    btn.setAttribute('data-tip', '切換深色介面');
+  } else {
+    btn.textContent = '☀';
+    btn.setAttribute('data-tip', '切換淺色介面');
+  }
+}
+
+function loadColors() {
+  const saved = JSON.parse(localStorage.getItem('sg_colors') || '{}');
+  Object.entries(DEFAULT_COLORS).forEach(([k, def]) => {
+    const v = saved[k] || def;
+    document.documentElement.style.setProperty('--' + k, v);
+    if (['early','mid2','late','mid','off','cons','comp','other'].includes(k)) {
+      const r=parseInt(v.slice(1,3),16), g=parseInt(v.slice(3,5),16), b=parseInt(v.slice(5,7),16);
+      document.documentElement.style.setProperty('--'+k+'-dim', `rgba(${r},${g},${b},.15)`);
+    }
+  });
+}
+
+function saveColor(key, val) {
+  const saved = JSON.parse(localStorage.getItem('sg_colors') || '{}');
+  saved[key] = val;
+  localStorage.setItem('sg_colors', JSON.stringify(saved));
+  document.documentElement.style.setProperty('--' + key, val);
+  if (['early','mid2','late','mid','off','cons','comp','other'].includes(key)) {
+    const r=parseInt(val.slice(1,3),16), g=parseInt(val.slice(3,5),16), b=parseInt(val.slice(5,7),16);
+    document.documentElement.style.setProperty('--'+key+'-dim', `rgba(${r},${g},${b},.15)`);
+  }
+  render();
+}
+
+function resetColors() {
+  localStorage.removeItem('sg_colors');
+  Object.entries(DEFAULT_COLORS).forEach(([k,v]) => {
+    document.documentElement.style.setProperty('--'+k, v);
+    if (['early','mid2','late','mid','off','cons','comp','other'].includes(k)) {
+      const r=parseInt(v.slice(1,3),16), g=parseInt(v.slice(3,5),16), b=parseInt(v.slice(5,7),16);
+      document.documentElement.style.setProperty('--'+k+'-dim', `rgba(${r},${g},${b},.15)`);
+    }
+  });
+  buildColorPickers(); render();
+}
+
+
+
 const SHIFT_CYCLE = ['early','late','mid','off'];
 let rotPattern = []; // array of shift strings, length = rotLen
 
@@ -833,9 +1328,9 @@ function buildRotBuilder(n) {
   updateRotPreview();
 }
 
-const SL_MAP = { early:'早', late:'晚', mid:'小', off:'休' };
-const SL_CLS = { early:'rb-early', late:'rb-late', mid:'rb-mid', off:'rb-off' };
-const CYCLE_ORDER = ['early','late','mid','off'];
+const SL_MAP = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
+const SL_CLS = { early:'rb-early', mid2:'rb-mid2', late:'rb-late', mid:'rb-mid', off:'rb-off' };
+const CYCLE_ORDER = ['early','mid2','late','mid','off'];
 
 function cycleRot(i) {
   const cur = rotPattern[i];
@@ -891,23 +1386,118 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03271727';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03281437';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
 }
 
-function reopenSetup() {
-  if (!confirm('重新設定會清除目前設定（班表紀錄不受影響），確定嗎？')) return;
+function openSettings() {
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+  document.getElementById('cfg-ban-sub').textContent =
+    cfg.todayDate ? `${cfg.todayDate}　第 ${cfg.todayBan} 番` : '未設定';
+  document.getElementById('cfg-rot-sub').textContent =
+    cfg.rotPattern ? `${cfg.rotPattern.length} 天循環　${cfg.rotPattern.map(s=>SL_MAP[s]||s).join('→')}` : '未設定';
+  document.getElementById('cfg-cons-sub').textContent =
+    cfg.consTotal ? `慰休 ${cfg.consTotal} 天　${cfg.name||'（未設名字）'}` : '未設定';
+  const sp = cfg.spPeriods||[];
+  document.getElementById('cfg-sp-sub').textContent =
+    sp.length ? `${sp.length} 筆特別排班` : '未設定';
+  document.getElementById('settingsOverlay').classList.add('open');
+  buildColorPickers();
+}
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+
+function editSection(n) {
+  closeSettings();
+  // Load current cfg into setup form
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+  if (cfg.todayDate) {
+    document.getElementById('sTodayBan').value = cfg.todayBan;
+    document.getElementById('sTodayDate').value = cfg.todayDate;
+  }
+  if (cfg.rotPattern) {
+    document.getElementById('sRotLen').value = cfg.rotPattern.length;
+    buildRotBuilder(cfg.rotPattern.length);
+    cfg.rotPattern.forEach((s,i) => {
+      rotPattern[i] = s;
+      const btn = document.getElementById('rb-'+i);
+      if(btn){ btn.className='rot-btn '+SL_CLS[s]; btn.textContent=SL_MAP[s]; }
+    });
+    updateRotPreview();
+  }
+  if (cfg.consTotal) {
+    const opts=[7,14,21,28,30];
+    const cl = opts.reduce((a,b)=>Math.abs(b-cfg.consTotal)<Math.abs(a-cfg.consTotal)?b:a);
+    document.getElementById('sSeniority').value = cl;
+    document.getElementById('sConsTotal').value = cfg.consTotal;
+  }
+  if (cfg.name) document.getElementById('sName').value = cfg.name;
+  const spList = document.getElementById('spList');
+  spList.innerHTML=''; spCounter=0;
+  (cfg.spPeriods||[]).forEach(sp=>addSpRow(sp));
+
+  // scroll to the right section
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('setupWrap').style.display = 'flex';
+  setTimeout(()=>{
+    const cards = document.querySelectorAll('.setup-card');
+    if(cards[n]) cards[n].scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
+}
+
+function resetAll() {
+  if (!confirm('確認全部重設？班表資料不受影響。')) return;
+  closeSettings();
   localStorage.removeItem('ss_config');
   document.getElementById('appWrap').style.display = 'none';
   document.getElementById('setupWrap').style.display = 'flex';
-  buildRotBuilder(parseInt(document.getElementById('sRotLen').value) || 16);
+  buildRotBuilder(16);
 }
 
+document.getElementById('settingsOverlay').addEventListener('click', function(e){
+  if(e.target===this) closeSettings();
+});
+
 // ══ CALENDAR LOGIC ══
-const SN = { early:'早', late:'晚', mid:'小', off:'休' };
-const LN = { cons:'慰', comp:'補', other:'他補' };
+
+// ══ LUNAR CALENDAR 2024–2027 ══
+const LUNAR_MONTHS=[
+  [2024,2,10,1,false],[2024,3,10,2,false],[2024,4,9,3,false],[2024,5,8,4,false],
+  [2024,6,6,5,false],[2024,7,6,6,false],[2024,8,4,7,false],[2024,9,3,8,false],
+  [2024,10,3,9,false],[2024,11,1,10,false],[2024,11,30,11,false],[2024,12,30,12,false],
+  [2025,1,29,1,false],[2025,2,28,2,false],[2025,3,29,3,false],[2025,4,28,4,false],
+  [2025,5,27,5,false],[2025,6,25,6,false],[2025,7,25,6,true],[2025,8,23,7,false],
+  [2025,9,22,8,false],[2025,10,22,9,false],[2025,11,21,10,false],[2025,12,21,11,false],
+  [2026,1,19,12,false],[2026,2,17,1,false],[2026,3,18,2,false],[2026,4,17,3,false],
+  [2026,5,16,4,false],[2026,6,14,5,false],[2026,7,14,6,false],[2026,8,13,7,false],
+  [2026,9,11,8,false],[2026,10,11,9,false],[2026,11,10,10,false],[2026,12,10,11,false],
+  [2027,1,8,12,false],[2027,2,6,1,false],
+];
+const LUNAR_DAY=['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+const LUNAR_MON=['','正','二','三','四','五','六','七','八','九','十','十一','十二'];
+function getLunar(gY,gM,gD){
+  const t=new Date(gY,gM-1,gD);
+  for(let i=0;i<LUNAR_MONTHS.length-1;i++){
+    const[y1,m1,d1,lm,leap]=LUNAR_MONTHS[i];
+    const[y2,m2,d2]=LUNAR_MONTHS[i+1];
+    const s=new Date(y1,m1-1,d1),e=new Date(y2,m2-1,d2);
+    if(t>=s&&t<e){return{month:lm,day:Math.round((t-s)/86400000)+1,isLeap:leap};}
+  }
+  return null;
+}
+function lunarDisp(gY,gM,gD){
+  const l=getLunar(gY,gM,gD);
+  if(!l)return'';
+  if(l.day===1)return(l.isLeap?'閏':'')+LUNAR_MON[l.month]+'月';
+  return LUNAR_DAY[l.day];
+}
+
+const SN = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
+const LN = { cons:'慰', comp:'補', other:'補放' };
 const DOW = ['日','一','二','三','四','五','六'];
 const MN  = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
@@ -1010,7 +1600,7 @@ function render() {
   const dim = new Date(cY,cM+1,0).getDate();
   for(let i=0;i<fd;i++) grid.innerHTML+=`<div class="cell empty"></div>`;
 
-  const stats = {early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+  const stats = {early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
 
   for(let d=1;d<=dim;d++){
     const ky = k(cY,cM,d);
@@ -1038,12 +1628,14 @@ function render() {
     const ottag= rec.ot?`<div class="ot-badge">+${rec.ot}h</div>`:'';
     const ntag = rec.note?`<div class="note-lbl">${rec.note}</div>`:'';
 
-    grid.innerHTML+=`<div class="${cls}" onclick="openSheet('${ky}',${d},${dow})">
+    const ld = lunarDisp(cY, cM, d);
+    const lunarHtml = ld ? `<div class="lunar-lbl${ld.endsWith('月')?' is-first':''}">` + ld + `</div>` : '';
+    grid.innerHTML+=`<div class="${cls}" onmousedown="startLongPress('${ky}',${d},${dow},event)" onmouseup="cancelLongPress(event)" onmouseleave="cancelLongPress(event)" ontouchstart="startLongPress('${ky}',${d},${dow},event)" ontouchend="cancelLongPress(event)" ontouchmove="cancelLongPress(event)">
       <div class="cell-head">
         <div class="dnum">${d}</div>
         <div class="cell-meta"><div class="ban-lbl">${ban !== null ? ban+'番' : ''}</div></div>
       </div>
-      ${stag}${ltag}${ottag}${ntag}${holHtml}
+      ${stag}${ltag}${ottag}${ntag}${holHtml}${lunarHtml}
     </div>`;
 
     if(shift && !rec.leave) stats[shift]++;
@@ -1056,7 +1648,7 @@ function render() {
 
 function renderStats(s) {
   document.getElementById('statsRow').innerHTML =
-    [{k:'early',c:'var(--early)',l:'早班'},{k:'late',c:'var(--late)',l:'晚班'},
+    [{k:'early',c:'var(--early)',l:'早班'},{k:'mid2',c:'var(--mid2)',l:'中班'},{k:'late',c:'var(--late)',l:'晚(大夜)'},
      {k:'mid',c:'var(--mid)',l:'小夜'},{k:'off',c:'var(--off)',l:'排休'}]
     .map(i=>`<div class="stat-chip"><div class="stat-dot" style="background:${i.c}"></div>${i.l}&nbsp;<strong>${s[i.k]}</strong></div>`)
     .join('');
@@ -1099,15 +1691,15 @@ function renderQuarter() {
     {label:'Q4　十～十二月',color:'#c084fc',months:[9,10,11]},
   ];
   const COLS = [
-    {key:'early',label:'早',color:'var(--early)'},{key:'late',label:'晚',color:'var(--late)'},
-    {key:'mid',label:'小',color:'var(--mid)'},{key:'off',label:'休',color:'var(--off)'},
+    {key:'early',label:'早',color:'var(--early)'},{key:'mid2',label:'中',color:'var(--mid2)'},{key:'late',label:'晚',color:'var(--late)'},
+    {key:'mid',label:'小夜',color:'var(--mid)'},{key:'off',label:'休',color:'var(--off)'},
     {key:'cons',label:'慰',color:'var(--cons)'},{key:'comp',label:'補',color:'var(--comp)'},
-    {key:'other',label:'他補',color:'var(--other)'},
+    {key:'other',label:'補放',color:'var(--other)'},
   ];
   const MNS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   function calcM(y,m){
     const dim=new Date(y,m+1,0).getDate();
-    const s={early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+    const s={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
     for(let d=1;d<=dim;d++){
       const ky=k(y,m,d); const rec=dayData[ky]||{};
       const shift=rec.shift!==undefined?rec.shift:getAutoShift(new Date(y,m,d));
@@ -1121,7 +1713,7 @@ function renderQuarter() {
   const curQ=Math.floor(cM/3);
   document.getElementById('quarterSection').innerHTML = QUARTERS.map((q,qi)=>{
     const ms=q.months.map(m=>({m,s:calcM(cY,m)}));
-    const tot={early:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+    const tot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
     ms.forEach(({s})=>COLS.forEach(c=>{tot[c.key]+=s[c.key];}));
     const tL=tot.cons+tot.comp+tot.other;
     const isOpen=qi===curQ;
@@ -1163,7 +1755,7 @@ function openSheet(ky,d,dow){
   pLeave=rec.leave||null;
   pLeaveHours=rec.leaveHours||8;
   const fg=document.getElementById('leaveHoursFg');
-  fg.style.display=(pLeave==='comp'||pLeave==='other')?'block':'none';
+  fg.style.display=pLeave==='comp'?'block':'none';
   if(fg.style.display==='block'){
     const avail=Math.round((otHours-calcCompHoursUsed(ky)+(rec.leaveHours||0))*10)/10;
     document.getElementById('otBalance').textContent=avail+'h 可用';
@@ -1177,7 +1769,7 @@ function pS(v){pShift=v;updS();}
 function pL(v){
   pLeave=v; updL();
   const fg=document.getElementById('leaveHoursFg');
-  fg.style.display=(v==='comp'||v==='other')?'block':'none';
+  fg.style.display=v==='comp'?'block':'none';
   if(fg.style.display==='block'){
     const prevLH=eKey?((dayData[eKey]||{}).leaveHours||0):0;
     const avail=Math.round((otHours-calcCompHoursUsed(eKey)+prevLH)*10)/10;
@@ -1186,7 +1778,7 @@ function pL(v){
 }
 function pLH(h){pLeaveHours=h;updLH();}
 
-function updS(){['early','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
+function updS(){['early','mid2','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
 function updL(){['cons','comp','other','null'].forEach(v=>{const el=document.getElementById('lo-'+v);if(!el)return;el.className='opt';if(pLeave===(v==='null'?null:v))el.classList.add('on-'+v);});}
 function updLH(){[4,8].forEach(h=>{const el=document.getElementById('lh-'+h);if(!el)return;el.className='opt'+(pLeaveHours===h?' on-early':'');});}
 
@@ -1211,7 +1803,7 @@ function clearDay(){
   if(eKey){
     const rec=dayData[eKey]||{};
     if(rec.ot) otHours=Math.max(0,Math.round((otHours-rec.ot)*10)/10);
-    if((rec.leave==='comp'||rec.leave==='other')&&rec.leaveHours) otHours=Math.round((otHours+rec.leaveHours)*10)/10;
+    if(rec.leave==='comp'&&rec.leaveHours) otHours=Math.round((otHours+rec.leaveHours)*10)/10;
     delete dayData[eKey];
   }
   persist(); closeSheet(); render();
@@ -1273,7 +1865,439 @@ let touchStartX=0;
 document.addEventListener('touchstart',e=>{if(document.getElementById('overlay').classList.contains('open'))return;touchStartX=e.touches[0].clientX;},{passive:true});
 document.addEventListener('touchend',e=>{if(document.getElementById('overlay').classList.contains('open'))return;const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>60)chM(dx<0?1:-1);},{passive:true});
 
+
+// ── COLOR PICKER LOGIC ──
+let _cpCurrentKey = null;
+(function(){
+  const inp = document.createElement('input');
+  inp.type = 'color'; inp.id = 'hiddenColorInput';
+  inp.style.cssText = 'position:absolute;opacity:0;width:0;height:0;pointer-events:none;';
+  document.body.appendChild(inp);
+  inp.addEventListener('input', function(){
+    if (!_cpCurrentKey) return;
+    const dot = document.querySelector('.cp-dot[data-key="'+_cpCurrentKey+'"]');
+    if (dot) dot.style.background = inp.value;
+    saveColor(_cpCurrentKey, inp.value);
+  });
+})();
+
+function pickColor(key, currentVal) {
+  _cpCurrentKey = key;
+  const inp = document.getElementById('hiddenColorInput');
+  inp.value = currentVal;
+  inp.click();
+}
+
+function buildColorPickers() {
+  const el = document.getElementById('colorPickerGrid');
+  if (!el) return;
+  const saved = JSON.parse(localStorage.getItem('sg_colors') || '{}');
+  const items = [
+    {k:'early',label:'早班'},{k:'mid2',label:'中班'},
+    {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
+    {k:'off',label:'排休'},{k:'cons',label:'慰休'},
+    {k:'comp',label:'補休'},{k:'other',label:'補放假'},
+    {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
+  ];
+  el.innerHTML = items.map(i => {
+    const v = saved[i.k] || DEFAULT_COLORS[i.k];
+    return '<div class="cp-chip" onclick="pickColor(\''+i.k+'\',\''+v+'\')">'
+      +'<div class="cp-dot" data-key="'+i.k+'" style="background:'+v+'"></div>'
+      +'<div class="cp-text">'+i.label+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ── QUICK MARK ──
+let _qKey = null, _qD = null, _qDow = null, _longTimer = null, _shiftLocked = true, _touchStartX = 0, _touchStartY = 0;
+
+function startLongPress(ky, d, dow, e) {
+  // prevent scroll during long press attempt
+  if (e.cancelable) e.preventDefault();
+  const touch = e.touches ? e.touches[0] : e;
+  _touchStartX = touch.clientX;
+  _touchStartY = touch.clientY;
+  showCellHint(touch.clientX, touch.clientY);
+  _longTimer = setTimeout(() => {
+    hideCellHint();
+    openQuick(ky, d, dow);
+  }, 480);
+}
+function cancelLongPress(e) {
+  // cancel if finger moved too much (scroll intent)
+  if (e && e.touches) {
+    const t = e.touches[0] || e.changedTouches[0];
+    if (t) {
+      const dx = Math.abs(t.clientX - _touchStartX);
+      const dy = Math.abs(t.clientY - _touchStartY);
+      if (dx > 8 || dy > 8) {
+        clearTimeout(_longTimer);
+        hideCellHint();
+        return;
+      }
+    }
+  }
+  if (e && e.type !== 'touchmove') {
+    clearTimeout(_longTimer);
+    hideCellHint();
+  }
+}
+
+function openQuick(ky, d, dow) {
+  _qKey = ky; _qD = d; _qDow = dow;
+  _shiftLocked = true;
+  document.getElementById('qDate').textContent =
+    cY + ' / ' + (cM+1) + ' / ' + d + '（' + DOW[dow] + '）';
+  // reset lock UI
+  document.getElementById('shiftBtns').style.opacity = '.35';
+  document.getElementById('shiftBtns').style.pointerEvents = 'none';
+  document.getElementById('shiftLockBtn').textContent = '🔒 鎖定';
+  document.getElementById('shiftLockBtn').style.color = 'var(--text-dim)';
+  // hide comp hours
+  document.getElementById('compHoursRow').style.display = 'none';
+  document.getElementById('quickOverlay').classList.add('open');
+}
+
+function toggleShiftLock() {
+  _shiftLocked = !_shiftLocked;
+  const btns = document.getElementById('shiftBtns');
+  const lbl  = document.getElementById('shiftLockBtn');
+  if (_shiftLocked) {
+    btns.style.opacity = '.35'; btns.style.pointerEvents = 'none';
+    lbl.textContent = '🔒 鎖定'; lbl.style.color = 'var(--text-dim)';
+  } else {
+    btns.style.opacity = '1'; btns.style.pointerEvents = 'all';
+    lbl.textContent = '🔓 解鎖'; lbl.style.color = 'var(--comp)';
+  }
+}
+
+function closeQuick() {
+  document.getElementById('quickOverlay').classList.remove('open');
+  _qKey = null;
+}
+
+function quickSet(type, val) {
+  if (!_qKey) return;
+  const prev = dayData[_qKey] || {};
+  const rec = { ...prev };
+  if (type === 'shift') { if (_shiftLocked) return; rec.shift = val; }
+  if (type === 'leave') {
+    // 還原舊補休時數到加班餘額
+    if (prev.leave === 'comp' && prev.leaveHours) {
+      otHours = Math.round((otHours + prev.leaveHours) * 10) / 10;
+    }
+    if (rec.leave === val) {
+      // 再點同一假別 → 取消
+      delete rec.leave; delete rec.leaveHours;
+    } else {
+      rec.leave = val;
+      delete rec.leaveHours; // 非補休不需要時數
+    }
+  }
+  if (Object.keys(rec).length === 0) delete dayData[_qKey];
+  else dayData[_qKey] = rec;
+  persist(); render(); closeQuick();
+}
+
+function quickLeaveComp() {
+  // show hour selector instead of setting immediately
+  const row = document.getElementById('compHoursRow');
+  row.style.display = row.style.display === 'none' ? 'block' : 'none';
+}
+
+function quickSetComp(hours) {
+  if (!_qKey) return;
+  const prevRec = dayData[_qKey] || {};
+  const prevLH = prevRec.leaveHours || 0;
+  const rec = { ...(prevRec) };
+  rec.leave = 'comp';
+  rec.leaveHours = hours;
+  // adjust otHours
+  otHours = Math.max(0, Math.round((otHours + prevLH - hours) * 10) / 10);
+  dayData[_qKey] = rec;
+  persist(); render(); closeQuick();
+}
+
+function quickClear() {
+  if (!_qKey) return;
+  const rec = dayData[_qKey] || {};
+  if (rec.ot) otHours = Math.max(0, Math.round((otHours - rec.ot)*10)/10);
+  if (rec.leave === 'comp' && rec.leaveHours) otHours = Math.round((otHours + rec.leaveHours)*10)/10;
+  delete dayData[_qKey];
+  persist(); render(); closeQuick();
+}
+
+function quickOpenFull() {
+  const ky = _qKey, d = _qD, dow = _qDow;
+  closeQuick();
+  openSheet(ky, d, dow);
+}
+
+document.getElementById('quickOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeQuick();
+});
+
+// ── HINT BUBBLE ──
+let _hintTimer = null;
+
+function showCellHint(x, y) {
+  const b = document.getElementById('cellHintBubble');
+  if (!b) return;
+  // position above finger/cursor
+  const bw = 180, bh = 44;
+  let left = Math.min(x - bw/2, window.innerWidth - bw - 8);
+  left = Math.max(8, left);
+  let top = y - bh - 12;
+  if (top < 8) top = y + 20;
+  b.style.left = left + 'px';
+  b.style.top  = top + 'px';
+  b.classList.add('show');
+  clearTimeout(_hintTimer);
+  _hintTimer = setTimeout(hideCellHint, 1800);
+}
+
+function hideCellHint() {
+  const b = document.getElementById('cellHintBubble');
+  if (b) b.classList.remove('show');
+  clearTimeout(_hintTimer);
+}
+
+// Desktop: show hint on cell mouseenter
+document.addEventListener('mouseover', function(e) {
+  const cell = e.target.closest('.cell:not(.empty)');
+  if (!cell) { hideCellHint(); return; }
+  showCellHint(e.clientX, e.clientY);
+});
+document.addEventListener('mousemove', function(e) {
+  const cell = e.target.closest('.cell:not(.empty)');
+  if (!cell) return;
+  const b = document.getElementById('cellHintBubble');
+  if (!b || !b.classList.contains('show')) return;
+  const bw = 180;
+  let left = Math.min(e.clientX - bw/2, window.innerWidth - bw - 8);
+  left = Math.max(8, left);
+  let top = e.clientY - 44 - 12;
+  if (top < 8) top = e.clientY + 20;
+  b.style.left = left + 'px';
+  b.style.top  = top + 'px';
+});
+document.addEventListener('mouseleave', hideCellHint);
+
+// ── EXPORT CALENDAR IMAGE ──
+function exportCalImg() {
+  const btn = document.getElementById('btnShareImg');
+  btn.disabled = true;
+  btn.textContent = '⏳ 產生中...';
+
+  // Load html2canvas if not already loaded
+  if (typeof html2canvas === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = () => doExport(btn);
+    s.onerror = () => {
+      btn.disabled = false;
+      btn.innerHTML = '產生當月班表圖片';
+      alert('無法載入圖片產生套件，請確認網路連線');
+    };
+    document.head.appendChild(s);
+  } else {
+    doExport(btn);
+  }
+}
+
+function doExport(btn) {
+  // Build a clean render frame
+  const frame = document.createElement('div');
+  frame.style.cssText = 'position:fixed;left:-9999px;top:0;width:760px;background:#0d1117;padding:24px;font-family:Noto Sans TC,sans-serif;color:#e2e8f5;border-radius:16px;';
+  document.body.appendChild(frame);
+
+  // Title
+  const MN_short = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:22px;font-weight:900;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;';
+  const name = (typeof CONS_TOTAL !== 'undefined' ? '' : '') + '';
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || localStorage.getItem('cv3_config') || '{}');
+  title.innerHTML = `<span>${cfg.name ? cfg.name + ' ' : ''}${cY} 年 ${MN_short[cM]}</span><span style="font-size:11px;color:#6b7899;font-family:monospace">Shift Go</span>`;
+  frame.appendChild(title);
+
+  // DOW header
+  const DOW_labels = ['日','一','二','三','四','五','六'];
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;';
+  DOW_labels.forEach((d,i) => {
+    const dh = document.createElement('div');
+    dh.style.cssText = `text-align:center;font-size:11px;padding:4px 0;color:${i===0?'#f43f5e':i===6?'#818cf8':'#3d4d6a'};font-family:monospace;`;
+    dh.textContent = d;
+    hdr.appendChild(dh);
+  });
+  frame.appendChild(hdr);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:3px;';
+  const fd  = new Date(cY, cM, 1).getDay();
+  const dim = new Date(cY, cM+1, 0).getDate();
+  const SHIFT_COLORS = {
+    early:['#22c97a','rgba(34,201,122,.15)'],
+    mid2: ['#f59e0b','rgba(245,158,11,.15)'],
+    late: ['#f43f5e','rgba(244,63,94,.15)'],
+    mid:  ['#60a5fa','rgba(96,165,250,.15)'],
+    off:  ['#3d4d6a','rgba(61,77,106,.15)'],
+  };
+  const LEAVE_COLORS = {
+    cons: ['#c084fc','rgba(192,132,252,.15)'],
+    comp: ['#34d4c8','rgba(52,212,200,.15)'],
+    other:['#fb923c','rgba(251,146,60,.15)'],
+  };
+  const SN_img = {early:'早',mid2:'中',late:'晚',mid:'小夜',off:'休'};
+  const LN_img = {cons:'慰',comp:'補',other:'補放'};
+
+  for (let i=0; i<fd; i++) {
+    const blank = document.createElement('div');
+    blank.style.cssText = 'background:transparent;height:90px;';
+    grid.appendChild(blank);
+  }
+
+  for (let d=1; d<=dim; d++) {
+    const ky = k(cY,cM,d);
+    const rec = dayData[ky] || {};
+    const date = new Date(cY,cM,d);
+    const dow  = date.getDay();
+    const ban  = getBan(date);
+    const autoShift = typeof SHIFT_OVERRIDE !== 'undefined' && SHIFT_OVERRIDE[ky]
+      ? SHIFT_OVERRIDE[ky] : (ban !== null ? ROTATION[ban-1] : null);
+    const shift = rec.shift !== undefined ? rec.shift : autoShift;
+    const hw = TW_HOL[ky];
+    const isToday = cY===new Date().getFullYear()&&cM===new Date().getMonth()&&d===new Date().getDate();
+
+    const sc = SHIFT_COLORS[shift] || ['#3d4d6a','rgba(61,77,106,.15)'];
+    const lc = rec.leave ? (LEAVE_COLORS[rec.leave]||['#fff','rgba(255,255,255,.1)']) : null;
+
+    const cell = document.createElement('div');
+    const bg = lc ? lc[1] : sc[1];
+    const border = isToday ? '#f5c518' : (hw ? '#f43f5e' : (lc ? lc[0] : '#2a3349'));
+    const bw = (isToday || lc) ? '2px' : '1px';
+    cell.style.cssText = `background:${bg};border:${bw} solid ${border};border-radius:8px;height:90px;padding:6px 5px;position:relative;overflow:hidden;box-sizing:border-box;`;
+
+    // Stripe
+    const stripe = document.createElement('div');
+    stripe.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:3px;background:${lc?lc[0]:sc[0]};border-radius:3px 0 0 3px;`;
+    cell.appendChild(stripe);
+
+    // Day number
+    const dnum = document.createElement('div');
+    const dnumColor = isToday ? '#f5c518' : hw ? '#f43f5e' : dow===0 ? '#f43f5e' : dow===6 ? '#818cf8' : '#e2e8f5';
+    dnum.style.cssText = `font-family:monospace;font-size:12px;font-weight:700;color:${dnumColor};${hw?'border:1.5px solid #f43f5e;border-radius:4px;padding:0 2px;display:inline-block;':''}`;
+    dnum.textContent = d;
+    cell.appendChild(dnum);
+
+    // Ban
+    if (ban !== null) {
+      const banEl = document.createElement('div');
+      banEl.style.cssText = 'position:absolute;top:5px;right:5px;font-family:monospace;font-size:8px;font-weight:700;color:#6b7899;';
+      banEl.textContent = ban+'番';
+      cell.appendChild(banEl);
+    }
+
+    // Shift badge
+    if (shift && SN_img[shift]) {
+      const sb = document.createElement('div');
+      sb.style.cssText = `font-size:10px;font-weight:700;padding:2px 4px;border-radius:4px;width:fit-content;margin-top:2px;background:${sc[1]};color:${sc[0]};`;
+      sb.textContent = SN_img[shift];
+      cell.appendChild(sb);
+    }
+
+    // Leave badge
+    if (rec.leave && LN_img[rec.leave]) {
+      const lb = document.createElement('div');
+      lb.style.cssText = `font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;width:100%;text-align:center;margin-top:2px;background:${lc?lc[1]:''};color:${lc?lc[0]:'#fff'};`;
+      lb.textContent = LN_img[rec.leave] + (rec.leaveHours===4?' ½':'');
+      cell.appendChild(lb);
+    }
+
+    // Lunar
+    const ld = lunarDisp(cY,cM,d);
+    if (ld) {
+      const ll = document.createElement('div');
+      ll.style.cssText = `font-size:8px;color:${ld.endsWith('月')?'#c9962a':'#a07c3a'};position:absolute;bottom:3px;left:6px;${ld.endsWith('月')?'font-weight:700;':''}`;
+      ll.textContent = ld;
+      cell.appendChild(ll);
+    }
+
+    grid.appendChild(cell);
+  }
+  frame.appendChild(grid);
+
+  // Legend
+  const leg = document.createElement('div');
+  leg.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;';
+  const legItems = [
+    ['早班','#22c97a','rgba(34,201,122,.15)'],
+    ['中班','#f59e0b','rgba(245,158,11,.15)'],
+    ['晚/大夜','#f43f5e','rgba(244,63,94,.15)'],
+    ['小夜','#60a5fa','rgba(96,165,250,.15)'],
+    ['排休','#3d4d6a','rgba(61,77,106,.15)'],
+    ['慰休','#c084fc','rgba(192,132,252,.15)'],
+    ['補休','#34d4c8','rgba(52,212,200,.15)'],
+  ];
+  legItems.forEach(([label,color,bg]) => {
+    const li = document.createElement('div');
+    li.style.cssText = `display:flex;align-items:center;gap:4px;font-size:10px;color:#6b7899;`;
+    li.innerHTML = `<div style="width:12px;height:10px;border-radius:3px;background:${bg};border:1px solid ${color};flex-shrink:0;"></div>${label}`;
+    leg.appendChild(li);
+  });
+  frame.appendChild(leg);
+
+  // Footer
+  const ft = document.createElement('div');
+  ft.style.cssText = 'margin-top:10px;font-size:9px;color:#3d4d6a;text-align:right;font-family:monospace;';
+  ft.textContent = 'Shift Go';
+  frame.appendChild(ft);
+
+  setTimeout(() => {
+    html2canvas(frame, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#0d1117',
+      logging: false,
+    }).then(canvas => {
+      document.body.removeChild(frame);
+      btn.disabled = false;
+      btn.innerHTML = '產生當月班表圖片';
+
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const mn = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        const fname = `ShiftGo_${cY}${mn[cM]}.png`;
+
+        // Try share API first (mobile)
+        if (navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'a.png',{type:'image/png'})]})) {
+          navigator.share({
+            title: `${cY}年${cM+1}月班表`,
+            files: [new File([blob], fname, {type:'image/png'})]
+          }).catch(()=>{});
+        } else {
+          // Fallback: download
+          const a = document.createElement('a');
+          a.href = url; a.download = fname; a.click();
+        }
+        setTimeout(()=>URL.revokeObjectURL(url), 5000);
+      }, 'image/png');
+    }).catch(err => {
+      document.body.removeChild(frame);
+      btn.disabled = false;
+      btn.innerHTML = '產生當月班表圖片';
+      alert('圖片產生失敗：' + err.message);
+    });
+  }, 100);
+}
+
+loadTheme();
+loadColors();
+buildColorPickers();
 initSetup();
 </script>
+
+<div id="cellHintBubble">⏳ 長按編輯</div>
 </body>
 </html>
