@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291940</title>
+<title>Shift Go v.03291950</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1259,7 +1259,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291940</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291950</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1379,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291940</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291950</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2025,6 +2025,7 @@ function startApp() {
 }
 
 function applyConfig(cfg) {
+  _myCivilMode = null; // reset cache
   // restore special period rows in setup UI if reopening
   const spList = document.getElementById('spList');
   if (spList) {
@@ -2043,7 +2044,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291940';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291950';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3337,15 +3338,30 @@ function loadFriendJSONForIndex(idx, e) {
   e.target.value = '';
 }
 
+// Cached civil mode flag for "me"
+let _myCivilMode = null;
+function isMyCivilMode() {
+  if (_myCivilMode === null) {
+    _myCivilMode = !!(JSON.parse(localStorage.getItem('ss_config') || '{}').civilMode);
+  }
+  return _myCivilMode;
+}
+
+function isFriendCivilMode(f) {
+  if (!f.cfg) return false;
+  // Explicit flag (new data)
+  if (f.cfg.civilMode) return true;
+  // Heuristic: rotPattern is ['early'] only = civil servant old format
+  if (f.cfg.rotPattern?.length === 1 && f.cfg.rotPattern[0] === 'early') return true;
+  return false;
+}
+
 function getShiftForDate(date, isMe, friendIdx) {
   const ky = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
   if (isMe) {
     const rec = dayData[ky] || {};
-    const myCfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
-    if (myCfg.civilMode) {
-      // Manual leave entries respected
+    if (isMyCivilMode()) {
       if (rec.leave) return { shift: rec.shift || 'off', leave: rec.leave };
-      // Non-early/off manual shifts respected
       if (rec.shift !== undefined && rec.shift !== 'early' && rec.shift !== 'off') {
         return { shift: rec.shift, leave: rec.leave || null };
       }
@@ -3362,25 +3378,18 @@ function getShiftForDate(date, isMe, friendIdx) {
   const rec = (f.dayData || {})[ky] || {};
   const leave = rec.leave || null;
 
-  // Civil servant mode: weekends and holidays ALWAYS override any pre-computed shift
-  if (f.cfg?.civilMode) {
-    // Respect manual leave entries
+  if (isFriendCivilMode(f)) {
     if (leave) return { shift: rec.shift || 'off', leave };
-    // Manually set shifts still take priority
     if (rec.shift !== undefined && rec.shift !== 'early' && rec.shift !== 'off') {
       return { shift: rec.shift, leave };
     }
-    // Civil servant rule
     if (TW_HOL[ky]) return { shift: 'off', leave };
     const dow = date.getDay();
     return { shift: (dow === 0 || dow === 6) ? 'off' : 'early', leave };
   }
 
-  // Non-civil mode: use stored shift first, then calculate from rotation
   if (rec.shift !== undefined) return { shift: rec.shift, leave };
   if (!f.cfg) return { shift: null, leave };
-
-  // check spPeriods
   if (f.cfg.spPeriods) {
     for (const sp of f.cfg.spPeriods) {
       if (ky >= sp.start && ky <= sp.end) return { shift: sp.shift || 'off', leave };
