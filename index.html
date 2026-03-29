@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291955</title>
+<title>Shift Go v.03292110</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1259,7 +1259,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291955</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03292110</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1298,6 +1298,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         換手機前請先在「資料備份」區塊匯出 JSON，新手機匯入即可還原所有設定與班表。
       </div>
     </div>
+  </div>
+
+  <!-- 名字 -->
+  <div class="setup-card" style="padding:12px 16px;">
+    <label style="font-size:.78rem;font-weight:600;color:var(--text);">你的名字
+      <span style="font-size:.6rem;color:var(--text-mute);font-weight:400;margin-left:6px;">分享給好友時顯示</span>
+    </label>
+    <input type="text" id="sName" placeholder="輸入名字" style="margin-top:6px;width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:.82rem;font-family:inherit;">
   </div>
 
   <!-- 1. 今日番號校正 -->
@@ -1355,12 +1363,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       </div>
     </div>
     <div class="setup-hint">依公務人員請假規則第7條，最高30天（年資滿14年）</div>
-    <div class="sf-row" style="margin-top:10px">
-      <div class="sf">
-        <label>你的名字（選填）</label>
-        <input type="text" id="sName" placeholder="顯示在標題">
-      </div>
-    </div>
+
   </div>
 
   <div class="setup-card" id="setupCard04">
@@ -1379,7 +1382,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291955</div>
+      <div class="app-label" id="appLabel">Shift Go v.03292110</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2043,7 +2046,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291955';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03292110';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3553,26 +3556,7 @@ async function shareToCloud() {
   // 移除 leaveHours（補休時數）、ot（加班）等數量資料
   const shareDay = {};
 
-  // 若為公務人員模式，預先計算未來 24 個月的班表寫入 shareDay
-  // 這樣接收方不需要 civilMode 旗標，直接讀取實際班表即可
-  if (cfg.civilMode) {
-    const startDate = new Date();
-    startDate.setDate(1);
-    for (let m = -1; m < 24; m++) {
-      const d = new Date(startDate.getFullYear(), startDate.getMonth() + m, 1);
-      const dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-      for (let day = 1; day <= dim; day++) {
-        const date = new Date(d.getFullYear(), d.getMonth(), day);
-        const ky = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-        // 手動記錄優先
-        if (dayData[ky]?.shift !== undefined) continue;
-        const shift = TW_HOL[ky] ? 'off' : (date.getDay() === 0 || date.getDay() === 6) ? 'off' : 'early';
-        shareDay[ky] = { shift };
-      }
-    }
-  }
-
-  // 合併手動記錄（優先覆蓋自動計算的值）
+  // 合併手動記錄（假別、自訂班別、備註）
   Object.entries(dayData).forEach(([k, v]) => {
     const entry = {};
     if (v.shift !== undefined) entry.shift = v.shift;
