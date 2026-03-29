@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291419</title>
+<title>Shift Go v.03291439</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1268,7 +1268,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291419</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291439</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1310,7 +1310,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 
   <!-- 1. 今日番號校正 -->
-  <div class="setup-card">
+  <div class="setup-card" id="setupCard01">
     <h2>01 ── 今日番號校正</h2>
     <div class="sf-row">
       <div class="sf">
@@ -1388,7 +1388,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291419</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291439</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1926,38 +1926,30 @@ const CIVIL_ROTATION = ['early','early','early','early','early','off','off','lat
 
 function toggleCivilMode() {
   const checked = document.getElementById('civilModeCheck').checked;
+  const card01 = document.getElementById('setupCard01');
   const card02 = document.getElementById('setupCard02');
   const card04 = document.getElementById('setupCard04');
 
   if (checked) {
-    // Hide 02 and 04
+    card01.style.display = 'none';
     card02.style.display = 'none';
     card04.style.display = 'none';
-    // Auto-fill rotation
-    buildRotBuilder(16);
-    CIVIL_ROTATION.forEach((s, i) => {
-      rotPattern[i] = s;
-      const btn = document.getElementById('rb-' + i);
-      if (btn) { btn.className = 'rot-btn ' + SL_CLS[s]; btn.textContent = SL_MAP[s]; }
-    });
-    updateRotPreview();
+    // Civil servant: no rotation needed, use dummy pattern
+    rotPattern = ['early'];
     // Auto-fill spring festival
     const spList = document.getElementById('spList');
     spList.innerHTML = ''; spCounter = 0;
     CIVIL_SP_2026.forEach(sp => addSpRow(sp));
-    // Check the civil SP checkbox too
-    const civilSpCheck = document.getElementById('spCivilCheck');
-    if (civilSpCheck) civilSpCheck.checked = true;
+    // Default seniority to first option (7 days)
+    const sen = document.getElementById('sSeniority');
+    if (sen) { sen.value = '7'; document.getElementById('sConsTotal').value = '7'; }
   } else {
-    // Show 02 and 04
+    card01.style.display = '';
     card02.style.display = '';
     card04.style.display = '';
-    // Reset
     buildRotBuilder(16);
     const spList = document.getElementById('spList');
     spList.innerHTML = ''; spCounter = 0;
-    const civilSpCheck = document.getElementById('spCivilCheck');
-    if (civilSpCheck) civilSpCheck.checked = false;
     document.querySelector('.btn-add-sp').disabled = false;
     document.querySelector('.btn-add-sp').style.opacity = '1';
   }
@@ -2028,15 +2020,20 @@ function startApp() {
   const name = document.getElementById('sName').value.trim();
   const rotLen = rotPattern.length;
 
-  if (!todayBan || !todayDate || rotLen < 2) {
+  const civilMode = document.getElementById('civilModeCheck')?.checked || false;
+
+  if (!civilMode && (!todayBan || !todayDate || rotLen < 2)) {
     const err = document.getElementById('setupErr');
     err.style.display = 'block';
     err.textContent = '請確認今日番號、日期與輪班週期都已設定';
     return;
   }
-
-  const spPeriods = collectSpPeriods();
-  const civilMode = document.getElementById('civilModeCheck')?.checked || false;
+  if (civilMode && !todayDate) {
+    const err = document.getElementById('setupErr');
+    err.style.display = 'block';
+    err.textContent = '請確認今天日期';
+    return;
+  }
   const cfg = { todayBan, todayDate, rotPattern:[...rotPattern], consTotal, name, spPeriods, civilMode };
   localStorage.setItem('ss_config', JSON.stringify(cfg));
   applyConfig(cfg);
@@ -2061,7 +2058,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291419';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291439';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2255,6 +2252,13 @@ function getBan(date) {
 function getAutoShift(date) {
   const ky = k(date.getFullYear(), date.getMonth(), date.getDate());
   if (SP_OVERRIDE[ky] !== undefined) return SP_OVERRIDE[ky];
+  // Civil servant mode: Mon-Fri = early, Sat-Sun = off, holidays = off
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+  if (cfg.civilMode) {
+    if (TW_HOL[ky]) return 'off';
+    const dow = date.getDay();
+    return (dow === 0 || dow === 6) ? 'off' : 'early';
+  }
   const ban = getBan(date);
   if (ban === null) return 'off';
   return ROTATION[ban - 1];
