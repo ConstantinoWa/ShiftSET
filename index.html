@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291929</title>
+<title>Shift Go v.03291940</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1259,7 +1259,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291929</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291940</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1379,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291929</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291940</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2043,7 +2043,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291929';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291940';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3341,14 +3341,19 @@ function getShiftForDate(date, isMe, friendIdx) {
   const ky = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
   if (isMe) {
     const rec = dayData[ky] || {};
-    if (rec.shift !== undefined) return { shift: rec.shift, leave: rec.leave || null };
-    // Civil servant mode for me
     const myCfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
     if (myCfg.civilMode) {
+      // Manual leave entries respected
+      if (rec.leave) return { shift: rec.shift || 'off', leave: rec.leave };
+      // Non-early/off manual shifts respected
+      if (rec.shift !== undefined && rec.shift !== 'early' && rec.shift !== 'off') {
+        return { shift: rec.shift, leave: rec.leave || null };
+      }
       if (TW_HOL[ky]) return { shift: 'off', leave: rec.leave || null };
       const dow = date.getDay();
       return { shift: (dow === 0 || dow === 6) ? 'off' : 'early', leave: rec.leave || null };
     }
+    if (rec.shift !== undefined) return { shift: rec.shift, leave: rec.leave || null };
     const ban = getBan(date);
     const s = ban !== null ? ROTATION[ban-1] : (SHIFT_OVERRIDE[ky] || 'off');
     return { shift: s, leave: rec.leave || null };
@@ -3356,15 +3361,24 @@ function getShiftForDate(date, isMe, friendIdx) {
   const f = friends[friendIdx];
   const rec = (f.dayData || {})[ky] || {};
   const leave = rec.leave || null;
-  if (rec.shift !== undefined) return { shift: rec.shift, leave };
-  if (!f.cfg) return { shift: null, leave };
 
-  // Civil servant mode: Mon-Fri = early, weekends/holidays = off
-  if (f.cfg.civilMode) {
+  // Civil servant mode: weekends and holidays ALWAYS override any pre-computed shift
+  if (f.cfg?.civilMode) {
+    // Respect manual leave entries
+    if (leave) return { shift: rec.shift || 'off', leave };
+    // Manually set shifts still take priority
+    if (rec.shift !== undefined && rec.shift !== 'early' && rec.shift !== 'off') {
+      return { shift: rec.shift, leave };
+    }
+    // Civil servant rule
     if (TW_HOL[ky]) return { shift: 'off', leave };
     const dow = date.getDay();
     return { shift: (dow === 0 || dow === 6) ? 'off' : 'early', leave };
   }
+
+  // Non-civil mode: use stored shift first, then calculate from rotation
+  if (rec.shift !== undefined) return { shift: rec.shift, leave };
+  if (!f.cfg) return { shift: null, leave };
 
   // check spPeriods
   if (f.cfg.spPeriods) {
