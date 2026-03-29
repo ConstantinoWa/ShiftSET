@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291919</title>
+<title>Shift Go v.03291929</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1259,7 +1259,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291919</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291929</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1379,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291919</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291929</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2043,7 +2043,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291919';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291929';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3342,6 +3342,13 @@ function getShiftForDate(date, isMe, friendIdx) {
   if (isMe) {
     const rec = dayData[ky] || {};
     if (rec.shift !== undefined) return { shift: rec.shift, leave: rec.leave || null };
+    // Civil servant mode for me
+    const myCfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+    if (myCfg.civilMode) {
+      if (TW_HOL[ky]) return { shift: 'off', leave: rec.leave || null };
+      const dow = date.getDay();
+      return { shift: (dow === 0 || dow === 6) ? 'off' : 'early', leave: rec.leave || null };
+    }
     const ban = getBan(date);
     const s = ban !== null ? ROTATION[ban-1] : (SHIFT_OVERRIDE[ky] || 'off');
     return { shift: s, leave: rec.leave || null };
@@ -3554,12 +3561,32 @@ async function shareToCloud() {
   // dayData 只保留班別和假別標記（哪天放什麼），
   // 移除 leaveHours（補休時數）、ot（加班）等數量資料
   const shareDay = {};
+
+  // 若為公務人員模式，預先計算未來 24 個月的班表寫入 shareDay
+  // 這樣接收方不需要 civilMode 旗標，直接讀取實際班表即可
+  if (cfg.civilMode) {
+    const startDate = new Date();
+    startDate.setDate(1);
+    for (let m = -1; m < 24; m++) {
+      const d = new Date(startDate.getFullYear(), startDate.getMonth() + m, 1);
+      const dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      for (let day = 1; day <= dim; day++) {
+        const date = new Date(d.getFullYear(), d.getMonth(), day);
+        const ky = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+        // 手動記錄優先
+        if (dayData[ky]?.shift !== undefined) continue;
+        const shift = TW_HOL[ky] ? 'off' : (date.getDay() === 0 || date.getDay() === 6) ? 'off' : 'early';
+        shareDay[ky] = { shift };
+      }
+    }
+  }
+
+  // 合併手動記錄（優先覆蓋自動計算的值）
   Object.entries(dayData).forEach(([k, v]) => {
     const entry = {};
     if (v.shift !== undefined) entry.shift = v.shift;
-    if (v.leave) entry.leave = v.leave;   // 只保留假別種類
-    if (v.note) entry.note = v.note;       // 保留備註
-    // 不包含 leaveHours、ot
+    if (v.leave) entry.leave = v.leave;
+    if (v.note) entry.note = v.note;
     if (Object.keys(entry).length > 0) shareDay[k] = entry;
   });
 
