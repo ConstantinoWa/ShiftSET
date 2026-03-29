@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03282112</title>
+<title>Shift Go v.03290945</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -184,6 +184,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   touch-action: manipulation;
 }
 .cell::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; border-radius:3px 0 0 3px; background:transparent; transition:background .15s; }
+.cell.has-early { background: var(--early-dim) !important; border-color: var(--early) !important; }
+.cell.has-mid2  { background: var(--mid2-dim)  !important; border-color: var(--mid2)  !important; }
+.cell.has-late  { background: var(--late-dim)  !important; border-color: var(--late)  !important; }
+.cell.has-mid   { background: var(--mid-dim)   !important; border-color: var(--mid)   !important; }
+.cell.has-off   { background: var(--off-dim)   !important; border-color: var(--off)   !important; }
 .cell.has-early::before { background: var(--early); }
 .cell.has-mid2::before  { background: var(--mid2); }
 .cell.has-late::before  { background: var(--late); }
@@ -191,8 +196,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.has-off::before   { background: var(--off); }
 .cell:hover { border-color: var(--border2); background: var(--surface2); }
 .cell.empty { background:transparent; border-color:transparent; cursor:default; pointer-events:none; }
-.cell.is-today { border-color: #ffffff; border-width:2px; background:rgba(255,255,255,.04); box-shadow:0 0 0 1px #ffffff inset; }
-.cell.is-today .dnum { color: #ffffff; }
+.cell.is-today { border:2px solid #ffffff !important; background:#ffffff !important; }
+.cell.is-today .dnum { color: #1a1815; font-weight:900; }
 .cell.is-sun .dnum { color: var(--hol); }
 
 .cell.is-holiday { background: var(--surface); }
@@ -872,13 +877,398 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .confirm-btn-ok { flex:1; padding:11px; border-radius:var(--radius); border:none; background:var(--hol); color:#fff; cursor:pointer; font-family:inherit; font-size:.85rem; font-weight:700; transition:opacity .12s; }
 .confirm-btn-ok:hover { opacity:.85; }
 
+
+/* ── MONTH PICKER ── */
+.month-display { cursor: pointer; user-select: none; }
+.month-display:hover { opacity: .8; }
+.month-picker-overlay {
+  position: fixed; inset: 0; z-index: 350;
+  background: rgba(0,0,0,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.month-picker-overlay.open { opacity: 1; pointer-events: all; }
+.month-picker-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px 18px 0 0;
+  padding: 10px 16px 32px;
+  width: 100%; max-width: 480px;
+  transform: translateY(20px);
+  transition: transform .2s cubic-bezier(.22,1,.36,1);
+}
+.month-picker-overlay.open .month-picker-sheet { transform: translateY(0); }
+.month-picker-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 10px auto 14px; }
+.month-picker-title { font-size: .72rem; font-weight: 700; color: var(--text-dim); font-family: 'DM Mono', monospace; letter-spacing: .1em; text-align: center; margin-bottom: 14px; }
+.month-picker-year-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+.month-picker-yr-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--surface2); color: var(--text-dim); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+.month-picker-yr-btn:hover { border-color: var(--accent); color: var(--accent); }
+.month-picker-yr { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--text); min-width: 60px; text-align: center; }
+.month-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.month-picker-btn {
+  padding: 10px 4px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text-dim); cursor: pointer; font-family: inherit;
+  font-size: .8rem; text-align: center; transition: all .12s;
+}
+.month-picker-btn:hover { border-color: var(--accent); color: var(--accent); }
+.month-picker-btn.current { border-color: var(--accent); background: rgba(79,128,255,.12); color: var(--accent); font-weight: 700; }
+.month-picker-btn.today-month { border-color: #ffffff; color: #ffffff; }
+
+
+/* ── CUSTOM MONTH DROPDOWN ── */
+.month-display-wrap { position: relative; display: inline-block; }
+.month-display { cursor: pointer; user-select: none; }
+.month-display:hover { opacity: .85; }
+.month-dropdown {
+  position: absolute;
+  top: 100%; left: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  z-index: 200;
+  min-width: 160px;
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+  scrollbar-width: thin;
+}
+.month-dropdown.open { display: block; }
+.md-year-hd {
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--text-mute);
+  padding: 8px 14px 4px;
+  text-transform: uppercase;
+  position: sticky; top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.md-item {
+  padding: 9px 14px;
+  font-size: .82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background .1s;
+}
+.md-item:hover { background: var(--surface2); color: var(--text); }
+.md-item.active { color: var(--accent); font-weight: 700; background: rgba(79,128,255,.08); }
+.md-item.today-m { color: #ffffff; }
+.md-close-bg { position: fixed; inset: 0; z-index: 199; display: none; }
+.md-close-bg.open { display: block; }
+
+
+
+/* ── FRIEND VIEW ── */
+#friendWrap { display:none; padding:0 12px 80px; max-width:860px; margin:0 auto; }
+.friend-top-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 0 12px; }
+.friend-back-btn { padding:6px 14px; border-radius:20px; border:1px solid var(--border2); background:var(--surface2); color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.72rem; transition:all .12s; }
+.friend-back-btn:hover { border-color:var(--accent); color:var(--accent); }
+.friend-week-nav { display:flex; align-items:center; gap:10px; }
+.friend-nav-btn { width:32px; height:32px; border-radius:50%; border:1px solid var(--border2); background:var(--surface2); color:var(--text-dim); cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all .12s; }
+.friend-nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.friend-nav-btn:disabled { opacity:.3; cursor:default; }
+.friend-week-label { font-family:'DM Mono',monospace; font-size:.68rem; color:var(--text-dim); min-width:130px; text-align:center; }
+.friend-person { margin-bottom:12px; }
+.friend-name-row { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.friend-tag { font-family:'DM Mono',monospace; font-size:.6rem; font-weight:700; letter-spacing:.08em; padding:2px 8px; border-radius:10px; }
+.friend-input-name { font-size:.72rem; padding:3px 8px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-family:inherit; width:80px; }
+.friend-week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:3px; }
+.friend-dow { text-align:center; font-size:.52rem; color:var(--text-mute); padding:2px 0 3px; font-family:'DM Mono',monospace; }
+.friend-dow.sun { color:var(--hol); }
+.friend-dow.sat { color:#818cf8; }
+.friend-cell { border-radius:7px; border:1px solid var(--border); background:var(--surface2); padding:4px 2px; min-height:54px; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; }
+.friend-cell::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
+.friend-cell.fc-early { background:var(--early-dim); border-color:var(--early); } .friend-cell.fc-early::before { background:var(--early); }
+.friend-cell.fc-mid2  { background:var(--mid2-dim);  border-color:var(--mid2);  } .friend-cell.fc-mid2::before  { background:var(--mid2); }
+.friend-cell.fc-late  { background:var(--late-dim);  border-color:var(--late);  } .friend-cell.fc-late::before  { background:var(--late); }
+.friend-cell.fc-mid   { background:var(--mid-dim);   border-color:var(--mid);   } .friend-cell.fc-mid::before   { background:var(--mid); }
+.friend-cell.fc-off   { background:var(--off-dim);   border-color:var(--off);   } .friend-cell.fc-off::before   { background:var(--off); }
+.friend-cell.fc-leave { background:var(--cons-dim);  border-color:var(--cons);  }
+.friend-cell.fc-today { border:2px solid #ffffff !important; background:#ffffff !important; }
+.friend-cell.fc-holiday .friend-dnum { color:var(--hol); border:1.5px solid var(--hol); border-radius:3px; padding:0 2px; }
+.friend-dnum { font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; color:var(--text); margin-top:2px; }
+.friend-shift { font-size:.56rem; font-weight:700; margin-top:2px; text-align:center; width:100%; }
+.friend-cell.fc-early .friend-shift { color:var(--early); }
+.friend-cell.fc-mid2  .friend-shift { color:var(--mid2); }
+.friend-cell.fc-late  .friend-shift { color:var(--late); }
+.friend-cell.fc-mid   .friend-shift { color:var(--mid); }
+.friend-cell.fc-off   .friend-shift { color:var(--off); }
+.friend-cell.fc-leave .friend-shift { color:var(--cons); }
+.friend-cell.common-off { box-shadow:0 0 0 2px #f5c518; z-index:1; }
+.friend-divider { height:1px; background:var(--border); margin:6px 0; }
+.friend-add-btn { width:100%; padding:9px; border-radius:var(--radius); border:1px dashed var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.78rem; transition:all .12s; margin-top:4px; }
+.friend-add-btn:hover { border-color:var(--accent); color:var(--accent); }
+.friend-remove-btn { width:20px; height:20px; border-radius:50%; border:1px solid var(--border2); background:var(--surface2); color:var(--text-mute); cursor:pointer; font-size:.7rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.friend-remove-btn:hover { border-color:var(--hol); color:var(--hol); }
+.friend-load-row { display:flex; gap:6px; margin-top:6px; }
+.btn-load-friend { flex:1; padding:8px 6px; border-radius:var(--radius); border:1px solid var(--accent); background:var(--surface2); color:var(--accent); cursor:pointer; font-family:inherit; font-size:.72rem; font-weight:600; transition:all .12s; text-align:center; }
+.btn-load-friend:hover { background:rgba(79,128,255,.1); }
+.friend-info { font-size:.58rem; color:var(--text-mute); margin-top:5px; line-height:1.5; }
+
+/* ── MONTH PICKER ── */
+.month-display { cursor: pointer; user-select: none; }
+.month-display:hover { opacity: .8; }
+.month-picker-overlay {
+  position: fixed; inset: 0; z-index: 350;
+  background: rgba(0,0,0,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.month-picker-overlay.open { opacity: 1; pointer-events: all; }
+.month-picker-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px 18px 0 0;
+  padding: 10px 16px 32px;
+  width: 100%; max-width: 480px;
+  transform: translateY(20px);
+  transition: transform .2s cubic-bezier(.22,1,.36,1);
+}
+.month-picker-overlay.open .month-picker-sheet { transform: translateY(0); }
+.month-picker-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 10px auto 14px; }
+.month-picker-title { font-size: .72rem; font-weight: 700; color: var(--text-dim); font-family: 'DM Mono', monospace; letter-spacing: .1em; text-align: center; margin-bottom: 14px; }
+.month-picker-year-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+.month-picker-yr-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--surface2); color: var(--text-dim); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+.month-picker-yr-btn:hover { border-color: var(--accent); color: var(--accent); }
+.month-picker-yr { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--text); min-width: 60px; text-align: center; }
+.month-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.month-picker-btn {
+  padding: 10px 4px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text-dim); cursor: pointer; font-family: inherit;
+  font-size: .8rem; text-align: center; transition: all .12s;
+}
+.month-picker-btn:hover { border-color: var(--accent); color: var(--accent); }
+.month-picker-btn.current { border-color: var(--accent); background: rgba(79,128,255,.12); color: var(--accent); font-weight: 700; }
+.month-picker-btn.today-month { border-color: #ffffff; color: #ffffff; }
+
+
+/* ── CUSTOM MONTH DROPDOWN ── */
+.month-display-wrap { position: relative; display: inline-block; }
+.month-display { cursor: pointer; user-select: none; }
+.month-display:hover { opacity: .85; }
+.month-dropdown {
+  position: absolute;
+  top: 100%; left: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  z-index: 200;
+  min-width: 160px;
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+  scrollbar-width: thin;
+}
+.month-dropdown.open { display: block; }
+.md-year-hd {
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--text-mute);
+  padding: 8px 14px 4px;
+  text-transform: uppercase;
+  position: sticky; top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.md-item {
+  padding: 9px 14px;
+  font-size: .82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background .1s;
+}
+.md-item:hover { background: var(--surface2); color: var(--text); }
+.md-item.active { color: var(--accent); font-weight: 700; background: rgba(79,128,255,.08); }
+.md-item.today-m { color: #ffffff; }
+.md-close-bg { position: fixed; inset: 0; z-index: 199; display: none; }
+.md-close-bg.open { display: block; }
+
+
+/* ── FRIEND VIEW ── */
+#friendWrap {
+  display: none;
+  padding: 0 12px 80px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.friend-top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0 14px;
+}
+.friend-back-btn {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text-dim); cursor: pointer; font-family: inherit;
+  font-size: .72rem; transition: all .12s;
+}
+.friend-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+.friend-week-nav {
+  display: flex; align-items: center; gap: 10px;
+}
+.friend-nav-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text-dim); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.friend-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.friend-nav-btn:disabled { opacity: .3; cursor: default; }
+.friend-week-label {
+  font-family: 'DM Mono', monospace; font-size: .7rem;
+  color: var(--text-dim); min-width: 120px; text-align: center;
+}
+.friend-person {
+  margin-bottom: 14px;
+}
+.friend-name-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.friend-name {
+  font-family: 'DM Mono', monospace; font-size: .65rem;
+  font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+}
+.friend-name.self { color: var(--early); }
+.friend-name.other { color: var(--comp); }
+.friend-input-name {
+  font-size: .72rem; padding: 4px 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: inherit; width: 90px;
+}
+.friend-week-grid {
+  display: grid; grid-template-columns: repeat(7,1fr); gap: 3px;
+}
+.friend-dow {
+  text-align: center; font-size: .55rem;
+  color: var(--text-mute); padding: 2px 0 4px;
+  font-family: 'DM Mono', monospace;
+}
+.friend-dow.sun { color: var(--hol); }
+.friend-dow.sat { color: #818cf8; }
+.friend-cell {
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); padding: 5px 3px;
+  min-height: 64px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center;
+}
+.friend-cell::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; border-radius: 3px 0 0 3px;
+}
+.friend-cell.fc-early::before { background: var(--early); }
+.friend-cell.fc-mid2::before  { background: var(--mid2); }
+.friend-cell.fc-late::before  { background: var(--late); }
+.friend-cell.fc-mid::before   { background: var(--mid); }
+.friend-cell.fc-off::before   { background: var(--off); }
+.friend-cell.fc-early { background: var(--early-dim); border-color: var(--early); }
+.friend-cell.fc-mid2  { background: var(--mid2-dim);  border-color: var(--mid2); }
+.friend-cell.fc-late  { background: var(--late-dim);  border-color: var(--late); }
+.friend-cell.fc-mid   { background: var(--mid-dim);   border-color: var(--mid); }
+.friend-cell.fc-off   { background: var(--off-dim);   border-color: var(--off); }
+.friend-cell.fc-leave { background: var(--cons-dim);  border-color: var(--cons); }
+.friend-cell.fc-today { border: 2px solid #ffffff !important; }
+.friend-cell.fc-holiday .friend-dnum { color: var(--hol); }
+.friend-dnum {
+  font-family: 'DM Mono', monospace; font-size: .7rem;
+  font-weight: 700; color: var(--text); margin-top: 2px;
+}
+.friend-shift {
+  font-size: .58rem; font-weight: 700; margin-top: 3px;
+  text-align: center; width: 100%;
+}
+.friend-cell.fc-early .friend-shift { color: var(--early); }
+.friend-cell.fc-mid2  .friend-shift { color: var(--mid2); }
+.friend-cell.fc-late  .friend-shift { color: var(--late); }
+.friend-cell.fc-mid   .friend-shift { color: var(--mid); }
+.friend-cell.fc-off   .friend-shift { color: var(--off); }
+.friend-cell.fc-leave .friend-shift { color: var(--cons); }
+
+/* common off highlight */
+.friend-cell.common-off {
+  box-shadow: 0 0 0 2px #f5c518;
+  z-index: 1;
+}
+.friend-divider {
+  display: flex; align-items: center; gap: 8px;
+  margin: 10px 0 8px; font-size: .6rem; color: var(--text-mute);
+}
+.friend-divider::before, .friend-divider::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+
+/* friend data input */
+.friend-data-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px;
+  margin-bottom: 12px;
+}
+.friend-data-title {
+  font-size: .7rem; font-weight: 700; color: var(--text-dim);
+  font-family: 'DM Mono', monospace; margin-bottom: 10px;
+  letter-spacing: .08em;
+}
+.friend-json-input {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--text); padding: 8px 10px; font-size: .7rem;
+  font-family: monospace; resize: vertical; min-height: 80px;
+}
+.btn-load-friend {
+  width: 100%; margin-top: 8px; padding: 10px;
+  border-radius: var(--radius); border: 1px solid var(--comp);
+  background: var(--surface2); color: var(--comp);
+  cursor: pointer; font-family: inherit; font-size: .8rem;
+  font-weight: 600; transition: all .12s;
+}
+.btn-load-friend:hover { background: var(--comp-dim); }
+.btn-load-friend.file { border-color: var(--accent); color: var(--accent); }
+.btn-load-friend.file:hover { background: rgba(79,128,255,.1); }
+
+
+.cell.is-today .s-badge,
+.cell.is-today .l-badge,
+.cell.is-today .ban-lbl,
+.cell.is-today .hol-lbl,
+.cell.is-today .ot-badge,
+.cell.is-today .note-lbl,
+.cell.is-today .lunar-lbl { color: #555 !important; background: rgba(0,0,0,.06) !important; border-color: rgba(0,0,0,.15) !important; }
+.cell.is-today::before { opacity: .5; }
+
+
+.share-notify-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ot);
+  margin-left: 5px;
+  vertical-align: middle;
+  animation: pulse-dot .9s ease-in-out infinite alternate;
+}
+@keyframes pulse-dot {
+  from { opacity: .6; transform: scale(.9); }
+  to   { opacity: 1;  transform: scale(1.1); }
+}
+
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 </style>
 </head>
 <body>
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03282112</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03290945</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -988,14 +1378,19 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03282112</div>
-      <div class="month-display" id="hdMonth"></div>
+      <div class="app-label" id="appLabel">Shift Go v.03290945</div>
+      <div class="month-display-wrap">
+        <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
+        <div class="month-dropdown" id="monthDropdown"></div>
+      </div>
+      <div class="md-close-bg" id="mdCloseBg" onclick="closeMonthDropdown()"></div>
     </div>
     <div class="nav-cluster">
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" data-tip="切換深色/淺色">☀</button>
       <button class="nav-btn" onclick="chM(-1)">‹</button>
       <button class="today-pill" onclick="goToday()">今天</button>
       <button class="nav-btn" onclick="chM(1)">›</button>
+      <button class="settings-btn" onclick="openFriendView()" title="好友班表" style="font-size:.75rem;">👥</button>
       <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
     </div>
   </div>
@@ -1100,8 +1495,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <span class="ot-unit">h</span>
           <button class="btn-add" onclick="addOT()">＋新增</button>
           <button class="btn-reset" onclick="resetOT()">歸零</button>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:.68rem;color:var(--text-dim);white-space:nowrap;">
-            <input type="checkbox" id="otDetailToggle" onchange="toggleOTDetail()" style="accent-color:var(--accent);">記詳細
+          <span style="width:6px;flex-shrink:0;"></span>
+          <label style="display:flex;align-items:center;gap:2px;cursor:pointer;font-size:.68rem;color:var(--text-dim);white-space:nowrap;margin-left:-2px;">
+            <input type="checkbox" id="otDetailToggle" onchange="toggleOTDetail()" style="accent-color:var(--accent);width:14px;height:14px;margin:0;cursor:pointer;">記詳細
           </label>
         </div>
       </div>
@@ -1134,7 +1530,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <button class="btn-share-img" onclick="exportCalImg()" id="btnShareImg">
       產生當月班表圖片
     </button>
-    <div class="share-hint">產生當月月曆圖片，可直接分享或儲存。</div>
+    <div style="margin-top:8px;">
+      <button class="btn-share-img" onclick="shareToCloud()" id="btnCloudShare" style="border-color:var(--accent);color:var(--accent);">
+        ☁ 分享班表給好友
+      </button>
+    </div>
+    <div id="cloudShareResult" style="display:none;margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);"></div>
+    <div class="share-hint">分享後好友輸入短碼即可查看你的班表</div>
   </div>
 
     <!-- ══ BACKUP ══ -->
@@ -1261,14 +1663,33 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 </div>
 
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="confirmTitle">補休歸零</div>
-    <div class="confirm-msg" id="confirmMsg">加班時數歸零後無法還原</div>
-    <div class="confirm-btns">
-      <button class="confirm-btn-cancel" onclick="closeConfirm()">取消</button>
-      <button class="confirm-btn-ok" id="confirmOkBtn" onclick="doConfirm()">歸零</button>
+
+<!-- ══ FRIEND VIEW ══ -->
+<div id="friendWrap">
+  <div class="friend-top-bar">
+    <button class="friend-back-btn" onclick="closeFriendView()">← 返回班表</button>
+    <div class="friend-week-nav">
+      <button class="friend-nav-btn" id="friendPrev" onclick="friendNav(-1)">‹</button>
+      <div class="friend-week-label" id="friendWeekLabel"></div>
+      <button class="friend-nav-btn" id="friendNext" onclick="friendNav(1)">›</button>
     </div>
+  </div>
+  <div id="friendPeopleList"></div>
+  <button class="friend-add-btn" onclick="addFriend()">＋ 新增好友</button>
+  <div style="margin-top:10px;" id="friendLoadArea"></div>
+</div>
+
+<!-- ══ MONTH PICKER ══ -->
+<div class="month-picker-overlay" id="monthPickerOverlay">
+  <div class="month-picker-sheet">
+    <div class="month-picker-handle"></div>
+    <div class="month-picker-title">選擇月份</div>
+    <div class="month-picker-year-row">
+      <button class="month-picker-yr-btn" onclick="mpYr(-1)">‹</button>
+      <div class="month-picker-yr" id="mpYrLabel"></div>
+      <button class="month-picker-yr-btn" onclick="mpYr(1)">›</button>
+    </div>
+    <div class="month-picker-grid" id="mpMonthGrid"></div>
   </div>
 </div>
 
@@ -1544,7 +1965,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03282112';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03290945';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2600,11 +3021,557 @@ document.getElementById('cpPaletteOverlay').addEventListener('click', function(e
   if (e.target === this) closeCpPalette();
 });
 
+// ── MONTH PICKER ──
+let _mpYear = new Date().getFullYear();
+const MN_SHORT = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+
+function closeMonthPicker() {
+  document.getElementById('monthPickerOverlay').classList.remove('open');
+}
+function mpYr(d) {
+  _mpYear += d;
+  renderMpGrid();
+}
+function renderMpGrid() {
+  document.getElementById('mpYrLabel').textContent = _mpYear + ' 年';
+  const today = new Date();
+  const grid = document.getElementById('mpMonthGrid');
+  grid.innerHTML = MN_SHORT.map((m, i) => {
+    let cls = 'month-picker-btn';
+    if (_mpYear === cY && i === cM) cls += ' current';
+    else if (_mpYear === today.getFullYear() && i === today.getMonth()) cls += ' today-month';
+    return `<button class="${cls}" onclick="pickMonth(${i})">${m}</button>`;
+  }).join('');
+}
+function pickMonth(m) {
+  cM = m; cY = _mpYear;
+  closeMonthPicker();
+  render();
+}
+document.getElementById('monthPickerOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeMonthPicker();
+});
+
+// ── CUSTOM MONTH DROPDOWN ──
+let _mdOpen = false;
+const MN_FULL = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+function buildMonthDropdown() {
+  const el = document.getElementById('monthDropdown');
+  if (!el) return;
+  const todayY = new Date().getFullYear();
+  const todayM = new Date().getMonth();
+  const nextY = todayY + 1;
+
+  // 從 LUNAR_MONTHS 找隔年春節（農曆正月）在哪個西曆月份
+  const cnySrc = LUNAR_MONTHS.find(r => r[0] === nextY && r[3] === 1 && !r[4]);
+  const cnyMonth = cnySrc ? cnySrc[1] - 1 : -1; // 0-based month index
+
+  let html = '';
+  // 當年度
+  html += `<div class="md-year-hd">${todayY} 年</div>`;
+  for (let m = 0; m < 12; m++) {
+    let cls = 'md-item';
+    if (todayY === cY && m === cM) cls += ' active';
+    else if (m === todayM) cls += ' today-m';
+    html += `<div class="${cls}" onclick="pickMonthDD(${todayY},${m})">${MN_FULL[m]}</div>`;
+  }
+  // 隔年：只顯示春節當月之前的月份
+  if (cnyMonth > 0) {
+    html += `<div class="md-year-hd">${nextY} 年<span style="font-size:.55rem;color:var(--text-mute);margin-left:6px">${cnyMonth}月後春節未排</span></div>`;
+    for (let m = 0; m < cnyMonth; m++) {
+      let cls = 'md-item';
+      if (nextY === cY && m === cM) cls += ' active';
+      html += `<div class="${cls}" onclick="pickMonthDD(${nextY},${m})">${MN_FULL[m]}</div>`;
+    }
+  }
+  el.innerHTML = html;
+  // scroll active into view
+  setTimeout(() => {
+    const act = el.querySelector('.active');
+    if (act) act.scrollIntoView({ block: 'nearest' });
+  }, 50);
+}
+
+function toggleMonthDropdown() {
+  _mdOpen = !_mdOpen;
+  document.getElementById('monthDropdown').classList.toggle('open', _mdOpen);
+  document.getElementById('mdCloseBg').classList.toggle('open', _mdOpen);
+  if (_mdOpen) buildMonthDropdown();
+}
+
+function closeMonthDropdown() {
+  _mdOpen = false;
+  document.getElementById('monthDropdown').classList.remove('open');
+  document.getElementById('mdCloseBg').classList.remove('open');
+}
+
+function pickMonthDD(y, m) {
+  cY = y; cM = m;
+  closeMonthDropdown();
+  render();
+}
+
+
+// ── FRIEND VIEW ──
+const FRIEND_COLORS = ['var(--early)','var(--comp)','var(--mid2)','var(--mid)','var(--cons)','var(--ot)'];
+// friends[i] = { name, dayData, cfg }
+let friends = []; // 好友清單（不包含自己）
+let friendWeekOffset = 0;
+const MAX_FRIEND_OFFSET = 2;
+
+function openFriendView() {
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('friendWrap').style.display = 'block';
+  friendWeekOffset = 0;
+  renderFriendView();
+}
+function closeFriendView() {
+  document.getElementById('friendWrap').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+}
+function friendNav(d) {
+  const next = friendWeekOffset + d;
+  if (Math.abs(next) > MAX_FRIEND_OFFSET) return;
+  friendWeekOffset = next;
+  renderFriendView();
+}
+function addFriend() {
+  friends.push({ name:'', dayData:{}, cfg:null });
+  renderFriendView();
+}
+function removeFriend(i) {
+  friends.splice(i, 1);
+  renderFriendView();
+}
+function updateFriendName(i, val) {
+  friends[i].name = val;
+}
+
+function loadFriendJSONForIndex(idx, e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      friends[idx].dayData = d.day || {};
+      friends[idx].cfg = d.config || null;
+      if (d.config?.name && !friends[idx].name) friends[idx].name = d.config.name;
+      renderFriendView();
+    } catch { alert('JSON 格式錯誤'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function getShiftForDate(date, isMe, friendIdx) {
+  const ky = date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  if (isMe) {
+    const rec = dayData[ky] || {};
+    if (rec.shift !== undefined) return { shift: rec.shift, leave: rec.leave || null };
+    const ban = getBan(date);
+    const s = ban !== null ? ROTATION[ban-1] : (SHIFT_OVERRIDE[ky] || 'off');
+    return { shift: s, leave: rec.leave || null };
+  }
+  const f = friends[friendIdx];
+  const rec = (f.dayData || {})[ky] || {};
+  const leave = rec.leave || null;
+  if (rec.shift !== undefined) return { shift: rec.shift, leave };
+  if (!f.cfg) return { shift: null, leave };
+  // check spPeriods
+  if (f.cfg.spPeriods) {
+    for (const sp of f.cfg.spPeriods) {
+      if (ky >= sp.start && ky <= sp.end) return { shift: sp.shift || 'off', leave };
+    }
+  }
+  const anchor = new Date(f.cfg.todayDate);
+  const diff = Math.round((date - anchor) / 86400000);
+  const rot = f.cfg.rotPattern;
+  const adjIdx = (((f.cfg.todayBan - 1 + diff) % rot.length) + rot.length) % rot.length;
+  return { shift: rot[adjIdx], leave };
+}
+
+function renderFriendView() {
+  const total = 1 + friends.length; // me + friends
+  const showTwoWeeks = total <= 2;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow-1) + friendWeekOffset * 7);
+  const w2start = new Date(monday); w2start.setDate(monday.getDate()+7);
+  const endDate = new Date(monday); endDate.setDate(monday.getDate() + (showTwoWeeks ? 13 : 6));
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  document.getElementById('friendWeekLabel').textContent = fmt(monday)+' – '+fmt(endDate);
+  document.getElementById('friendPrev').disabled = friendWeekOffset <= -MAX_FRIEND_OFFSET;
+  document.getElementById('friendNext').disabled = friendWeekOffset >= MAX_FRIEND_OFFSET;
+
+  const SN_F = {early:'早',mid2:'中',late:'晚',mid:'夜',off:'休'};
+  const LN_F = {cons:'慰',comp:'補',other:'補放'};
+  const DOW_L = ['日','一','二','三','四','五','六'];
+  const dowHtml = DOW_L.map((d,i) => `<div class="friend-dow${i===0?' sun':i===6?' sat':''}">${d}</div>`).join('');
+
+  // Build all people (me first, then friends)
+  const people = [{ name: JSON.parse(localStorage.getItem('ss_config')||'{}').name||'我', isMe:true, idx:0, color: FRIEND_COLORS[0] }];
+  friends.forEach((f, i) => people.push({ name: f.name||'好友'+(i+1), isMe:false, idx:i, color: FRIEND_COLORS[(i+1) % FRIEND_COLORS.length] }));
+
+  // Collect shifts for all people for all days (for common-off calc)
+  const weeks = showTwoWeeks ? [monday, w2start] : [monday];
+  const allOffSets = people.map(() => weeks.map(() => new Array(7).fill(false)));
+  weeks.forEach((wstart, wi) => {
+    for (let di = 0; di < 7; di++) {
+      const d = new Date(wstart); d.setDate(wstart.getDate()+di);
+      people.forEach((p, pi) => {
+        const { shift, leave } = getShiftForDate(d, p.isMe, p.idx);
+        allOffSets[pi][wi][di] = (shift === 'off' || !!leave);
+      });
+    }
+  });
+
+  // Common off = ALL people are off on that day
+  const commonOff = weeks.map((_, wi) => Array.from({length:7}, (_,di) => allOffSets.every(pOff => pOff[wi][di])));
+
+  // Render people list
+  const list = document.getElementById('friendPeopleList');
+  list.innerHTML = '';
+
+  people.forEach((p, pi) => {
+    const isLast = pi === people.length - 1;
+    const personDiv = document.createElement('div');
+    personDiv.className = 'friend-person';
+
+    // Name row
+    let nameHtml = `<div class="friend-name-row">
+      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}">${p.isMe ? (p.name||'我') : ''}</div>`;
+    if (!p.isMe) {
+      const f = friends[p.idx];
+      const syncLabel = f.lastSync ? `<span style="font-size:.55rem;color:var(--text-mute);">同步 ${f.lastSync}</span>` : '<span style="font-size:.55rem;color:var(--text-mute);">未同步</span>';
+      const hasCloud = !!f.binId;
+      nameHtml += `<input class="friend-input-name" placeholder="好友名字" value="${p.name}" oninput="updateFriendName(${p.idx},this.value);this.closest('.friend-person').querySelector('.friend-tag').textContent=this.value||'好友${p.idx+1}'">
+      ${hasCloud ? `<button onclick="refreshFriend(${p.idx})" title="更新好友班表" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--comp);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="refreshBtn_${p.idx}">↺</button>` : ''}
+      <button class="friend-remove-btn" onclick="removeFriend(${p.idx})">✕</button>`;
+      nameHtml += `</div><div style="margin-bottom:4px;">${syncLabel}</div>`;
+    } else {
+      nameHtml += `</div>`;
+    }
+
+    // Week grids
+    let gridsHtml = `<div class="friend-week-grid">${dowHtml}</div>`;
+    weeks.forEach((wstart, wi) => {
+      gridsHtml += `<div class="friend-week-grid" id="fg_${pi}_${wi}"></div>`;
+    });
+
+    // Load JSON button for friends
+    if (!p.isMe) {
+      gridsHtml += `<div style="margin-top:5px;">
+        <div style="display:flex;gap:5px;margin-top:4px;">
+          <input placeholder="貼上好友碼" id="fcode_${p.idx}" style="flex:1;font-size:.68rem;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;" ${friends[p.idx].binId ? `value="${friends[p.idx].binId}"` : ''}>
+          <button class="btn-load-friend" style="width:52px;flex-shrink:0;" onclick="loadFriendByCodeForIdx(${p.idx})">載入</button>
+        </div>
+        ${friends[p.idx].cfg ? '<span style="font-size:.6rem;color:var(--comp);">✓ 已載入</span>' : '<span style="font-size:.6rem;color:var(--text-mute);">尚未載入</span>'}
+      </div>`;
+    }
+
+    personDiv.innerHTML = nameHtml + gridsHtml;
+
+    if (!isLast) {
+      const div = document.createElement('div');
+      div.className = 'friend-divider';
+      personDiv.appendChild(div);
+    }
+    list.appendChild(personDiv);
+  });
+
+  // Now fill grids and mark common off
+  people.forEach((p, pi) => {
+    weeks.forEach((wstart, wi) => {
+      const grid = document.getElementById(`fg_${pi}_${wi}`);
+      if (!grid) return;
+      grid.innerHTML = '';
+      for (let di = 0; di < 7; di++) {
+        const d = new Date(wstart); d.setDate(wstart.getDate()+di);
+        const ky = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        const { shift, leave } = getShiftForDate(d, p.isMe, p.idx);
+        const isToday = d.getTime() === today.getTime();
+        const hw = TW_HOL[ky];
+        let cls = 'friend-cell';
+        if (leave) cls += ' fc-leave';
+        else if (shift) cls += ' fc-'+shift;
+        if (isToday) cls += ' fc-today';
+        if (hw) cls += ' fc-holiday';
+        if (commonOff[wi][di]) cls += ' common-off';
+        const lbl = leave ? (LN_F[leave]||'假') : (SN_F[shift]||'');
+        const dnumStyle = hw ? '' : '';
+        const cell = document.createElement('div');
+        cell.className = cls;
+        cell.innerHTML = `<div class="friend-dnum">${d.getDate()}</div><div class="friend-shift">${lbl}</div>`;
+        grid.appendChild(cell);
+      }
+    });
+  });
+
+  // Help text
+  document.getElementById('friendLoadArea').innerHTML = total >= 3
+    ? '<div class="friend-info">👥 人數 ≥ 3 人，自動切換為單週顯示</div>'
+    : '';
+}
+
+// ── JSONBIN SHARE ──
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+
+async function shareToCloud() {
+  const btn = document.getElementById('btnCloudShare');
+  if (btn) { btn.disabled = true; btn.textContent = '上傳中...'; }
+
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+
+  // 只上傳好友需要知道的資料：
+  // - 名字、輪班設定（用來推算班表）
+  // - 行事曆上實際標記的班別（dayData）
+  // - 不上傳：加班時數、慰休天數、補休時數等個人假別統計
+  const shareCfg = {
+    name: cfg.name || '',
+    todayBan: cfg.todayBan,
+    todayDate: cfg.todayDate,
+    rotPattern: cfg.rotPattern,
+    spPeriods: cfg.spPeriods || [],
+    // 不包含 consTotal（慰休天數）
+  };
+
+  // dayData 只保留班別和假別標記（哪天放什麼），
+  // 移除 leaveHours（補休時數）、ot（加班）等數量資料
+  const shareDay = {};
+  Object.entries(dayData).forEach(([k, v]) => {
+    const entry = {};
+    if (v.shift !== undefined) entry.shift = v.shift;
+    if (v.leave) entry.leave = v.leave;   // 只保留假別種類
+    if (v.note) entry.note = v.note;       // 保留備註
+    // 不包含 leaveHours、ot
+    if (Object.keys(entry).length > 0) shareDay[k] = entry;
+  });
+
+  const payload = {
+    version: 1,
+    exported: new Date().toISOString(),
+    name: shareCfg.name,
+    config: shareCfg,
+    day: shareDay,
+    // 不包含 ot（加班時數）
+  };
+
+  try {
+    const binId = localStorage.getItem('ss_cloud_bin_id');
+    let res, data;
+
+    if (binId) {
+      // Update existing bin
+      res = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Access-Key': '' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      // Create new bin (public, no account needed)
+      res = await fetch(`${JSONBIN_BASE}/b`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Bin-Name': 'ShiftGo-' + Date.now(),
+          'X-Bin-Private': 'false'
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    data = await res.json();
+    const id = data.metadata?.id || data.record?.id || data.metadata?.b || null;
+    if (!id) throw new Error('無法取得短碼');
+
+    localStorage.setItem('ss_cloud_bin_id', id);
+    const shortCode = id.slice(-6).toUpperCase();
+    localStorage.setItem('ss_cloud_short', shortCode);
+    localStorage.removeItem('ss_cloud_dirty'); // clear dirty flag
+    updateShareBtnState();
+
+    // Show result with mutual share reminder
+    showShareResult(shortCode, id, true);
+  } catch (err) {
+    alert('上傳失敗：' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '☁ 分享班表給好友'; }
+  }
+}
+
+function showShareResult(shortCode, fullId, showReminder) {
+  const el = document.getElementById('cloudShareResult');
+  if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;">複製以下代碼傳給好友：</div>
+    <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);padding:8px 10px;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);word-break:break-all;letter-spacing:.04em;margin-bottom:8px;">${fullId}</div>
+    <button onclick="copyShortCode('${fullId}')" style="width:100%;padding:8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit;font-size:.75rem;">📋 複製代碼</button>
+    ${showReminder ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(245,158,11,.1);border:1px solid var(--ot);border-radius:var(--radius);font-size:.68rem;color:var(--ot);line-height:1.6;">
+      ✅ 分享成功！<br>
+      記得請好友也把他的代碼傳給你，才能在好友模式互相查看班表。
+    </div>` : ''}
+    <div style="font-size:.58rem;color:var(--text-mute);margin-top:6px;">每次更新班表後重新點「分享」，代碼不變</div>
+  `;
+}
+
+function copyShortCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ 已複製';
+    setTimeout(() => btn.textContent = '複製', 1500);
+  }).catch(() => {
+    // fallback
+    const el = document.createElement('textarea');
+    el.value = code;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  });
+}
+
+async function loadFriendByCode(code) {
+  code = code.trim();
+  if (code.length < 10) { alert('請輸入完整代碼'); return; }
+  const btn = document.getElementById('btnLoadCode');
+  if (btn) { btn.disabled = true; btn.textContent = '載入中...'; }
+  try {
+    await fetchFriendBin(code, code.slice(-6).toUpperCase());
+    document.getElementById('friendCodeInput').value = '';
+  } catch(err) {
+    alert('載入失敗：' + err.message + ' 請確認代碼是否正確');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '載入'; }
+  }
+}
+
+async function fetchFriendBin(binId, code) {
+  const res = await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
+    headers: { 'X-Access-Key': '' }
+  });
+  if (!res.ok) throw new Error('找不到此班表，確認代碼是否正確');
+  const data = await res.json();
+  const record = data.record;
+  
+  // Find which friend slot to update or add new
+  const idx = _loadingFriendIdx >= 0 ? _loadingFriendIdx : friends.findIndex(f => f.binId === binId);
+  _loadingFriendIdx = -1;
+  const friendObj = { 
+    name: record.name || record.config?.name || '好友',
+    dayData: record.day || {},
+    cfg: record.config || null,
+    binId: binId,
+    code: code,
+    lastSync: new Date().toLocaleString('zh-TW')
+  };
+  
+  if (idx >= 0) {
+    friends[idx] = friendObj;
+  } else {
+    friends.push(friendObj);
+  }
+  
+  // Save friend bins mapping
+  const friendBins = JSON.parse(localStorage.getItem('ss_friend_bins') || '{}');
+  friendBins[code] = binId;
+  localStorage.setItem('ss_friend_bins', JSON.stringify(friendBins));
+  
+  // Save friends list
+  saveFriends();
+  renderFriendView();
+}
+
+async function refreshFriend(idx) {
+  const f = friends[idx];
+  if (!f || !f.binId) { alert('此好友沒有好友碼，請先在下方輸入好友碼載入'); return; }
+  const btn = document.getElementById('refreshBtn_' + idx);
+  if (btn) { btn.style.animation = 'spin .6s linear infinite'; btn.disabled = true; }
+  try {
+    await fetchFriendBin(f.binId, f.code || f.binId.slice(-6).toUpperCase());
+  } catch(err) {
+    alert('更新失敗：' + err.message);
+    if (btn) { btn.style.animation = ''; btn.disabled = false; }
+  }
+}
+
+function saveFriends() {
+  // Save friends metadata (not full dayData to save space - reload from cloud when needed)
+  const toSave = friends.map(f => ({ name:f.name, binId:f.binId||null, code:f.code||null, lastSync:f.lastSync||null }));
+  localStorage.setItem('ss_friends', JSON.stringify(toSave));
+}
+
+function loadSavedFriends() {
+  const saved = JSON.parse(localStorage.getItem('ss_friends') || '[]');
+  // Restore friends with empty data (need to refresh from cloud)
+  friends = saved.map(f => ({ name:f.name, dayData:{}, cfg:null, binId:f.binId, code:f.code, lastSync:f.lastSync }));
+}
+
+
+function loadFriendByCodeForIdx(idx) {
+  const input = document.getElementById('fcode_' + idx);
+  if (!input) return;
+  const code = input.value.trim();
+  if (!code) { alert('請貼上好友碼'); return; }
+  // temporarily set as a new friend or update existing
+  _loadingFriendIdx = idx;
+  loadFriendByCode(code);
+}
+let _loadingFriendIdx = -1;
+
+function loadByCodeInput() {
+  const code = document.getElementById('friendCodeInput').value.trim();
+  if (!code) return;
+  loadFriendByCode(code);
+}
+
+function loadFriendJSONGlobal(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      friends.push({ name: d.config?.name || '好友', dayData: d.day||{}, cfg: d.config||null, binId:null, code:null });
+      saveFriends(); renderFriendView();
+    } catch { alert('JSON 格式錯誤'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function updateShareBtnState() {
+  const btn = document.getElementById('btnCloudShare');
+  if (!btn) return;
+  const dirty = localStorage.getItem('ss_cloud_dirty') === '1';
+  const hasBin = !!localStorage.getItem('ss_cloud_bin_id');
+  if (dirty && hasBin) {
+    btn.innerHTML = '☁ 重新分享給好友 <span class="share-notify-dot"></span>';
+    btn.style.borderColor = 'var(--ot)';
+    btn.style.color = 'var(--ot)';
+  } else {
+    btn.innerHTML = '☁ 分享班表給好友';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  }
+}
+
 loadTheme();
 loadColors();
 buildColorPickers();
 initSetup();
 renderOTLog();
+loadSavedFriends();
+
+  const existingBin = localStorage.getItem('ss_cloud_bin_id');
+  const existingShort = localStorage.getItem('ss_cloud_short');
+  if (existingBin && existingShort) showShareResult(existingShort, existingBin);
+  updateShareBtnState();
+
 </script>
 
 
