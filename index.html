@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291558</title>
+<title>Shift Go v.03291909</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -871,10 +871,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .confirm-overlay.open .confirm-box { transform: scale(1); }
 .confirm-title { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
 .confirm-msg { font-size: .72rem; color: var(--text-dim); text-align: center; margin-bottom: 18px; line-height: 1.5; }
-.confirm-btns { display: flex; gap: 8px; }
-.confirm-btn-cancel { flex:1; padding:11px; border-radius:var(--radius); border:1px solid var(--border2); background:var(--surface2); color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.85rem; transition:all .12s; }
 .confirm-btn-cancel:hover { border-color:var(--accent); color:var(--accent); }
-.confirm-btn-ok { flex:1; padding:11px; border-radius:var(--radius); border:none; background:var(--hol); color:#fff; cursor:pointer; font-family:inherit; font-size:.85rem; font-weight:700; transition:opacity .12s; }
 .confirm-btn-ok:hover { opacity:.85; }
 
 
@@ -1005,8 +1002,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-add-btn:hover { border-color:var(--accent); color:var(--accent); }
 .friend-remove-btn { width:20px; height:20px; border-radius:50%; border:1px solid var(--border2); background:var(--surface2); color:var(--text-mute); cursor:pointer; font-size:.7rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .friend-remove-btn:hover { border-color:var(--hol); color:var(--hol); }
-.friend-load-row { display:flex; gap:6px; margin-top:6px; }
-.btn-load-friend { flex:1; padding:8px 6px; border-radius:var(--radius); border:1px solid var(--accent); background:var(--surface2); color:var(--accent); cursor:pointer; font-family:inherit; font-size:.72rem; font-weight:600; transition:all .12s; text-align:center; }
+.btn-load-friend { flex:1; padding:8px 6px; border-radius:var(--radius); border:1px solid var(--accent); background:var(--surface2); color:var(--accent); cursor:pointer; font-family:inherit; font-size:.72rem; font-weight:600; transition:all .12s; text-align:center; box-sizing:border-box; }
 .btn-load-friend:hover { background:rgba(79,128,255,.1); }
 .friend-info { font-size:.58rem; color:var(--text-mute); margin-top:5px; line-height:1.5; }
 
@@ -1218,12 +1214,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   font-family: 'DM Mono', monospace; margin-bottom: 10px;
   letter-spacing: .08em;
 }
-.friend-json-input {
-  width: 100%; background: var(--surface2);
-  border: 1px solid var(--border2); border-radius: var(--radius-sm);
-  color: var(--text); padding: 8px 10px; font-size: .7rem;
-  font-family: monospace; resize: vertical; min-height: 80px;
-}
 .btn-load-friend {
   width: 100%; margin-top: 8px; padding: 10px;
   border-radius: var(--radius); border: 1px solid var(--comp);
@@ -1269,7 +1259,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291558</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291909</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1389,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291558</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291909</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1488,7 +1478,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
           <div class="q-sub" id="compSub">加班折算 0 天可用</div>
           <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;">
-            <span id="compLongPressHint">⏳ 長按天數歸零</span>
+            <span>⏳ 長按天數歸零</span>
             <span id="lastResetHint"></span>
           </div>
       </div>
@@ -1937,8 +1927,6 @@ const CIVIL_SP_2026 = [
   { start:'2026-02-14', end:'2026-02-22', shift:'off', skip:true }
 ];
 
-// 公務人員16番輪班
-const CIVIL_ROTATION = ['early','early','early','early','early','off','off','late','late','late','mid','off','off','early','early','off'];
 
 function toggleCivilMode() {
   const checked = document.getElementById('civilModeCheck').checked;
@@ -1966,26 +1954,6 @@ function toggleCivilMode() {
     buildRotBuilder(16);
     const spList = document.getElementById('spList');
     spList.innerHTML = ''; spCounter = 0;
-    document.querySelector('.btn-add-sp').disabled = false;
-    document.querySelector('.btn-add-sp').style.opacity = '1';
-  }
-}
-
-function toggleCivilSP() {
-  const checked = document.getElementById('spCivilCheck').checked;
-  const spList = document.getElementById('spList');
-  if (checked) {
-    // Clear existing and fill civil calendar
-    spList.innerHTML = '';
-    spCounter = 0;
-    CIVIL_SP_2026.forEach(sp => addSpRow(sp));
-    // Disable manual add button
-    document.querySelector('.btn-add-sp').disabled = true;
-    document.querySelector('.btn-add-sp').style.opacity = '.4';
-  } else {
-    // Clear and re-enable manual editing
-    spList.innerHTML = '';
-    spCounter = 0;
     document.querySelector('.btn-add-sp').disabled = false;
     document.querySelector('.btn-add-sp').style.opacity = '1';
   }
@@ -2075,7 +2043,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291558';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291909';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2368,8 +2336,7 @@ function toggleOTDetail() {
     document.getElementById('otDate').value = new Date().toISOString().split('T')[0];
   }
 }
-function openOTLog() {}
-function closeOTLog() {}
+
 
 function render() {
   document.getElementById('hdMonth').innerHTML = `${MN[cM]} <span>${cY}</span>`;
@@ -3138,7 +3105,6 @@ function cancelCompLongPress() {
 }
 
 // Bind comp card long press to overlay after DOM ready
-function bindCompLongPress() { /* inline events used */ }
 
 // ── COLOR PALETTE ──
 const COLOR_PRESETS = [
@@ -3340,9 +3306,6 @@ function removeFriend(i) {
   friends.splice(i, 1);
   renderFriendView();
 }
-function updateFriendName(i, val) {
-  friends[i].name = val;
-}
 function setFriendCustomName(i, val) {
   friends[i].customName = val;
   // Just update the tag text immediately, no full re-render
@@ -3350,7 +3313,8 @@ function setFriendCustomName(i, val) {
   // find the right tag by iterating people
   const people = [null, ...friends]; // me is idx 0, friends start idx 1
   const tag = document.querySelector(`[data-friend-tag="${i}"]`);
-  if (tag) tag.textContent = val || friends[i].cfg?.name || friends[i].name || (i+1);
+  const origName = friends[i].cfg?.name || friends[i].name || '';
+  if (tag) tag.textContent = origName.toString()[0] || (i+1);
 }
 function saveFriendCustomName(i) {
   saveFriends();
@@ -3387,6 +3351,14 @@ function getShiftForDate(date, isMe, friendIdx) {
   const leave = rec.leave || null;
   if (rec.shift !== undefined) return { shift: rec.shift, leave };
   if (!f.cfg) return { shift: null, leave };
+
+  // Civil servant mode: Mon-Fri = early, weekends/holidays = off
+  if (f.cfg.civilMode) {
+    if (TW_HOL[ky]) return { shift: 'off', leave };
+    const dow = date.getDay();
+    return { shift: (dow === 0 || dow === 6) ? 'off' : 'early', leave };
+  }
+
   // check spPeriods
   if (f.cfg.spPeriods) {
     for (const sp of f.cfg.spPeriods) {
@@ -3472,7 +3444,7 @@ function renderFriendView() {
     // Name row
     const fullMonthChecked = document.getElementById('showFullMonthToggle')?.checked || false;
     let nameHtml = `<div class="friend-name-row">
-      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || friends[p.idx]?.name || (p.idx+1))}</div>
+      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我')[0] : ((friends[p.idx]?.cfg?.name || friends[p.idx]?.name || '').toString()[0] || (p.idx+1))}</div>
       ${p.isMe ? `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.65rem;color:var(--text-dim);margin-left:4px;"><input type="checkbox" id="showFullMonthToggle" ${fullMonth?'checked':''} onchange="toggleFullMonth()" style="accent-color:var(--accent);width:13px;height:13px;cursor:pointer;">整個月</label>` : ''}`;
     if (!p.isMe) {
       const f = friends[p.idx];
@@ -3746,8 +3718,11 @@ function saveFriends() {
 
 function loadSavedFriends() {
   const saved = JSON.parse(localStorage.getItem('ss_friends') || '[]');
-  // Restore friends with empty data (need to refresh from cloud)
   friends = saved.map(f => ({ name:f.name, dayData:{}, cfg:null, binId:f.binId, code:f.code, lastSync:f.lastSync, customName:f.customName||'' }));
+  // Auto-refresh friends that have a binId (silent background refresh)
+  friends.forEach((f) => {
+    if (f.binId) fetchFriendBin(f.binId, f.code || f.binId.slice(-6).toUpperCase()).catch(() => {});
+  });
 }
 
 
@@ -3768,20 +3743,6 @@ function loadByCodeInput() {
   loadFriendByCode(code);
 }
 
-function loadFriendJSONGlobal(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      friends.push({ name: d.config?.name || '好友', dayData: d.day||{}, cfg: d.config||null, binId:null, code:null });
-      saveFriends(); renderFriendView();
-    } catch { alert('JSON 格式錯誤'); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
 
 function updateShareBtnState() {
   const btn = document.getElementById('btnCloudShare');
@@ -3800,7 +3761,6 @@ function updateShareBtnState() {
 }
 
 loadTheme();
-bindCompLongPress();
 loadColors();
 buildColorPickers();
 initSetup();
