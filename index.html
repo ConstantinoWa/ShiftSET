@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291439</title>
+<title>Shift Go v.03291536</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -998,6 +998,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-mid   .friend-shift { color:var(--mid); }
 .friend-cell.fc-off   .friend-shift { color:var(--off); }
 .friend-cell.fc-leave .friend-shift { color:var(--cons); }
+.friend-cell.fc-outside { background: transparent; border-color: transparent; }
 .friend-cell.common-off { box-shadow:0 0 0 2px #f5c518; z-index:1; }
 .friend-divider { height:1px; background:var(--border); margin:6px 0; }
 .friend-add-btn { width:100%; padding:9px; border-radius:var(--radius); border:1px dashed var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.78rem; transition:all .12s; margin-top:4px; }
@@ -1268,7 +1269,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291439</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291536</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1388,7 +1389,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291439</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291536</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1482,14 +1483,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <div class="q-track"><div class="q-fill" id="consFill" style="background:var(--cons)"></div></div>
         <div class="q-sub" id="consSub">已使用 0 天，剩餘 28 天</div>
       </div>
-      <div class="q-card" onmousedown="startCompLongPress(event)" onmouseup="cancelCompLongPress()" onmouseleave="cancelCompLongPress()" ontouchstart="startCompLongPress(event)" ontouchmove="cancelCompLongPress()" style="cursor:pointer;touch-action:manipulation;">
-        <div class="q-top"><div><div class="q-title">補休</div><div class="q-number" id="compNum" style="color:var(--comp)">0</div></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
-        <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
-        <div class="q-sub" id="compSub">加班折算 0 天可用</div>
-        <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;">
-          <span>⏳ 長按歸零</span>
-          <span id="lastResetHint"></span>
-        </div>
+      <div class="q-card">
+          <div class="q-top"><div><div class="q-title">補休</div><div id="compNumWrap" onmousedown="startCompLongPress(event)" onmouseup="cancelCompLongPress()" onmouseleave="cancelCompLongPress()" ontouchstart="startCompLongPress(event)" ontouchend="cancelCompLongPress()" ontouchmove="cancelCompLongPress()" style="display:inline-block;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:2px 6px;border-radius:6px;"><span id="compNum" class="q-number" style="color:var(--comp);pointer-events:none;">0天</span></div></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
+          <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
+          <div class="q-sub" id="compSub">加班折算 0 天可用</div>
+          <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;">
+            <span id="compLongPressHint">⏳ 長按天數歸零</span>
+            <span id="lastResetHint"></span>
+          </div>
       </div>
     </div>
 
@@ -1659,6 +1660,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <!-- ══ TAIWAN HOLIDAYS ══ -->
 <div id="cellHintBubble">⏳ 長按編輯</div>
 
+<!-- ══ CONFIRM OVERLAY ══ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="closeConfirm()" style="flex:1;padding:10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit;font-size:.8rem;">取消</button>
+      <button id="confirmOkBtn" onclick="doConfirm()" style="flex:1;padding:10px;border-radius:var(--radius);border:none;background:var(--hol);color:#fff;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:700;">確認</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ COLOR PALETTE OVERLAY ══ -->
 <div class="cp-palette-overlay" id="cpPaletteOverlay">
   <div class="cp-palette-sheet">
@@ -1686,6 +1699,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     </div>
   </div>
   <div id="friendPeopleList"></div>
+
+  <div id="fullMonthView" style="display:none;margin-bottom:10px;"></div>
+
   <button class="friend-add-btn" onclick="addFriend()">＋ 新增好友</button>
   <div style="margin-top:10px;" id="friendLoadArea"></div>
 
@@ -1693,8 +1709,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="friend-data-card" style="margin-top:8px;">
     <div class="friend-data-title">輸入好友碼新增</div>
     <div style="display:flex;gap:6px;">
-      <input id="friendCodeInput" placeholder="貼上好友碼" style="flex:1;font-size:.72rem;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;">
-      <button id="btnLoadCode" class="btn-load-friend" style="flex-shrink:0;width:60px;" onclick="loadByCodeInput()">載入</button>
+      <input id="friendCodeInput" placeholder="貼上好友碼" style="flex:1;font-size:.72rem;padding:0 10px;height:36px;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;">
+      <button id="btnLoadCode" class="btn-load-friend" style="flex-shrink:0;width:38px;height:36px;box-sizing:border-box;padding:0;font-size:.7rem;" onclick="loadByCodeInput()">載入</button>
     </div>
     <div style="font-size:.58rem;color:var(--text-mute);margin-top:6px;line-height:1.5;">
       好友在「分享班表」點「☁ 分享班表給好友」後取得好友碼，複製後貼上載入
@@ -2034,6 +2050,7 @@ function startApp() {
     err.textContent = '請確認今天日期';
     return;
   }
+  const spPeriods = collectSpPeriods();
   const cfg = { todayBan, todayDate, rotPattern:[...rotPattern], consTotal, name, spPeriods, civilMode };
   localStorage.setItem('ss_config', JSON.stringify(cfg));
   applyConfig(cfg);
@@ -2058,7 +2075,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291439';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291536';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2424,6 +2441,8 @@ function render() {
     if(rec.leave==='other') stats.other++;
   }
   renderStats(stats); renderQuota(); renderQuarter();
+  // Update full month view if open
+  if (document.getElementById('showFullMonthToggle')?.checked) renderFullMonth();
 }
 
 function renderStats(s) {
@@ -3026,7 +3045,45 @@ function doExport(btn) {
   }, 100);
 }
 
-// ── COMP CARD LONG PRESS ──
+// ── FULL MONTH DISPLAY ──
+function toggleFullMonth() {
+  renderFriendView();
+}
+
+function renderFullMonth() {
+  const el = document.getElementById('fullMonthView');
+  if (!el) return;
+  const dim = new Date(cY, cM+1, 0).getDate();
+  const SN_S = {early:'早',mid2:'中',late:'晚',mid:'夜',off:'休'};
+  const LN_S = {cons:'慰',comp:'補',other:'補放'};
+  const DOW_S = ['日','一','二','三','四','五','六'];
+  let rows = '';
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(cY, cM, d);
+    const ky = k(cY, cM, d);
+    const dow = date.getDay();
+    const rec = dayData[ky] || {};
+    const shift = rec.shift !== undefined ? rec.shift : getAutoShift(date);
+    const leave = rec.leave || null;
+    const hw = TW_HOL[ky];
+    const isToday = (cY === today.getFullYear() && cM === today.getMonth() && d === today.getDate());
+    const shiftLabel = leave ? (LN_S[leave]||'假') : (SN_S[shift]||'');
+    const shiftColor = leave ? 'var(--cons)' : (shift==='early'?'var(--early)':shift==='mid2'?'var(--mid2)':shift==='late'?'var(--late)':shift==='mid'?'var(--mid)':'var(--off)');
+    const dayColor = hw ? 'var(--hol)' : (dow===0?'var(--hol)':dow===6?'#818cf8':'var(--text)');
+    rows += `<div style="display:flex;align-items:center;padding:5px 8px;border-bottom:1px solid var(--border);${isToday?'background:rgba(255,255,255,.08);':''}">
+      <span style="font-family:'DM Mono',monospace;font-size:.72rem;color:${dayColor};width:28px;">${d}</span>
+      <span style="font-size:.62rem;color:var(--text-mute);width:18px;">${DOW_S[dow]}</span>
+      ${hw ? `<span style="font-size:.6rem;color:var(--hol);flex:1;">${hw.label}</span>` : '<span style="flex:1;"></span>'}
+      <span style="font-size:.72rem;font-weight:700;color:${shiftColor};min-width:32px;text-align:right;">${shiftLabel}</span>
+    </div>`;
+  }
+  el.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-family:inherit;">
+    <div style="padding:6px 8px;font-family:'DM Mono',monospace;font-size:.62rem;color:var(--text-mute);border-bottom:1px solid var(--border);">${cY}年 ${MN[cM]}</div>
+    ${rows}
+  </div>`;
+}
+
+
 let _compTimer = null;
 let _confirmCb = null;
 let _lastCompReset = localStorage.getItem('ss_last_comp_reset') || '';
@@ -3079,6 +3136,9 @@ function cancelCompLongPress() {
   _compTimer = null;
   hideCellHint();
 }
+
+// Bind comp card long press to overlay after DOM ready
+function bindCompLongPress() { /* inline events used */ }
 
 // ── COLOR PALETTE ──
 const COLOR_PRESETS = [
@@ -3258,6 +3318,15 @@ function closeFriendView() {
   document.getElementById('appWrap').style.display = 'block';
 }
 function friendNav(d) {
+  const fullMonth = document.getElementById('showFullMonthToggle')?.checked || false;
+  if (fullMonth) {
+    // navigate by month
+    cM += d;
+    if (cM > 11) { cM = 0; cY++; }
+    if (cM < 0)  { cM = 11; cY--; }
+    renderFriendView();
+    return;
+  }
   const next = friendWeekOffset + d;
   if (Math.abs(next) > MAX_FRIEND_OFFSET) return;
   friendWeekOffset = next;
@@ -3333,17 +3402,13 @@ function getShiftForDate(date, isMe, friendIdx) {
 
 function renderFriendView() {
   const total = 1 + friends.length; // me + friends
-  const showTwoWeeks = total <= 2;
+  const fullMonth = document.getElementById('showFullMonthToggle')?.checked || false;
+  const showTwoWeeks = !fullMonth && total <= 2;
   const today = new Date(); today.setHours(0,0,0,0);
-  const dow = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow-1) + friendWeekOffset * 7);
-  const w2start = new Date(monday); w2start.setDate(monday.getDate()+7);
-  const endDate = new Date(monday); endDate.setDate(monday.getDate() + (showTwoWeeks ? 13 : 6));
-  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-  document.getElementById('friendWeekLabel').textContent = fmt(monday)+' – '+fmt(endDate);
-  document.getElementById('friendPrev').disabled = friendWeekOffset <= -MAX_FRIEND_OFFSET;
-  document.getElementById('friendNext').disabled = friendWeekOffset >= MAX_FRIEND_OFFSET;
+
+  // Nav buttons
+  document.getElementById('friendPrev').disabled = !fullMonth && friendWeekOffset <= -MAX_FRIEND_OFFSET;
+  document.getElementById('friendNext').disabled = !fullMonth && friendWeekOffset >= MAX_FRIEND_OFFSET;
 
   const SN_F = {early:'早',mid2:'中',late:'晚',mid:'夜',off:'休'};
   const LN_F = {cons:'慰',comp:'補',other:'補放'};
@@ -3354,8 +3419,33 @@ function renderFriendView() {
   const people = [{ name: JSON.parse(localStorage.getItem('ss_config')||'{}').name||'我', isMe:true, idx:0, color: FRIEND_COLORS[0] }];
   friends.forEach((f, i) => people.push({ name: f.name||'好友'+(i+1), isMe:false, idx:i, color: FRIEND_COLORS[(i+1) % FRIEND_COLORS.length] }));
 
-  // Collect shifts for all people for all days (for common-off calc)
-  const weeks = showTwoWeeks ? [monday, w2start] : [monday];
+  // Build weeks array
+  let weeks;
+  if (fullMonth) {
+    // Full month mode: build weeks from 1st to last day of cY/cM
+    const firstDay = new Date(cY, cM, 1);
+    const lastDay = new Date(cY, cM+1, 0);
+    // Start from Sunday before 1st
+    const startSun = new Date(firstDay);
+    startSun.setDate(1 - firstDay.getDay());
+    // Build array of week start Sundays
+    weeks = [];
+    let ws = new Date(startSun);
+    while (ws <= lastDay) {
+      weeks.push(new Date(ws));
+      ws.setDate(ws.getDate() + 7);
+    }
+    document.getElementById('friendWeekLabel').textContent = `${cY}/${cM+1}/1 – ${cY}/${cM+1}/${lastDay.getDate()}`;
+  } else {
+    const dow = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dow === 0 ? 6 : dow-1) + friendWeekOffset * 7);
+    const w2start = new Date(monday); w2start.setDate(monday.getDate()+7);
+    const endDate = new Date(monday); endDate.setDate(monday.getDate() + (showTwoWeeks ? 13 : 6));
+    const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+    document.getElementById('friendWeekLabel').textContent = fmt(monday)+' – '+fmt(endDate);
+    weeks = showTwoWeeks ? [monday, w2start] : [monday];
+  }
   const allOffSets = people.map(() => weeks.map(() => new Array(7).fill(false)));
   weeks.forEach((wstart, wi) => {
     for (let di = 0; di < 7; di++) {
@@ -3380,8 +3470,10 @@ function renderFriendView() {
     personDiv.className = 'friend-person';
 
     // Name row
+    const fullMonthChecked = document.getElementById('showFullMonthToggle')?.checked || false;
     let nameHtml = `<div class="friend-name-row">
-      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || friends[p.idx]?.name || (p.idx+1))}</div>`;
+      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || friends[p.idx]?.name || (p.idx+1))}</div>
+      ${p.isMe ? `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.65rem;color:var(--text-dim);margin-left:4px;"><input type="checkbox" id="showFullMonthToggle" ${fullMonth?'checked':''} onchange="toggleFullMonth()" style="accent-color:var(--accent);width:13px;height:13px;cursor:pointer;">整個月</label>` : ''}`;
     if (!p.isMe) {
       const f = friends[p.idx];
       const syncLabel = f.lastSync ? `<span style="font-size:.55rem;color:var(--text-mute);">同步 ${f.lastSync}</span>` : '<span style="font-size:.55rem;color:var(--text-mute);">未同步</span>';
@@ -3411,8 +3503,8 @@ function renderFriendView() {
     if (!p.isMe) {
       gridsHtml += `<div style="margin-top:5px;">
         <div style="display:flex;gap:5px;margin-top:4px;">
-          <input placeholder="貼上好友碼" id="fcode_${p.idx}" style="flex:1;font-size:.68rem;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;" ${friends[p.idx].binId ? `value="${friends[p.idx].binId}"` : ''}>
-          <button class="btn-load-friend" style="width:52px;flex-shrink:0;" onclick="loadFriendByCodeForIdx(${p.idx})">載入</button>
+          <input placeholder="貼上好友碼" id="fcode_${p.idx}" style="flex:1;font-size:.68rem;padding:0 8px;height:36px;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;" ${friends[p.idx].binId ? `value="${friends[p.idx].binId}"` : ''}>
+          <button class="btn-load-friend" style="flex-shrink:0;width:38px;height:36px;box-sizing:border-box;padding:0;font-size:.7rem;" onclick="loadFriendByCodeForIdx(${p.idx})">載入</button>
         </div>
         ${friends[p.idx].cfg ? '<span style="font-size:.6rem;color:var(--comp);">✓ 已載入</span>' : '<span style="font-size:.6rem;color:var(--text-mute);">尚未載入</span>'}
       </div>`;
@@ -3437,20 +3529,21 @@ function renderFriendView() {
       for (let di = 0; di < 7; di++) {
         const d = new Date(wstart); d.setDate(wstart.getDate()+di);
         const ky = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-        const { shift, leave } = getShiftForDate(d, p.isMe, p.idx);
+        const outsideMonth = fullMonth && (d.getMonth() !== cM || d.getFullYear() !== cY);
+        const { shift, leave } = outsideMonth ? { shift:'off', leave:null } : getShiftForDate(d, p.isMe, p.idx);
         const isToday = d.getTime() === today.getTime();
         const hw = TW_HOL[ky];
         let cls = 'friend-cell';
-        if (leave) cls += ' fc-leave';
+        if (outsideMonth) { cls += ' fc-outside'; }
+        else if (leave) cls += ' fc-leave';
         else if (shift) cls += ' fc-'+shift;
         if (isToday) cls += ' fc-today';
-        if (hw) cls += ' fc-holiday';
-        if (commonOff[wi][di]) cls += ' common-off';
-        const lbl = leave ? (LN_F[leave]||'假') : (SN_F[shift]||'');
-        const dnumStyle = hw ? '' : '';
+        if (hw && !outsideMonth) cls += ' fc-holiday';
+        if (commonOff[wi][di] && !outsideMonth) cls += ' common-off';
+        const lbl = outsideMonth ? '' : (leave ? (LN_F[leave]||'假') : (SN_F[shift]||''));
         const cell = document.createElement('div');
         cell.className = cls;
-        cell.innerHTML = `<div class="friend-dnum">${d.getDate()}</div><div class="friend-shift">${lbl}</div>`;
+        cell.innerHTML = `<div class="friend-dnum" style="${outsideMonth?'opacity:.2':''}">${d.getDate()}</div><div class="friend-shift">${lbl}</div>`;
         grid.appendChild(cell);
       }
     });
@@ -3707,6 +3800,7 @@ function updateShareBtnState() {
 }
 
 loadTheme();
+bindCompLongPress();
 loadColors();
 buildColorPickers();
 initSetup();
