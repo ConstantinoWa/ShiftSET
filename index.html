@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291354</title>
+<title>Shift Go v.03291419</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1268,8 +1268,20 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291354</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291419</span></div>
   <div class="setup-sub">初次使用設定</div>
+
+  <!-- ☐ 同公務人員行事曆 -->
+  <label id="civilCard" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:14px 16px;background:var(--surface);border:2px solid var(--accent);border-radius:var(--radius-lg);margin-bottom:16px;">
+    <input type="checkbox" id="civilModeCheck" onchange="toggleCivilMode()" style="accent-color:var(--accent);width:18px;height:18px;cursor:pointer;flex-shrink:0;margin-top:2px;">
+    <div>
+      <div style="font-size:.88rem;font-weight:700;color:var(--accent);">同公務人員行事曆</div>
+      <div style="font-size:.62rem;color:var(--text-dim);margin-top:3px;line-height:1.6;">
+        勾選後自動套用 16 番輪班循環及 2026 春節特別排班<br>
+        輪班週期設定與春節設定將自動填入，不需手動設定
+      </div>
+    </div>
+  </label>
 
   <!-- 使用說明 -->
   <div class="setup-card" style="border-color:var(--accent);margin-bottom:14px;">
@@ -1314,8 +1326,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 
   <!-- 2. 輪班週期 -->
-  <div class="setup-card">
-    <h2>02 ── 輪班週期設定</h2>
+  <div class="setup-card" id="setupCard02">
     <div class="rot-len-row">
       <label>循環天數</label>
       <input type="number" id="sRotLen" min="2" max="32" value="16">
@@ -1361,8 +1372,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     </div>
   </div>
 
-  <!-- 4. 特別上班/休假期間 -->
-  <div class="setup-card">
+  <div class="setup-card" id="setupCard04">
     <h2>04 ── 春節特別排班<span style="font-weight:400;color:var(--ot);font-size:.62rem;margin-left:6px">⚠ 填入後才能計算正確日數</span></h2>
     <p style="font-size:.64rem;color:var(--text-dim);margin-bottom:10px">春節期間特別排班，不依輪番規則，需手動指定每段的班別，系統才能正確推算前後番號</p>
     <div class="sp-list" id="spList"></div>
@@ -1378,7 +1388,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291354</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291419</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1449,6 +1459,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="dow-row" id="dowRow"></div>
     <div class="cal-grid" id="calGrid"></div>
 
+    <div id="calStatusNote" style="font-size:.6rem;color:var(--text-mute);margin-bottom:6px;line-height:1.5;"></div>
     <div class="legend">
       <div class="leg-item"><div class="leg-swatch" style="background:var(--early-dim);border:1px solid var(--early)"></div>早班</div>
       <div class="leg-item"><div class="leg-swatch" style="background:var(--mid2-dim);border:1px solid var(--mid2)"></div>中班</div>
@@ -1905,6 +1916,73 @@ function buildColorPickers() {
   }).join('');
 }
 
+// 公務人員春節行事曆預設值（2026年，人事行政總處公告）
+const CIVIL_SP_2026 = [
+  { start:'2026-02-14', end:'2026-02-22', shift:'off', skip:true }
+];
+
+// 公務人員16番輪班
+const CIVIL_ROTATION = ['early','early','early','early','early','off','off','late','late','late','mid','off','off','early','early','off'];
+
+function toggleCivilMode() {
+  const checked = document.getElementById('civilModeCheck').checked;
+  const card02 = document.getElementById('setupCard02');
+  const card04 = document.getElementById('setupCard04');
+
+  if (checked) {
+    // Hide 02 and 04
+    card02.style.display = 'none';
+    card04.style.display = 'none';
+    // Auto-fill rotation
+    buildRotBuilder(16);
+    CIVIL_ROTATION.forEach((s, i) => {
+      rotPattern[i] = s;
+      const btn = document.getElementById('rb-' + i);
+      if (btn) { btn.className = 'rot-btn ' + SL_CLS[s]; btn.textContent = SL_MAP[s]; }
+    });
+    updateRotPreview();
+    // Auto-fill spring festival
+    const spList = document.getElementById('spList');
+    spList.innerHTML = ''; spCounter = 0;
+    CIVIL_SP_2026.forEach(sp => addSpRow(sp));
+    // Check the civil SP checkbox too
+    const civilSpCheck = document.getElementById('spCivilCheck');
+    if (civilSpCheck) civilSpCheck.checked = true;
+  } else {
+    // Show 02 and 04
+    card02.style.display = '';
+    card04.style.display = '';
+    // Reset
+    buildRotBuilder(16);
+    const spList = document.getElementById('spList');
+    spList.innerHTML = ''; spCounter = 0;
+    const civilSpCheck = document.getElementById('spCivilCheck');
+    if (civilSpCheck) civilSpCheck.checked = false;
+    document.querySelector('.btn-add-sp').disabled = false;
+    document.querySelector('.btn-add-sp').style.opacity = '1';
+  }
+}
+
+function toggleCivilSP() {
+  const checked = document.getElementById('spCivilCheck').checked;
+  const spList = document.getElementById('spList');
+  if (checked) {
+    // Clear existing and fill civil calendar
+    spList.innerHTML = '';
+    spCounter = 0;
+    CIVIL_SP_2026.forEach(sp => addSpRow(sp));
+    // Disable manual add button
+    document.querySelector('.btn-add-sp').disabled = true;
+    document.querySelector('.btn-add-sp').style.opacity = '.4';
+  } else {
+    // Clear and re-enable manual editing
+    spList.innerHTML = '';
+    spCounter = 0;
+    document.querySelector('.btn-add-sp').disabled = false;
+    document.querySelector('.btn-add-sp').style.opacity = '1';
+  }
+}
+
 function initSetup() {
   // pre-fill today's date
   const td = new Date();
@@ -1913,6 +1991,11 @@ function initSetup() {
   // check if already configured
   const cfg = JSON.parse(localStorage.getItem('ss_config') || 'null');
   if (cfg) {
+    // Restore civil mode if applicable
+    if (cfg.civilMode) {
+      const cb = document.getElementById('civilModeCheck');
+      if (cb) { cb.checked = true; toggleCivilMode(); }
+    }
     applyConfig(cfg);
     return;
   }
@@ -1953,7 +2036,8 @@ function startApp() {
   }
 
   const spPeriods = collectSpPeriods();
-  const cfg = { todayBan, todayDate, rotPattern:[...rotPattern], consTotal, name, spPeriods };
+  const civilMode = document.getElementById('civilModeCheck')?.checked || false;
+  const cfg = { todayBan, todayDate, rotPattern:[...rotPattern], consTotal, name, spPeriods, civilMode };
   localStorage.setItem('ss_config', JSON.stringify(cfg));
   applyConfig(cfg);
 }
@@ -1977,7 +2061,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291354';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291419';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2030,6 +2114,17 @@ function editSection(n) {
   const spList = document.getElementById('spList');
   spList.innerHTML=''; spCounter=0;
   (cfg.spPeriods||[]).forEach(sp=>addSpRow(sp));
+
+  // Restore civil SP checkbox state
+  const civilCheck = document.getElementById('spCivilCheck');
+  if (civilCheck && cfg.spPeriods?.length === 1) {
+    const sp = cfg.spPeriods[0];
+    if (sp.start === '2026-02-14' && sp.end === '2026-02-22') {
+      civilCheck.checked = true;
+      document.querySelector('.btn-add-sp').disabled = true;
+      document.querySelector('.btn-add-sp').style.opacity = '.4';
+    }
+  }
 
   // scroll to the right section
   document.getElementById('appWrap').style.display = 'none';
@@ -2259,6 +2354,21 @@ function render() {
   document.getElementById('hdMonth').innerHTML = `${MN[cM]} <span>${cY}</span>`;
   document.getElementById('dowRow').innerHTML =
     DOW.map((d,i)=>`<div class="dow-cell ${i===0?'is-sun':i===6?'is-sat':''}">${d}</div>`).join('');
+
+  // Update civil calendar status note
+  const noteEl = document.getElementById('calStatusNote');
+  if (noteEl) {
+    const nextY = new Date().getFullYear() + 1;
+    // Check if TW_HOL has data for next year
+    const hasNextYear = Object.keys(TW_HOL).some(k => k.startsWith(nextY + '-'));
+    if (hasNextYear) {
+      noteEl.innerHTML = `✅ 已載入 ${nextY} 年行事曆，可依需求排班`;
+      noteEl.style.color = 'var(--comp)';
+    } else {
+      noteEl.innerHTML = `⏳ ${nextY} 年行事曆尚未公告（人事行政總處通常於每年 6 月發布）`;
+      noteEl.style.color = 'var(--text-mute)';
+    }
+  }
 
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
