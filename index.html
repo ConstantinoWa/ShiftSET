@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291026</title>
+<title>Shift Go v.03291325</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -156,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .top-bar-left { display: flex; flex-direction: column; gap: 1px; }
-.app-label { font-family: 'DM Mono', monospace; font-size: .55rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-dim); }
+.app-label { font-family: 'DM Mono', monospace; font-size: .55rem; letter-spacing: .12em; color: var(--text-dim); }
 .month-display { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; line-height: 1; letter-spacing: .04em; }
 .month-display span { color: var(--accent); }
 .nav-cluster { display: flex; align-items: center; gap: 6px; }
@@ -196,7 +196,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.has-off::before   { background: var(--off); }
 .cell:hover { border-color: var(--border2); background: var(--surface2); }
 .cell.empty { background:transparent; border-color:transparent; cursor:default; pointer-events:none; }
-.cell.is-today { border:2px solid #ffffff !important; background:#ffffff !important; }
+.cell.is-today { border:2px solid #ffffff !important; background:#ffffff !important; box-shadow: 0 0 0 2px #d4a830, 0 0 0 3px #ffffff !important; }
 .cell.is-today .dnum { color: #1a1815; font-weight:900; }
 .cell.is-sun .dnum { color: var(--hol); }
 
@@ -988,7 +988,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-mid   { background:var(--mid-dim);   border-color:var(--mid);   } .friend-cell.fc-mid::before   { background:var(--mid); }
 .friend-cell.fc-off   { background:var(--off-dim);   border-color:var(--off);   } .friend-cell.fc-off::before   { background:var(--off); }
 .friend-cell.fc-leave { background:var(--cons-dim);  border-color:var(--cons);  }
-.friend-cell.fc-today { border:2px solid #ffffff !important; background:#ffffff !important; }
+.friend-cell.fc-today { border:2px solid #ffffff !important; background:#ffffff !important; box-shadow: 0 0 0 2px #d4a830, 0 0 0 3px #ffffff !important; }
 .friend-cell.fc-holiday .friend-dnum { color:var(--hol); border:1.5px solid var(--hol); border-radius:3px; padding:0 2px; }
 .friend-dnum { font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; color:var(--text); margin-top:2px; }
 .friend-shift { font-size:.56rem; font-weight:700; margin-top:2px; text-align:center; width:100%; }
@@ -1268,7 +1268,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291026</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291325</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -1378,7 +1378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291026</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291325</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1677,6 +1677,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div id="friendPeopleList"></div>
   <button class="friend-add-btn" onclick="addFriend()">＋ 新增好友</button>
   <div style="margin-top:10px;" id="friendLoadArea"></div>
+
+  <!-- 新增好友代碼輸入 -->
+  <div class="friend-data-card" style="margin-top:8px;">
+    <div class="friend-data-title">輸入好友碼新增</div>
+    <div style="display:flex;gap:6px;">
+      <input id="friendCodeInput" placeholder="貼上好友碼" style="flex:1;font-size:.72rem;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;">
+      <button id="btnLoadCode" class="btn-load-friend" style="flex-shrink:0;width:60px;" onclick="loadByCodeInput()">載入</button>
+    </div>
+    <div style="font-size:.58rem;color:var(--text-mute);margin-top:6px;line-height:1.5;">
+      好友在「分享班表」點「☁ 分享班表給好友」後取得好友碼，複製後貼上載入
+    </div>
+  </div>
 </div>
 
 <!-- ══ MONTH PICKER ══ -->
@@ -1965,7 +1977,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291026';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291325';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3148,6 +3160,14 @@ function removeFriend(i) {
 function updateFriendName(i, val) {
   friends[i].name = val;
 }
+function setFriendCustomName(i, val) {
+  friends[i].customName = val;
+  saveFriends();
+  // update tag
+  const tags = document.querySelectorAll('.friend-tag');
+  // re-render to update tag
+  renderFriendView();
+}
 
 function loadFriendJSONForIndex(idx, e) {
   const file = e.target.files[0];
@@ -3243,12 +3263,19 @@ function renderFriendView() {
 
     // Name row
     let nameHtml = `<div class="friend-name-row">
-      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}">${p.isMe ? (p.name||'我') : ''}</div>`;
+      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || '好友'+(p.idx+1))}</div>`;
     if (!p.isMe) {
       const f = friends[p.idx];
       const syncLabel = f.lastSync ? `<span style="font-size:.55rem;color:var(--text-mute);">同步 ${f.lastSync}</span>` : '<span style="font-size:.55rem;color:var(--text-mute);">未同步</span>';
       const hasCloud = !!f.binId;
-      nameHtml += `<input class="friend-input-name" placeholder="好友名字" value="${p.name}" oninput="updateFriendName(${p.idx},this.value);this.closest('.friend-person').querySelector('.friend-tag').textContent=this.value||'好友${p.idx+1}'">
+      // Auto name: use custom name if set, else fall back to cfg name
+      const displayName = f.customName || f.name || '';
+      const cfgName = f.cfg?.name || f.name || '';
+      nameHtml += `
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+          <div style="font-size:.65rem;color:var(--text-dim);">${cfgName ? cfgName : '<span style="color:var(--text-mute)">未載入</span>'}</div>
+          <input class="friend-input-name" placeholder="自訂暱稱" value="${f.customName||''}" style="width:100%;" oninput="setFriendCustomName(${p.idx},this.value)">
+        </div>
       ${hasCloud ? `<button onclick="refreshFriend(${p.idx})" title="更新好友班表" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--comp);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="refreshBtn_${p.idx}">↺</button>` : ''}
       <button class="friend-remove-btn" onclick="removeFriend(${p.idx})">✕</button>`;
       nameHtml += `</div><div style="margin-bottom:4px;">${syncLabel}</div>`;
@@ -3456,34 +3483,33 @@ async function fetchFriendBin(binId, code) {
   const res = await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
     headers: { 'X-Master-Key': JSONBIN_KEY }
   });
-  if (!res.ok) throw new Error('找不到此班表，請確認代碼是否正確');
+  if (!res.ok) throw new Error('找不到此班表，請確認代碼是否正確（' + res.status + '）');
   const data = await res.json();
   const record = data.record;
-  
+
   // Find which friend slot to update or add new
   const idx = _loadingFriendIdx >= 0 ? _loadingFriendIdx : friends.findIndex(f => f.binId === binId);
   _loadingFriendIdx = -1;
-  const friendObj = { 
+
+  // Preserve existing customName if already set
+  const existingCustomName = idx >= 0 ? (friends[idx].customName || '') : '';
+
+  const friendObj = {
     name: record.name || record.config?.name || '好友',
     dayData: record.day || {},
     cfg: record.config || null,
     binId: binId,
     code: code,
+    customName: existingCustomName,
     lastSync: new Date().toLocaleString('zh-TW')
   };
-  
+
   if (idx >= 0) {
     friends[idx] = friendObj;
   } else {
     friends.push(friendObj);
   }
-  
-  // Save friend bins mapping
-  const friendBins = JSON.parse(localStorage.getItem('ss_friend_bins') || '{}');
-  friendBins[code] = binId;
-  localStorage.setItem('ss_friend_bins', JSON.stringify(friendBins));
-  
-  // Save friends list
+
   saveFriends();
   renderFriendView();
 }
@@ -3503,14 +3529,14 @@ async function refreshFriend(idx) {
 
 function saveFriends() {
   // Save friends metadata (not full dayData to save space - reload from cloud when needed)
-  const toSave = friends.map(f => ({ name:f.name, binId:f.binId||null, code:f.code||null, lastSync:f.lastSync||null }));
+  const toSave = friends.map(f => ({ name:f.name, binId:f.binId||null, code:f.code||null, lastSync:f.lastSync||null, customName:f.customName||'' }));
   localStorage.setItem('ss_friends', JSON.stringify(toSave));
 }
 
 function loadSavedFriends() {
   const saved = JSON.parse(localStorage.getItem('ss_friends') || '[]');
   // Restore friends with empty data (need to refresh from cloud)
-  friends = saved.map(f => ({ name:f.name, dayData:{}, cfg:null, binId:f.binId, code:f.code, lastSync:f.lastSync }));
+  friends = saved.map(f => ({ name:f.name, dayData:{}, cfg:null, binId:f.binId, code:f.code, lastSync:f.lastSync, customName:f.customName||'' }));
 }
 
 
