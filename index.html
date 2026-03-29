@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03290945</title>
+<title>Shift Go v.03290954</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1268,7 +1268,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03290945</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03290954</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -1378,7 +1378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03290945</div>
+      <div class="app-label" id="appLabel">Shift Go v.03290954</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1965,7 +1965,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03290945';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03290954';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3317,8 +3317,9 @@ function renderFriendView() {
     : '';
 }
 
-// ── JSONBIN SHARE ──
-const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+// ── NPOINT SHARE (no API key needed) ──
+// npoint.io: free, anonymous JSON storage
+// POST /points → { id } then GET /points/{id}
 
 async function shareToCloud() {
   const btn = document.getElementById('btnCloudShare');
@@ -3362,40 +3363,36 @@ async function shareToCloud() {
 
   try {
     const binId = localStorage.getItem('ss_cloud_bin_id');
-    let res, data;
+    let res, id;
 
     if (binId) {
-      // Update existing bin
-      res = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Access-Key': '' },
-        body: JSON.stringify(payload)
-      });
-    } else {
-      // Create new bin (public, no account needed)
-      res = await fetch(`${JSONBIN_BASE}/b`, {
+      // Update existing: npoint uses PUT /points/{id}
+      res = await fetch('https://api.npoint.io/' + binId, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Bin-Name': 'ShiftGo-' + Date.now(),
-          'X-Bin-Private': 'false'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      id = binId;
+    } else {
+      // Create new bin
+      res = await fetch('https://api.npoint.io/points', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      id = data.id || null;
+      if (!id) throw new Error('建立失敗，請稍後再試');
     }
 
-    data = await res.json();
-    const id = data.metadata?.id || data.record?.id || data.metadata?.b || null;
-    if (!id) throw new Error('無法取得短碼');
+    if (!res.ok && !binId) throw new Error('上傳失敗：' + res.status);
 
     localStorage.setItem('ss_cloud_bin_id', id);
-    const shortCode = id.slice(-6).toUpperCase();
-    localStorage.setItem('ss_cloud_short', shortCode);
-    localStorage.removeItem('ss_cloud_dirty'); // clear dirty flag
+    localStorage.removeItem('ss_cloud_dirty');
     updateShareBtnState();
 
     // Show result with mutual share reminder
-    showShareResult(shortCode, id, true);
+    showShareResult(id, id, true);
   } catch (err) {
     alert('上傳失敗：' + err.message);
   } finally {
@@ -3409,7 +3406,7 @@ function showShareResult(shortCode, fullId, showReminder) {
   el.style.display = 'block';
   el.innerHTML = `
     <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;">複製以下代碼傳給好友：</div>
-    <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);padding:8px 10px;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);word-break:break-all;letter-spacing:.04em;margin-bottom:8px;">${fullId}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:1rem;color:var(--accent);padding:8px 10px;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);word-break:break-all;letter-spacing:.12em;font-weight:700;margin-bottom:8px;text-align:center;">${fullId}</div>
     <button onclick="copyShortCode('${fullId}')" style="width:100%;padding:8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit;font-size:.75rem;">📋 複製代碼</button>
     ${showReminder ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(245,158,11,.1);border:1px solid var(--ot);border-radius:var(--radius);font-size:.68rem;color:var(--ot);line-height:1.6;">
       ✅ 分享成功！<br>
@@ -3451,12 +3448,9 @@ async function loadFriendByCode(code) {
 }
 
 async function fetchFriendBin(binId, code) {
-  const res = await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
-    headers: { 'X-Access-Key': '' }
-  });
-  if (!res.ok) throw new Error('找不到此班表，確認代碼是否正確');
-  const data = await res.json();
-  const record = data.record;
+  const res = await fetch('https://api.npoint.io/' + binId);
+  if (!res.ok) throw new Error('找不到此班表，請確認代碼是否正確');
+  const record = await res.json();
   
   // Find which friend slot to update or add new
   const idx = _loadingFriendIdx >= 0 ? _loadingFriendIdx : friends.findIndex(f => f.binId === binId);
