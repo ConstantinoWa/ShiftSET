@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03291325</title>
+<title>Shift Go v.03291354</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1268,7 +1268,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291325</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03291354</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- 使用說明 -->
@@ -1378,7 +1378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03291325</div>
+      <div class="app-label" id="appLabel">Shift Go v.03291354</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1977,7 +1977,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291325';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03291354';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3162,11 +3162,15 @@ function updateFriendName(i, val) {
 }
 function setFriendCustomName(i, val) {
   friends[i].customName = val;
+  // Just update the tag text immediately, no full re-render
+  const tags = document.querySelectorAll(`.friend-tag`);
+  // find the right tag by iterating people
+  const people = [null, ...friends]; // me is idx 0, friends start idx 1
+  const tag = document.querySelector(`[data-friend-tag="${i}"]`);
+  if (tag) tag.textContent = val || friends[i].cfg?.name || friends[i].name || (i+1);
+}
+function saveFriendCustomName(i) {
   saveFriends();
-  // update tag
-  const tags = document.querySelectorAll('.friend-tag');
-  // re-render to update tag
-  renderFriendView();
 }
 
 function loadFriendJSONForIndex(idx, e) {
@@ -3263,7 +3267,7 @@ function renderFriendView() {
 
     // Name row
     let nameHtml = `<div class="friend-name-row">
-      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || '好友'+(p.idx+1))}</div>`;
+      <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我') : (friends[p.idx]?.customName || friends[p.idx]?.cfg?.name || friends[p.idx]?.name || (p.idx+1))}</div>`;
     if (!p.isMe) {
       const f = friends[p.idx];
       const syncLabel = f.lastSync ? `<span style="font-size:.55rem;color:var(--text-mute);">同步 ${f.lastSync}</span>` : '<span style="font-size:.55rem;color:var(--text-mute);">未同步</span>';
@@ -3274,7 +3278,7 @@ function renderFriendView() {
       nameHtml += `
         <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
           <div style="font-size:.65rem;color:var(--text-dim);">${cfgName ? cfgName : '<span style="color:var(--text-mute)">未載入</span>'}</div>
-          <input class="friend-input-name" placeholder="自訂暱稱" value="${f.customName||''}" style="width:100%;" oninput="setFriendCustomName(${p.idx},this.value)">
+          <input class="friend-input-name" placeholder="暱稱（約8英/4中）" value="${f.customName||''}" style="width:45%;" oninput="setFriendCustomName(${p.idx},this.value)" onblur="saveFriendCustomName(${p.idx})" maxlength="8">
         </div>
       ${hasCloud ? `<button onclick="refreshFriend(${p.idx})" title="更新好友班表" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--comp);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="refreshBtn_${p.idx}">↺</button>` : ''}
       <button class="friend-remove-btn" onclick="removeFriend(${p.idx})">✕</button>`;
