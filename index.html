@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03302304</title>
+<title>Shift Go v.03310010</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -280,14 +280,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .quarter-hd-right { font-size:.6rem; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .quarter-body { padding:0 10px 10px; }
 .quarter-body.collapsed { display:none; }
-.q-month-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; align-items:center; padding:6px 4px; border-bottom:1px solid var(--border); }
+.q-month-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; align-items:center; padding:6px 4px; border-bottom:1px solid var(--border); }
 .q-month-row:last-child { border-bottom:none; }
 .q-month-name { font-size:.65rem; font-weight:700; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .q-cell { text-align:center; font-family:'DM Mono',monospace; font-size:.65rem; }
 .q-cell-val { font-weight:700; font-size:.72rem; }
-.q-col-hd { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:8px 4px 4px; }
+.q-col-hd { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:8px 4px 4px; }
 .q-col-hd-cell { text-align:center; font-size:.52rem; font-family:'DM Mono',monospace; color:var(--text-mute); letter-spacing:.04em; }
-.q-total-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:6px 4px 2px; border-top:1px solid var(--border2); margin-top:2px; }
+.q-total-row { display:grid; grid-template-columns:2.4rem 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap:4px; padding:6px 4px 2px; border-top:1px solid var(--border2); margin-top:2px; }
 .q-total-lbl { font-size:.58rem; color:var(--text-dim); font-family:'DM Mono',monospace; font-weight:700; }
 .q-total-val { text-align:center; font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; }
 
@@ -1256,7 +1256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03302304</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03310010</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1379,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03302304</div>
+      <div class="app-label" id="appLabel">Shift Go v.03310010</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2044,7 +2044,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03302304';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03310010';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2440,18 +2440,29 @@ function renderQuarter() {
     {key:'mid',label:'小夜',color:'var(--mid)'},{key:'off',label:'休',color:'var(--off)'},
     {key:'cons',label:'慰',color:'var(--cons)'},{key:'comp',label:'補',color:'var(--comp)'},
     {key:'other',label:'補放',color:'var(--other)'},
+    {key:'_dev',label:'誤差',color:'var(--text-dim)'},
   ];
   const MNS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   function calcM(y,m){
     const dim=new Date(y,m+1,0).getDate();
-    const s={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
+    const s={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civilOff:0,devOff:0,devCivil:0};
     for(let d=1;d<=dim;d++){
       const ky=k(y,m,d); const rec=dayData[ky]||{};
-      const shift=rec.shift!==undefined?rec.shift:getAutoShift(new Date(y,m,d));
+      const date=new Date(y,m,d);
+      const shift=rec.shift!==undefined?rec.shift:getAutoShift(date);
+      const isSpOverride = SP_OVERRIDE[ky] !== undefined; // 春節特別排班日
       if(rec.leave==='cons') s.cons++;
       else if(rec.leave==='comp') s.comp++;
       else if(rec.leave==='other') s.other++;
       else if(shift) s[shift]++;
+      // Civil standard: weekends + national holidays
+      const dow=date.getDay();
+      if(TW_HOL[ky]?.type==='hol'||dow===0||dow===6) s.civilOff++;
+      // 誤差欄計算：
+      // 使用者：排休（含SP特排的off）
+      if(!rec.leave && shift==='off') s.devOff++;
+      // 公務人員：全月週六日＋國定假日，不管使用者特別排班
+      if(TW_HOL[ky]?.type==='hol'||dow===0||dow===6) s.devCivil++;
     }
     return s;
   }
@@ -2469,8 +2480,20 @@ function renderQuarter() {
       </div>
       <div class="quarter-body${isOpen?'':' collapsed'}">
         <div class="q-col-hd"><div class="q-col-hd-cell"></div>${COLS.map(c=>`<div class="q-col-hd-cell" style="color:${c.color}">${c.label}</div>`).join('')}</div>
-        ${ms.map(({m,s})=>`<div class="q-month-row"><div class="q-month-name">${MNS[m]}</div>${COLS.map(c=>`<div class="q-cell" style="color:${c.color}"><div class="q-cell-val">${s[c.key]||'—'}</div></div>`).join('')}</div>`).join('')}
-        <div class="q-total-row"><div class="q-total-lbl">合計</div>${COLS.map(c=>`<div class="q-total-val" style="color:${c.color}">${tot[c.key]}</div>`).join('')}</div>
+        ${ms.map(({m,s})=>{
+          const userOff=s.off;
+          const dev=s.devOff-s.devCivil;
+          const devStr=dev>0?'+'+dev:dev<0?''+dev:'0';
+          const devColor=dev>0?'var(--early)':dev<0?'var(--hol)':'var(--text-mute)';
+          return `<div class="q-month-row"><div class="q-month-name">${MNS[m]}</div>${COLS.map(col=>{
+            if(col.key==='_dev')return`<div class="q-cell" style="color:${devColor}"><div class="q-cell-val">${devStr}</div></div>`;
+            return`<div class="q-cell" style="color:${col.color}"><div class="q-cell-val">${s[col.key]||'—'}</div></div>`;
+          }).join('')}</div>`;
+        }).join('')}
+        <div class="q-total-row"><div class="q-total-lbl">合計</div>${COLS.map(col=>{
+          if(col.key==='_dev'){const td=ms.reduce((a,{s})=>a+(s.devOff-s.devCivil),0);return`<div class="q-total-val" style="color:${td>0?'var(--early)':td<0?'var(--hol)':'var(--text-mute)'}">${td>0?'+'+td:td}</div>`;}
+          return`<div class="q-total-val" style="color:${col.color}">${tot[col.key]}</div>`;
+        }).join('')}</div>
       </div>
     </div>`;
   }).join('');
