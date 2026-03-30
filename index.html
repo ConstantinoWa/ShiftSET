@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03302254</title>
+<title>Shift Go v.03302304</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -986,6 +986,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-off   { background:var(--off-dim);   border-color:var(--off);   } .friend-cell.fc-off::before   { background:var(--off); }
 .friend-cell.fc-leave { background:var(--cons-dim);  border-color:var(--cons);  }
 .friend-cell.fc-today { border:2px solid #ffffff !important; background:#ffffff !important; box-shadow: 0 0 0 2px #d4a830, 0 0 0 3px #ffffff !important; }
+.friend-cell.fc-today .friend-dnum,.friend-cell.fc-today .dnum { border-bottom:2px solid #f472b6 !important; padding-bottom:1px; }
 .friend-cell.fc-holiday .friend-dnum { color:var(--hol); border:1.5px solid var(--hol); border-radius:3px; padding:0 2px; }
 .friend-dnum { font-family:'DM Mono',monospace; font-size:.68rem; font-weight:700; color:var(--text); margin-top:2px; }
 .friend-shift { font-size:.56rem; font-weight:700; margin-top:2px; text-align:center; width:100%; }
@@ -1173,7 +1174,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-mid   { background: var(--mid-dim);   border-color: var(--mid); }
 .friend-cell.fc-off   { background: var(--off-dim);   border-color: var(--off); }
 .friend-cell.fc-leave { background: var(--cons-dim);  border-color: var(--cons); }
-.friend-cell.fc-today { border: 2px solid #ffffff !important; }
+.friend-cell.fc-today { border:2px solid #ffffff !important; background:#ffffff !important; box-shadow: 0 0 0 2px #d4a830, 0 0 0 3px #ffffff !important; }
 .friend-cell.fc-holiday .friend-dnum { color: var(--hol); }
 .friend-dnum {
   font-family: 'DM Mono', monospace; font-size: .7rem;
@@ -1255,7 +1256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03302254</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03302304</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1378,7 +1379,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03302254</div>
+      <div class="app-label" id="appLabel">Shift Go v.03302304</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2043,7 +2044,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03302254';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03302304';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3308,7 +3309,7 @@ const FRIEND_COLORS = ['var(--early)','var(--comp)','var(--mid2)','var(--mid)','
 // friends[i] = { name, dayData, cfg }
 let friends = []; // 好友清單（不包含自己）
 let friendWeekOffset = 0;
-const MAX_FRIEND_OFFSET = 2;
+const MAX_FRIEND_OFFSET = 8;
 
 function openFriendView() {
   document.getElementById('appWrap').style.display = 'none';
