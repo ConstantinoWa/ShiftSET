@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03292110</title>
+<title>Shift Go v.03302254</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -197,7 +197,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell:hover { border-color: var(--border2); background: var(--surface2); }
 .cell.empty { background:transparent; border-color:transparent; cursor:default; pointer-events:none; }
 .cell.is-today { border:2px solid #ffffff !important; background:#ffffff !important; box-shadow: 0 0 0 2px #d4a830, 0 0 0 3px #ffffff !important; }
-.cell.is-today .dnum { color: #1a1815; font-weight:900; }
+.cell.is-today .dnum { color: #1a1815; font-weight:900; border-bottom: 2px solid #f472b6; padding-bottom:1px; }
 .cell.is-sun .dnum { color: var(--hol); }
 
 .cell.is-holiday { background: var(--surface); }
@@ -220,7 +220,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.leave-other .dnum { color:var(--other) !important; }
 
 .cell-head { display:flex; justify-content:space-between; align-items:flex-start; gap:2px; }
-.dnum { font-family:'DM Mono',monospace; font-size:.78rem; font-weight:500; color:var(--text); line-height:1; flex-shrink:0; }
+.dnum { font-family:'DM Mono',monospace; font-size:1.1rem; font-weight:700; color:var(--text); line-height:1; flex-shrink:0; }
 .cell-meta { display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:0; }
 .ban-lbl { font-family:'DM Mono',monospace; font-size:.48rem; font-weight:700; color:var(--text-dim); line-height:1; }
 .hol-lbl { font-size:.38rem; line-height:1.2; text-align:left; word-break:keep-all; max-width:100%; margin-top:auto; }
@@ -421,8 +421,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   .cell { min-height: 62px; padding: 3px 2px; }
   .dnum { font-size: .68rem; }
   .ban-lbl { font-size: .38rem; }
-  .s-badge { font-size: .5rem; padding: 1px 2px; }
-  .l-badge { font-size: .46rem; }
+  .s-badge { font-size: .6rem; padding: 1px 2px; }
+  .l-badge { font-size: .55rem; }
   .hol-lbl { font-size: .34rem; }
   .month-display { font-size: 1.5rem; }
   .quota-grid { grid-template-columns: 1fr; }
@@ -458,8 +458,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   .cell-head { gap: 1px; }
   .dnum { font-size: .72rem; }
   .ban-lbl { font-size: .42rem; }
-  .s-badge { font-size: .54rem; padding: 1px 3px; }
-  .l-badge { font-size: .5rem; }
+  .s-badge { font-size: .65rem; padding: 1px 3px; }
+  .l-badge { font-size: .6rem; }
   .month-display { font-size: 1.7rem; }
   .quota-grid { grid-template-columns: 1fr; }
   .q-number { font-size: 1.1rem; }
@@ -488,9 +488,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   #appWrap { max-width: 860px; margin: 0 auto; }
   .top-bar { max-width: 860px; margin: 0 auto; left: 0; right: 0; }
   .cell { min-height: 100px; padding: 8px 7px; }
-  .dnum { font-size: .9rem; }
+  .dnum { font-size: 1.05rem; }
   .ban-lbl { font-size: .54rem; }
-  .s-badge { font-size: .68rem; padding: 3px 6px; }
+  .s-badge { font-size: .78rem; padding: 3px 6px; }
   .l-badge { font-size: .62rem; }
   .month-display { font-size: 2.8rem; }
   .quota-grid { grid-template-columns: 1fr 1fr; }
@@ -996,7 +996,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-off   .friend-shift { color:var(--off); }
 .friend-cell.fc-leave .friend-shift { color:var(--cons); }
 .friend-cell.fc-outside { background: transparent; border-color: transparent; }
-.friend-cell.common-off { box-shadow:0 0 0 2px #f5c518; z-index:1; }
+.friend-cell.common-off { box-shadow:0 0 0 3px var(--common-off-c, #f5c518), 0 0 0 6px var(--common-off-o, #f9a8d4); z-index:1; }
 .friend-divider { height:1px; background:var(--border); margin:6px 0; }
 .friend-add-btn { width:100%; padding:9px; border-radius:var(--radius); border:1px dashed var(--border2); background:transparent; color:var(--text-dim); cursor:pointer; font-family:inherit; font-size:.78rem; transition:all .12s; margin-top:4px; }
 .friend-add-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -1191,10 +1191,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .friend-cell.fc-leave .friend-shift { color: var(--cons); }
 
 /* common off highlight */
-.friend-cell.common-off {
-  box-shadow: 0 0 0 2px #f5c518;
-  z-index: 1;
-}
 .friend-divider {
   display: flex; align-items: center; gap: 8px;
   margin: 10px 0 8px; font-size: .6rem; color: var(--text-mute);
@@ -1259,7 +1255,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03292110</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03302254</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1382,7 +1378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03292110</div>
+      <div class="app-label" id="appLabel">Shift Go v.03302254</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1542,6 +1538,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     </div>
     <div id="cloudShareResult" style="display:none;margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);"></div>
     <div class="share-hint">分享後好友輸入短碼即可查看你的班表</div>
+    <div style="font-size:.62rem;color:var(--comp);margin-top:6px;line-height:1.5;padding:6px 10px;background:var(--comp-dim);border:1px solid var(--comp);border-radius:var(--radius-sm);">🔒 僅分享行事曆班別內容，慰休／補休天數等假別數量不會分享</div>
   </div>
 
     <!-- ══ BACKUP ══ -->
@@ -2046,7 +2043,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03292110';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03302254';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2135,36 +2132,9 @@ document.getElementById('settingsOverlay').addEventListener('click', function(e)
 
 // ══ CALENDAR LOGIC ══
 
-// ══ LUNAR CALENDAR 2024–2027 ══
-const LUNAR_MONTHS=[
-  [2024,2,10,1,false],[2024,3,10,2,false],[2024,4,9,3,false],[2024,5,8,4,false],
-  [2024,6,6,5,false],[2024,7,6,6,false],[2024,8,4,7,false],[2024,9,3,8,false],
-  [2024,10,3,9,false],[2024,11,1,10,false],[2024,11,30,11,false],[2024,12,30,12,false],
-  [2025,1,29,1,false],[2025,2,28,2,false],[2025,3,29,3,false],[2025,4,28,4,false],
-  [2025,5,27,5,false],[2025,6,25,6,false],[2025,7,25,6,true],[2025,8,23,7,false],
-  [2025,9,22,8,false],[2025,10,22,9,false],[2025,11,21,10,false],[2025,12,21,11,false],
-  [2026,1,19,12,false],[2026,2,17,1,false],[2026,3,18,2,false],[2026,4,17,3,false],
-  [2026,5,16,4,false],[2026,6,14,5,false],[2026,7,14,6,false],[2026,8,13,7,false],
-  [2026,9,11,8,false],[2026,10,11,9,false],[2026,11,10,10,false],[2026,12,10,11,false],
-  [2027,1,8,12,false],[2027,2,6,1,false],
-];
-const LUNAR_DAY=['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
-const LUNAR_MON=['','正','二','三','四','五','六','七','八','九','十','十一','十二'];
-function getLunar(gY,gM,gD){
-  const t=new Date(gY,gM-1,gD);
-  for(let i=0;i<LUNAR_MONTHS.length-1;i++){
-    const[y1,m1,d1,lm,leap]=LUNAR_MONTHS[i];
-    const[y2,m2,d2]=LUNAR_MONTHS[i+1];
-    const s=new Date(y1,m1-1,d1),e=new Date(y2,m2-1,d2);
-    if(t>=s&&t<e){return{month:lm,day:Math.round((t-s)/86400000)+1,isLeap:leap};}
-  }
-  return null;
-}
+
 function lunarDisp(gY,gM,gD){
-  const l=getLunar(gY,gM,gD);
-  if(!l)return'';
-  if(l.day===1)return(l.isLeap?'閏':'')+LUNAR_MON[l.month]+'月';
-  return LUNAR_DAY[l.day];
+  return getLunar(gY,gM,gD);
 }
 
 const SN = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
@@ -2639,6 +2609,54 @@ let touchStartX=0;
 document.addEventListener('touchstart',e=>{if(document.getElementById('overlay').classList.contains('open'))return;touchStartX=e.touches[0].clientX;},{passive:true});
 document.addEventListener('touchend',e=>{if(document.getElementById('overlay').classList.contains('open'))return;const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>60)chM(dx<0?1:-1);},{passive:true});
 
+// ── LUNAR DATE (via lunar-javascript) ──
+// ── 農曆計算（內嵌，不需外部 CDN）──
+// 資料來源：台灣中央氣象署官方日曆資料表
+// 格式：[西元年, 西元月, 西元日, 農曆月, 是否閏月, 大月(30)或小月(29)]
+const _LM = [
+  [2024,1,11,12,0,29],[2024,2,10,1,0,30],[2024,3,10,2,0,29],[2024,4,9,3,0,30],
+  [2024,5,8,4,0,29],[2024,6,6,5,0,30],[2024,7,6,6,0,29],[2024,8,4,7,0,30],
+  [2024,9,3,8,0,29],[2024,10,3,9,0,30],[2024,11,1,10,0,29],[2024,11,30,11,0,30],[2024,12,30,12,0,29],
+  [2025,1,29,1,0,30],[2025,2,28,2,0,29],[2025,3,29,3,0,30],[2025,4,28,4,0,29],
+  [2025,5,27,5,0,30],[2025,6,25,6,0,30],[2025,7,25,6,1,29],[2025,8,23,7,0,30],
+  [2025,9,22,8,0,29],[2025,10,21,9,0,30],[2025,11,20,10,0,29],[2025,12,20,11,0,30],
+  [2026,1,19,12,0,29],[2026,2,17,1,0,30],[2026,3,19,2,0,29],[2026,4,17,3,0,30],
+  [2026,5,17,4,0,29],[2026,6,15,5,0,29],[2026,7,14,6,0,30],[2026,8,13,7,0,30],
+  [2026,9,11,8,0,29],[2026,10,10,9,0,30],[2026,11,9,10,0,30],[2026,12,9,11,0,29],
+  [2027,1,8,12,0,30],[2027,2,6,1,0,30],[2027,3,8,2,0,29],[2027,4,6,3,0,30],
+  [2027,5,6,4,0,29],[2027,6,4,5,0,30],[2027,7,3,6,0,29],[2027,8,2,7,0,30],
+  [2027,8,31,8,0,30],[2027,9,29,9,0,29],[2027,10,29,10,0,30],[2027,11,27,11,0,29],[2027,12,27,12,0,30],
+];
+const _LD=['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+  '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+  '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+const _LM2=['','正','二','三','四','五','六','七','八','九','十','十一','十二'];
+
+function getLunar(gY,gM,gD){
+  const t=new Date(gY,gM-1,gD).getTime();
+  let prev=null;
+  for(let i=0;i<_LM.length;i++){
+    const r=_LM[i];
+    const s=new Date(r[0],r[1]-1,r[2]).getTime();
+    if(s>t){
+      if(!prev)return'';
+      const [py,pm,pd,lm,leap]=prev;
+      const diff=Math.round((t-new Date(py,pm-1,pd).getTime())/86400000)+1;
+      if(diff===1)return(leap?'閏':'')+_LM2[lm]+'月';
+      return _LD[diff]||'';
+    }
+    prev=r;
+  }
+  // past last entry
+  if(prev){
+    const [py,pm,pd,lm,leap]=prev;
+    const diff=Math.round((t-new Date(py,pm-1,pd).getTime())/86400000)+1;
+    if(diff===1)return(leap?'閏':'')+_LM2[lm]+'月';
+    return _LD[diff]||'';
+  }
+  return'';
+}
+
 // ── LONG PRESS ──
 let _qKey = null, _qD = null, _qDow = null, _longTimer = null, _shiftLocked = true;
 let _touchStartX = 0, _touchStartY = 0;
@@ -3020,6 +3038,22 @@ function toggleFullMonth() {
   renderFriendView();
 }
 
+function updateCommonOffColor(hex) {
+  localStorage.setItem('sg_common_off_color', hex);
+  // Derive outer ring as hex with opacity approximation
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  // Outer ring: lighter/pinker version by blending toward pink
+  const or = Math.min(255,r+60), og = Math.min(255,Math.round(g*0.7)), ob = Math.min(255,b+60);
+  const outerHex = '#'+[or,og,ob].map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.documentElement.style.setProperty('--common-off-c', hex);
+  document.documentElement.style.setProperty('--common-off-o', outerHex);
+}
+
+function initCommonOffColor() {
+  const saved = localStorage.getItem('sg_common_off_color') || '#f5c518';
+  updateCommonOffColor(saved);
+}
+
 function renderFullMonth() {
   const el = document.getElementById('fullMonthView');
   if (!el) return;
@@ -3219,9 +3253,9 @@ function buildMonthDropdown() {
   const todayM = new Date().getMonth();
   const nextY = todayY + 1;
 
-  // 從 LUNAR_MONTHS 找隔年春節（農曆正月）在哪個西曆月份
-  const cnySrc = LUNAR_MONTHS.find(r => r[0] === nextY && r[3] === 1 && !r[4]);
-  const cnyMonth = cnySrc ? cnySrc[1] - 1 : -1; // 0-based month index
+  // 找隔年春節（農曆正月初一）在哪個西曆月份
+  const _cnySrc = _LM.find(r => r[0]===nextY && r[3]===1 && !r[4]);
+  const cnyMonth = _cnySrc ? _cnySrc[1]-1 : 1;
 
   let html = '';
   // 當年度
@@ -3446,7 +3480,11 @@ function renderFriendView() {
     const fullMonthChecked = document.getElementById('showFullMonthToggle')?.checked || false;
     let nameHtml = `<div class="friend-name-row">
       <div class="friend-tag" style="background:rgba(0,0,0,.15);border:1px solid ${p.color};color:${p.color}" data-friend-tag="${p.idx}">${p.isMe ? (p.name||'我')[0] : ((friends[p.idx]?.cfg?.name || friends[p.idx]?.name || '').toString()[0] || (p.idx+1))}</div>
-      ${p.isMe ? `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.65rem;color:var(--text-dim);margin-left:4px;"><input type="checkbox" id="showFullMonthToggle" ${fullMonth?'checked':''} onchange="toggleFullMonth()" style="accent-color:var(--accent);width:13px;height:13px;cursor:pointer;">整個月</label>` : ''}`;
+      ${p.isMe ? `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.65rem;color:var(--text-dim);margin-left:4px;"><input type="checkbox" id="showFullMonthToggle" ${fullMonth?'checked':''} onchange="toggleFullMonth()" style="accent-color:var(--accent);width:13px;height:13px;cursor:pointer;">整個月</label>
+      <label title="共同休假標示顏色" style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:.6rem;color:var(--text-mute);margin-left:6px;">
+        <input type="color" id="commonOffColorPicker" value="${localStorage.getItem('sg_common_off_color')||'#f5c518'}" oninput="updateCommonOffColor(this.value)" style="width:18px;height:18px;border:none;background:none;cursor:pointer;padding:0;">
+        改同假框顏色
+      </label>` : ''}`;
     if (!p.isMe) {
       const f = friends[p.idx];
       const syncLabel = f.lastSync ? `<span style="font-size:.55rem;color:var(--text-mute);">同步 ${f.lastSync}</span>` : '<span style="font-size:.55rem;color:var(--text-mute);">未同步</span>';
@@ -3514,9 +3552,30 @@ function renderFriendView() {
         if (hw && !outsideMonth) cls += ' fc-holiday';
         if (commonOff[wi][di] && !outsideMonth) cls += ' common-off';
         const lbl = outsideMonth ? '' : (leave ? (LN_F[leave]||'假') : (SN_F[shift]||''));
+
+        let innerHtml = '';
+        if (!outsideMonth && p.isMe) {
+          // 完全複製主行事曆結構與 CSS 類別
+          const ban = getBan(d);
+          const lunar = getLunar(d.getFullYear(), d.getMonth()+1, d.getDate());
+          const hw2 = TW_HOL[ky];
+          const holHtml = hw2 ? `<div class="hol-lbl is-${hw2.type}">${hw2.label}</div>` : '';
+          const shiftTag = shift ? `<div class="s-badge s-${shift}">${SN_F[shift]}</div>` : '';
+          const leaveTag = leave ? `<div class="l-badge l-${leave}">${LN_F[leave]||'假'}</div>` : '';
+          const lunarHtml = lunar ? `<div class="lunar-lbl${lunar.endsWith('月')?' is-first':''}">${lunar}</div>` : '';
+          innerHtml = `
+            <div class="cell-head">
+              <div class="dnum">${d.getDate()}</div>
+              <div class="cell-meta"><div class="ban-lbl">${ban !== null ? ban+'番' : ''}</div></div>
+            </div>
+            ${shiftTag}${leaveTag}${holHtml}${lunarHtml}`;
+        } else {
+          innerHtml = `<div class="friend-dnum" style="${outsideMonth?'opacity:.2':''}">${d.getDate()}</div><div class="friend-shift">${lbl}</div>`;
+        }
+
         const cell = document.createElement('div');
         cell.className = cls;
-        cell.innerHTML = `<div class="friend-dnum" style="${outsideMonth?'opacity:.2':''}">${d.getDate()}</div><div class="friend-shift">${lbl}</div>`;
+        cell.innerHTML = innerHtml;
         grid.appendChild(cell);
       }
     });
@@ -3764,6 +3823,7 @@ function updateShareBtnState() {
 }
 
 loadTheme();
+initCommonOffColor();
 loadColors();
 buildColorPickers();
 initSetup();
