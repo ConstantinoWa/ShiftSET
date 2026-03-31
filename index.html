@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03310010</title>
+<title>Shift Go v.03311427</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1256,7 +1256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03310010</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03311427</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1325,8 +1325,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   <div class="setup-card" id="setupCard02">
     <div class="rot-len-row">
       <label>循環天數</label>
-      <input type="number" id="sRotLen" min="2" max="32" value="16">
-      <span style="font-size:.72rem;color:var(--text-dim)">天一循環</span>
+      <button type="button" onclick="adjustRotLen(-1)" style="width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:1.1rem;cursor:pointer;line-height:1;flex-shrink:0;">−</button>
+      <span id="sRotLen" data-val="16" style="min-width:40px;text-align:center;font-family:'DM Mono',monospace;font-size:.95rem;font-weight:700;color:var(--text);">16</span>
+      <button type="button" onclick="adjustRotLen(1)" style="width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:1.1rem;cursor:pointer;line-height:1;flex-shrink:0;">＋</button>
+      <span style="font-size:.72rem;color:var(--text-dim)">天一循環（最多70天）</span>
     </div>
     <div class="shift-legend">
       <div class="sl-item"><div class="sl-dot" style="background:var(--early)"></div>早 = 早班</div>
@@ -1379,7 +1381,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03310010</div>
+      <div class="app-label" id="appLabel">Shift Go v.03311427</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1407,7 +1409,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <div class="settings-item-title">01 ─ 番號校正</div>
           <div class="settings-item-sub" id="cfg-ban-sub">—</div>
         </div>
-        <div class="settings-item-arrow">›</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="event.stopPropagation();quickEditBan()" style="font-size:.6rem;padding:3px 8px;border-radius:var(--radius-sm);border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;">快速改番</button>
+          <div class="settings-item-arrow">›</div>
+        </div>
       </div>
 
       <div class="settings-item" onclick="editSection(2)">
@@ -1977,10 +1982,15 @@ function initSetup() {
     return;
   }
   buildRotBuilder(16);
-  document.getElementById('sRotLen').addEventListener('input', () => {
-    const n = parseInt(document.getElementById('sRotLen').value) || 16;
-    buildRotBuilder(Math.min(32, Math.max(2, n)));
-  });
+}
+
+function adjustRotLen(delta) {
+  const el = document.getElementById('sRotLen');
+  const cur = parseInt(el.dataset.val) || 16;
+  const next = Math.min(70, Math.max(2, cur + delta));
+  el.dataset.val = next;
+  el.textContent = next;
+  buildRotBuilder(next);
 }
 
 function cycleRot(i) {
@@ -2026,6 +2036,21 @@ function startApp() {
 }
 
 function applyConfig(cfg) {
+  // populate setup form fields so gear → edit shows correct values
+  if (cfg.todayBan) document.getElementById('sTodayBan').value = cfg.todayBan;
+  if (cfg.todayDate) document.getElementById('sTodayDate').value = cfg.todayDate;
+  if (cfg.name) document.getElementById('sName').value = cfg.name;
+  if (cfg.rotPattern) {
+    const n = cfg.rotPattern.length;
+    document.getElementById('sRotLen').dataset.val = n; document.getElementById('sRotLen').textContent = n;
+    buildRotBuilder(n);
+    cfg.rotPattern.forEach((s,i) => {
+      rotPattern[i] = s;
+      const btn = document.getElementById('rb-'+i);
+      if(btn){ btn.className='rot-btn '+SL_CLS[s]; btn.textContent=SL_MAP[s]; }
+    });
+    updateRotPreview();
+  }
   // restore special period rows in setup UI if reopening
   const spList = document.getElementById('spList');
   if (spList) {
@@ -2044,7 +2069,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03310010';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03311427';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2065,6 +2090,23 @@ function openSettings() {
   buildColorPickers();
 }
 
+function quickEditBan() {
+  const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
+  const maxBan = cfg.rotPattern?.length || 16;
+  const curDate = cfg.todayDate || '';
+  const curBan = cfg.todayBan || 1;
+  const newDate = prompt(`輸入校正日期（格式 YYYY-MM-DD）：`, curDate);
+  if (!newDate || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) return;
+  const newBan = parseInt(prompt(`輸入該日的番號（1～${maxBan}）：`, curBan));
+  if (isNaN(newBan) || newBan < 1 || newBan > maxBan) { alert(`番號請輸入 1～${maxBan}`); return; }
+  cfg.todayDate = newDate;
+  cfg.todayBan = newBan;
+  localStorage.setItem('ss_config', JSON.stringify(cfg));
+  initCalendar(cfg);
+  openSettings(); // refresh display
+  alert('✅ 番號已更新！');
+}
+
 function closeSettings() {
   document.getElementById('settingsOverlay').classList.remove('open');
 }
@@ -2078,7 +2120,7 @@ function editSection(n) {
     document.getElementById('sTodayDate').value = cfg.todayDate;
   }
   if (cfg.rotPattern) {
-    document.getElementById('sRotLen').value = cfg.rotPattern.length;
+    document.getElementById('sRotLen').dataset.val = cfg.rotPattern.length; document.getElementById('sRotLen').textContent = cfg.rotPattern.length;
     buildRotBuilder(cfg.rotPattern.length);
     cfg.rotPattern.forEach((s,i) => {
       rotPattern[i] = s;
@@ -2467,6 +2509,11 @@ function renderQuarter() {
     return s;
   }
   const curQ=Math.floor(cM/3);
+  const allMs = [0,1,2,3,4,5,6,7,8,9,10,11].map(m=>calcM(cY,m));
+  const yearTot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,devOff:0,devCivil:0};
+  allMs.forEach(s=>{ COLS.forEach(c=>{ if(c.key!=='_dev') yearTot[c.key]+=s[c.key]; }); yearTot.devOff+=s.devOff; yearTot.devCivil+=s.devCivil; });
+  const yearDev=yearTot.devOff-yearTot.devCivil;
+
   document.getElementById('quarterSection').innerHTML = QUARTERS.map((q,qi)=>{
     const ms=q.months.map(m=>({m,s:calcM(cY,m)}));
     const tot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0};
@@ -2496,7 +2543,23 @@ function renderQuarter() {
         }).join('')}</div>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + `
+  <div class="quarter-block" style="margin-top:6px;border:1.5px solid var(--border2);">
+    <div class="quarter-hd" style="cursor:default;">
+      <div class="quarter-hd-left" style="color:var(--text);">📊 ${cY} 年合計</div>
+      <div class="quarter-hd-right">慰${yearTot.cons} 補${yearTot.comp} 他補${yearTot.other} 共${yearTot.cons+yearTot.comp+yearTot.other}天</div>
+    </div>
+    <div class="quarter-body">
+      <div class="q-col-hd"><div class="q-col-hd-cell"></div>${COLS.map(c=>`<div class="q-col-hd-cell" style="color:${c.color}">${c.label}</div>`).join('')}</div>
+      <div class="q-total-row" style="border-top:none;padding-top:4px;">${
+        [`<div class="q-total-lbl" style="color:var(--text);font-size:.62rem;">全年</div>`]
+        .concat(COLS.map(col=>{
+          if(col.key==='_dev') return `<div class="q-total-val" style="color:${yearDev>0?'var(--early)':yearDev<0?'var(--hol)':'var(--text-mute)'}">${yearDev>0?'+'+yearDev:yearDev}</div>`;
+          return `<div class="q-total-val" style="color:${col.color}">${yearTot[col.key]||'—'}</div>`;
+        })).join('')
+      }</div>
+    </div>
+  </div>`;
 }
 
 function toggleQ(hd){
