@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03311427</title>
+<title>Shift Go v.03312102</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1250,13 +1250,50 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+
+/* ── 大螢幕（1080px+）── */
+@media(min-width:1080px){
+  body { max-width: 1200px; }
+  .top-bar { max-width: 1200px; }
+  .cell { min-height: 130px; padding: 10px 9px; }
+  .dnum { font-size: 1.3rem; }
+  .ban-lbl { font-size: .68rem; }
+  .s-badge { font-size: 1rem; padding: 4px 8px; }
+  .l-badge { font-size: .82rem; padding: 2px 7px; }
+  .hol-lbl { font-size: .6rem; }
+  .lunar-lbl { font-size: .58rem; }
+  .note-lbl { font-size: .65rem; }
+  .ot-badge { font-size: .58rem; }
+  .cal-grid { gap: 6px; }
+  .dow-row { gap: 6px; }
+  .month-display { font-size: 3.2rem; }
+}
+
+/* ── 超大螢幕（1440px+）── */
+@media(min-width:1440px){
+  body { max-width: 1400px; }
+  .top-bar { max-width: 1400px; }
+  .cell { min-height: 160px; padding: 12px 11px; }
+  .dnum { font-size: 1.55rem; }
+  .ban-lbl { font-size: .78rem; }
+  .s-badge { font-size: 1.15rem; padding: 5px 10px; }
+  .l-badge { font-size: .92rem; padding: 3px 8px; }
+  .hol-lbl { font-size: .72rem; }
+  .lunar-lbl { font-size: .68rem; }
+  .note-lbl { font-size: .74rem; }
+  .ot-badge { font-size: .66rem; }
+  .cal-grid { gap: 8px; }
+  .dow-row { gap: 8px; }
+  .month-display { font-size: 3.8rem; }
+}
+
 </style>
 </head>
 <body>
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03311427</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03312102</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1381,7 +1418,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03311427</div>
+      <div class="app-label" id="appLabel">Shift Go v.03312102</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1479,13 +1516,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <div class="q-sub" id="consSub">已使用 0 天，剩餘 28 天</div>
       </div>
       <div class="q-card">
-          <div class="q-top"><div><div class="q-title">補休</div><div id="compNumWrap" onmousedown="startCompLongPress(event)" onmouseup="cancelCompLongPress()" onmouseleave="cancelCompLongPress()" ontouchstart="startCompLongPress(event)" ontouchend="cancelCompLongPress()" ontouchmove="cancelCompLongPress()" style="display:inline-block;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;padding:2px 6px;border-radius:6px;"><span id="compNum" class="q-number" style="color:var(--comp);pointer-events:none;">0天</span></div></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
+          <div class="q-top"><div><div class="q-title">補休</div><span id="compNum" class="q-number" style="color:var(--comp);">0天</span></div><div class="q-denom">/ <span id="compMax">0</span> 天</div></div>
           <div class="q-track"><div class="q-fill" id="compFill" style="background:var(--comp)"></div></div>
           <div class="q-sub" id="compSub">加班折算 0 天可用</div>
-          <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;">
-            <span>⏳ 長按天數歸零</span>
-            <span id="lastResetHint"></span>
-          </div>
+
       </div>
     </div>
 
@@ -1494,7 +1528,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <div class="ot-card-inner">
         <div>
           <div class="ot-label">累積加班時數</div>
-          <div class="ot-big"><span id="otH">0</span> <span style="font-size:.9rem;color:var(--text-dim)">h</span></div>
+          <div class="ot-big"><span id="otH">0</span> <span style="font-size:.9rem;color:var(--text-dim)">h</span><span id="otSystemBadge" style="display:none;color:var(--hol);font-weight:700;margin-left:8px;font-size:inherit;"></span><span id="otTotalBadge" style="display:none;color:var(--ot);margin-left:8px;font-weight:700;font-size:inherit;"></span></div>
           <div class="ot-eq" id="otEq">= 0 天可用 + 0h 未滿</div>
         </div>
         <div class="ot-input-row">
@@ -1512,8 +1546,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <div id="otDetailRow" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <label style="font-size:.7rem;color:var(--text-dim);width:36px;flex-shrink:0;">日期</label>
-          <input type="date" id="otDate" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 10px;font-size:.78rem;font-family:inherit;">
+          <input type="date" id="otDate" style="width:fit-content;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 10px;font-size:.78rem;font-family:inherit;">
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.68rem;color:var(--text-dim);white-space:nowrap;margin-left:4px;">
+            <input type="checkbox" id="otLeaveSystemToggle" onchange="toggleOTLeaveSystem()" style="accent-color:var(--hol);width:13px;height:13px;margin:0;cursor:pointer;">請假系統
+          </label>
         </div>
+        <div id="otLeaveSystemNote" style="display:none;font-size:.62rem;color:var(--hol);margin-bottom:8px;padding:5px 8px;background:rgba(244,63,94,.08);border:1px solid var(--hol);border-radius:var(--radius-sm);">⚠ 此加班已標記需至請假系統申請補休</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
           <label style="font-size:.7rem;color:var(--text-dim);width:36px;flex-shrink:0;">時段</label>
           <input type="number" id="otStartH" min="0" max="23" placeholder="開始" style="width:60px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:6px 8px;font-size:.78rem;font-family:inherit;text-align:center;" oninput="updateOTPreview()">
@@ -1546,6 +1584,54 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div class="share-hint">分享後好友輸入短碼即可查看你的班表</div>
     <div style="font-size:.62rem;color:var(--comp);margin-top:6px;line-height:1.5;padding:6px 10px;background:var(--comp-dim);border:1px solid var(--comp);border-radius:var(--radius-sm);">🔒 僅分享行事曆班別內容，慰休／補休天數等假別數量不會分享</div>
   </div>
+
+
+    <!-- ══ SALARY ══ -->
+    <div class="section-label" style="margin-top:6px">薪資（自填自看）</div>
+    <div class="ot-card" style="padding:14px 16px;">
+      <!-- 上排：實領 + 超勤（平均兩格）＋新增 -->
+      <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;">
+          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-size:.58rem;color:var(--text-mute);">實領</span>
+              <label style="display:flex;align-items:center;gap:2px;cursor:pointer;">
+                <input type="checkbox" id="salaryLock" onchange="onSalaryLockChange()" style="accent-color:var(--accent);width:11px;height:11px;cursor:pointer;">
+                <span style="font-size:.52rem;color:var(--text-mute);">鎖</span>
+              </label>
+            </div>
+            <input type="number" id="salaryBase" min="0" max="999999" placeholder="0" oninput="this.value=this.value.slice(0,6);updateSalMainBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          </div>
+          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
+            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">超勤</div>
+            <input type="number" id="salaryOT" min="0" max="999999" placeholder="0" oninput="this.value=this.value.slice(0,6);updateSalMainBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          </div>
+        </div>
+        <button id="salMainBtn" onclick="addSalaryRecord()" disabled style="flex-shrink:0;padding:7px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.76rem;cursor:default;white-space:nowrap;opacity:.35;align-self:stretch;">＋薪資</button>
+      </div>
+      <div id="salaryLockHint" style="display:none;font-size:.58rem;color:var(--accent);margin-bottom:6px;">🔒 實領已鎖定</div>
+
+      <!-- 下排：津貼三格（平均）＋ 按鈕 -->
+      <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;flex:1;">
+          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
+            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">危勞津貼</div>
+            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          </div>
+          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
+            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">誤餐費</div>
+            <input type="number" id="salaryMeal" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          </div>
+          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
+            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">交通津貼</div>
+            <input type="number" id="salaryTrans" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          </div>
+        </div>
+        <button id="salAllowBtn" onclick="addSalaryAllowance()" disabled style="flex-shrink:0;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.76rem;cursor:default;white-space:nowrap;opacity:.35;align-self:stretch;">＋津貼</button>
+      </div>
+
+      <div id="salaryList"></div>
+    </div>
 
     <!-- ══ BACKUP ══ -->
     <div class="section-label" style="margin-top:6px">資料備份</div>
@@ -1635,10 +1721,31 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <div style="font-size:.6rem;color:var(--text-dim);margin-top:5px">目前加班餘額：<span id="otBalance" style="color:var(--ot);font-weight:700"></span></div>
       </div>
       <div class="fg">
-        <label>當天加班時數</label>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" id="eOT" min="0" max="24" step="0.5" placeholder="0">
-          <span style="font-size:.78rem;color:var(--text-dim)">小時（儲存時自動累計）</span>
+        <label style="display:flex;align-items:center;gap:6px;">
+          <span>當天加班時數</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;">
+            <input type="number" id="eOT" min="0" max="12" step="0.5" placeholder="0" style="width:64px;">
+            <span style="font-size:.72rem;color:var(--text-dim);">小時</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:.65rem;color:var(--text-dim);font-weight:400;white-space:nowrap;">
+            <input type="checkbox" id="sheetOTDetailToggle" onchange="toggleSheetOTDetail()" style="accent-color:var(--accent);width:13px;height:13px;margin:0;cursor:pointer;">記詳細
+          </label>
+        </label>
+        <!-- 詳細時段（隱藏） -->
+        <div id="sheetOTDetailRow" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border2);">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <input type="number" id="sheetOTStart" min="0" max="23" placeholder="開始時" oninput="autoCalcOTHours()" style="width:72px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:5px 7px;font-size:.82rem;font-family:inherit;text-align:center;">
+            <span style="color:var(--text-dim);font-size:.75rem;">時 ─</span>
+            <input type="number" id="sheetOTEnd" min="0" max="48" placeholder="結束時" oninput="autoCalcOTHours()" style="width:72px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);padding:5px 7px;font-size:.82rem;font-family:inherit;text-align:center;">
+            <span style="color:var(--text-dim);font-size:.75rem;">時</span>
+            <span id="sheetOTCalcResult" style="font-size:.72rem;color:var(--comp);font-weight:700;margin-left:4px;"></span>
+          </div>
+          <div style="margin-top:8px;">
+            <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.65rem;color:var(--text-dim);">
+              <input type="checkbox" id="sheetOTLeaveSystem" onchange="document.getElementById('sheetOTLeaveSystemNote').style.display=this.checked?'block':'none'" style="accent-color:var(--hol);width:13px;height:13px;margin:0;cursor:pointer;">請假系統
+            </label>
+            <div id="sheetOTLeaveSystemNote" style="display:none;font-size:.6rem;color:var(--hol);margin-top:5px;padding:4px 8px;background:rgba(244,63,94,.08);border:1px solid var(--hol);border-radius:var(--radius-sm);">⚠ 此加班已標記需至請假系統申請補休</div>
+          </div>
         </div>
       </div>
       <div class="fg">
@@ -2069,7 +2176,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03311427';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03312102';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2310,11 +2417,14 @@ function saveOTEntry() {
     return;
   }
   const hours = e - s;
-  otLog.push({ date, start: s, end: e, hours });
+  const lsToggle = document.getElementById('otLeaveSystemToggle');
+  const isLeaveSystem = lsToggle?.checked || false;
+  otLog.push({ date, start: s, end: e, hours, leaveSystem: isLeaveSystem });
   localStorage.setItem('ss_ot_log', JSON.stringify(otLog));
   otHours = Math.round((otHours + hours) * 10) / 10;
   document.getElementById('otStartH').value = '';
   document.getElementById('otEndH').value = '';
+  if(lsToggle){ lsToggle.checked = false; document.getElementById('otLeaveSystemNote').style.display='none'; }
   if (prev) prev.textContent = '';
   persist(); renderQuota(); renderOTLog();
 }
@@ -2339,7 +2449,8 @@ function renderOTLog() {
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.72rem;">'
         + '<span style="color:var(--text-dim);font-family:monospace">' + parseInt(m) + '/' + parseInt(d) + '</span>'
         + '<span style="color:var(--text)">' + e.start + ':00 ─ ' + e.end + ':00</span>'
-        + '<span style="color:var(--comp);font-weight:700">+' + e.hours + 'h</span>'
+        + '<span style="display:inline-block;min-width:28px;text-align:right;color:var(--comp);font-weight:700">+' + e.hours + 'h</span>'
+        + '<span style="display:inline-block;min-width:32px;margin-left:4px;font-size:.62rem;color:var(--hol);">' + (e.leaveSystem ? '系統' : '') + '</span>'
         + '<span style="cursor:pointer;color:var(--hol);padding:2px 8px;" onclick="deleteOTEntry(' + i + ')">✕</span>'
         + '</div>';
     }).join('');
@@ -2353,6 +2464,10 @@ function toggleOTDetail() {
   }
 }
 
+function toggleOTLeaveSystem() {
+  const checked = document.getElementById('otLeaveSystemToggle').checked;
+  document.getElementById('otLeaveSystemNote').style.display = checked ? 'block' : 'none';
+}
 
 function render() {
   document.getElementById('hdMonth').innerHTML = `${MN[cM]} <span>${cY}</span>`;
@@ -2449,16 +2564,29 @@ function renderQuota() {
   document.getElementById('consSub').textContent = `已使用 ${cU} 天，剩餘 ${ct-cU} 天`;
   const totalEarned = otHours + cpH;
   document.getElementById('otH').textContent = otHours;
+  // 計算「系統」標記的時數
+  const sysHours = otLog.filter(e=>e.leaveSystem).reduce((a,e)=>a+e.hours, 0);
+  const sysBadge = document.getElementById('otSystemBadge');
+  const totBadge = document.getElementById('otTotalBadge');
+  if (sysHours > 0) {
+    const regHours = Math.round((otHours - sysHours) * 10) / 10;
+    // +{數字}系統 — 數字同大，系統縮小
+    sysBadge.innerHTML = `+${sysHours}<span style="font-size:.9rem;color:var(--text-dim);">h</span><span style="font-size:.58rem;color:var(--hol);margin-left:3px;">系統</span>`;
+    sysBadge.style.display = 'inline';
+    totBadge.innerHTML = `= ${otHours}<span style="font-size:.9rem;color:var(--text-dim);margin-left:3px;">h</span>`;
+    totBadge.style.display = 'inline';
+    // 更新主顯示為扣除系統後的一般時數
+    document.getElementById('otH').textContent = regHours;
+  } else {
+    sysBadge.style.display = 'none';
+    totBadge.style.display = 'none';
+  }
   document.getElementById('otEq').textContent = `= ${Math.floor(otHours/8)} 天可用 + ${Math.round((otHours%8)*10)/10}h 未滿`;
   document.getElementById('compMax').textContent = Math.floor(totalEarned/8);
   document.getElementById('compNum').textContent = (cpH/8).toFixed(1).replace('.0','')+'天';
   document.getElementById('compFill').style.width = totalEarned>0?Math.min(100,cpH/totalEarned*100)+'%':'0%';
   document.getElementById('compSub').textContent = `已扣 ${cpH}h，餘 ${otHours}h（${Math.floor(otHours/8)}天${Math.round((otHours%8)*10)/10}h）`;
-  const lrEl = document.getElementById('lastResetHint');
-  if (lrEl) {
-    const lr = localStorage.getItem('ss_last_comp_reset') || '';
-    lrEl.textContent = lr ? '上次歸零 ' + lr : '';
-  }
+
 }
 
 function calcCompHoursUsed(excludeKey) {
@@ -2610,8 +2738,64 @@ function pL(v){
 function pLH(h){pLeaveHours=h;updLH();}
 
 function updS(){['early','mid2','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
-function updL(){['cons','comp','other','null'].forEach(v=>{const el=document.getElementById('lo-'+v);if(!el)return;el.className='opt';if(pLeave===(v==='null'?null:v))el.classList.add('on-'+v);});}
-function updLH(){[4,8].forEach(h=>{const el=document.getElementById('lh-'+h);if(!el)return;el.className='opt'+(pLeaveHours===h?' on-early':'');});}
+function updL(){
+  const avail = eKey ? Math.round((otHours - calcCompHoursUsed(eKey) + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
+  ['cons','comp','other','null'].forEach(v=>{
+    const el=document.getElementById('lo-'+v);
+    if(!el)return;
+    el.className='opt';
+    if(pLeave===(v==='null'?null:v))el.classList.add('on-'+v);
+    if(v==='comp'){
+      const disabled = avail < 4;
+      el.style.opacity = disabled ? '.35' : '';
+      el.style.pointerEvents = disabled ? 'none' : '';
+      el.title = disabled ? `加班餘額不足（需至少4h，目前${avail}h）` : '';
+    }
+  });
+}
+function updLH(){
+  const avail = eKey ? Math.round((otHours - calcCompHoursUsed(eKey) + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
+  [4,8].forEach(h=>{
+    const el=document.getElementById('lh-'+h);
+    if(!el)return;
+    el.className='opt'+(pLeaveHours===h?' on-early':'');
+    const disabled = avail < h;
+    el.style.opacity = disabled ? '.35' : '';
+    el.style.pointerEvents = disabled ? 'none' : '';
+    el.title = disabled ? `需 ${h}h，目前餘額 ${avail}h` : '';
+  });
+}
+
+function toggleSheetOTDetail() {
+  const show = document.getElementById('sheetOTDetailToggle').checked;
+  document.getElementById('sheetOTDetailRow').style.display = show ? 'block' : 'none';
+  if (!show) {
+    document.getElementById('sheetOTStart').value = '';
+    document.getElementById('sheetOTEnd').value = '';
+    document.getElementById('sheetOTCalcResult').textContent = '';
+    document.getElementById('sheetOTLeaveSystem').checked = false;
+    document.getElementById('sheetOTLeaveSystemNote').style.display = 'none';
+  }
+}
+
+function autoCalcOTHours() {
+  const s = parseInt(document.getElementById('sheetOTStart').value);
+  const e = parseInt(document.getElementById('sheetOTEnd').value);
+  const result = document.getElementById('sheetOTCalcResult');
+  const otInput = document.getElementById('eOT');
+  if (!isNaN(s) && !isNaN(e) && e > s) {
+    const h = Math.min(12, e - s);
+    otInput.value = h;
+    result.textContent = '＋' + h + 'h';
+    result.style.color = 'var(--comp)';
+  } else if (!isNaN(s) && !isNaN(e)) {
+    result.textContent = '結束須大於開始';
+    result.style.color = 'var(--hol)';
+  } else {
+    result.textContent = '';
+    otInput.value = '';
+  }
+}
 
 function saveDay(){
   if(!eKey) return;
@@ -2628,7 +2812,22 @@ function saveDay(){
   if(Object.keys(rec).length===0){delete dayData[eKey];}else{dayData[eKey]=rec;}
   const newLH=(rec.leave==='comp'||rec.leave==='other')?(rec.leaveHours||0):0;
   otHours=Math.max(0,Math.round((otHours-prevOT+newOT+prevLH-newLH)*10)/10);
-  persist(); closeSheet(); render();
+  // 若有填詳細時段，寫入 otLog
+  if(document.getElementById('sheetOTDetailToggle')?.checked && newOT > 0) {
+    const s = parseInt(document.getElementById('sheetOTStart').value);
+    const e2 = parseInt(document.getElementById('sheetOTEnd').value);
+    const isLS = document.getElementById('sheetOTLeaveSystem')?.checked || false;
+    if(!isNaN(s) && !isNaN(e2) && e2 > s) {
+      // remove old entry for same date if exists
+      otLog = otLog.filter(x => x.date !== eKey);
+      otLog.push({ date: eKey, start: s, end: e2, hours: e2-s, leaveSystem: isLS });
+      localStorage.setItem('ss_ot_log', JSON.stringify(otLog));
+    }
+  }
+  // Reset detail fields
+  const tog = document.getElementById('sheetOTDetailToggle');
+  if(tog){ tog.checked=false; document.getElementById('sheetOTDetailRow').style.display='none'; }
+  persist(); closeSheet(); render(); renderOTLog();
 }
 function clearDay(){
   if(eKey){
@@ -2642,6 +2841,122 @@ function clearDay(){
 
 document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeSheet();});
 
+// ── SALARY ──
+let salaryData = JSON.parse(localStorage.getItem('ss_salary') || '[]');
+
+function saveSalary() { localStorage.setItem('ss_salary', JSON.stringify(salaryData)); }
+
+function renderSalaryList() {
+  const el = document.getElementById('salaryList');
+  if (!el) return;
+  if (salaryData.length === 0) { el.innerHTML = ''; return; }
+  const sorted = [...salaryData].sort((a,b) => b.month.localeCompare(a.month));
+  el.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">' +
+    sorted.map((r) => {
+      const total = (r.base||0)+(r.ot||0)+(r.risk||0)+(r.meal||0)+(r.trans||0);
+      const idx = salaryData.findIndex(x => x.month === r.month);
+      const extras = [
+        r.risk  ? `危勞 ${r.risk.toLocaleString()}` : '',
+        r.meal  ? `誤餐 ${r.meal.toLocaleString()}`  : '',
+        r.trans ? `交通 ${r.trans.toLocaleString()}` : '',
+      ].filter(Boolean).join('　');
+      return `<div style="padding:7px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:.72rem;">
+          <span style="color:var(--text-mute);font-family:monospace;">${r.month}</span>
+          <span style="color:var(--text);">應 <strong style="color:var(--early);">${(r.base||0).toLocaleString()}</strong>　超 <strong style="color:var(--comp);">${(r.ot||0).toLocaleString()}</strong></span>
+          <span style="color:var(--ot);font-weight:700;">= ${total.toLocaleString()}</span>
+          <span onclick="deleteSalary(${idx})" style="cursor:pointer;color:var(--hol);padding:2px 8px;">✕</span>
+        </div>
+        ${extras ? `<div style="font-size:.62rem;color:var(--text-mute);margin-top:2px;padding-left:2px;">${extras}</div>` : ''}
+      </div>`;
+    }).join('') + '</div>';
+}
+
+function onSalaryLockChange() {
+  const locked = document.getElementById('salaryLock').checked;
+  document.getElementById('salaryLockHint').style.display = locked ? 'block' : 'none';
+}
+
+function updateSalMainBtn() {
+  const base = parseFloat(document.getElementById('salaryBase').value) || 0;
+  const ot   = parseFloat(document.getElementById('salaryOT').value)   || 0;
+  const btn  = document.getElementById('salMainBtn');
+  const hasVal = base > 0 || ot > 0;
+  btn.disabled      = !hasVal;
+  btn.style.opacity     = hasVal ? '1'            : '.35';
+  btn.style.cursor      = hasVal ? 'pointer'       : 'default';
+  btn.style.color       = hasVal ? '#fff'          : 'var(--text-mute)';
+  btn.style.background  = hasVal ? 'var(--accent)' : 'var(--surface2)';
+  btn.style.borderColor = hasVal ? 'var(--accent)' : 'var(--border2)';
+}
+
+function updateSalAllowBtn() {
+  const risk  = parseFloat(document.getElementById('salaryRisk').value)  || 0;
+  const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
+  const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
+  const btn = document.getElementById('salAllowBtn');
+  const hasVal = risk > 0 || meal > 0 || trans > 0;
+  btn.disabled = !hasVal;
+  btn.style.opacity     = hasVal ? '1'               : '.35';
+  btn.style.cursor      = hasVal ? 'pointer'          : 'default';
+  btn.style.color       = hasVal ? '#fff'             : 'var(--text-mute)';
+  btn.style.background  = hasVal ? 'var(--accent)'    : 'var(--surface2)';
+  btn.style.borderColor = hasVal ? 'var(--accent)'    : 'var(--border2)';
+}
+
+function addSalaryAllowance() {
+  const risk  = parseFloat(document.getElementById('salaryRisk').value)  || 0;
+  const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
+  const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
+  if (!risk && !meal && !trans) return;
+  const month = cY + '-' + String(cM+1).padStart(2,'0');
+  const idx = salaryData.findIndex(r => r.month === month);
+  if (idx >= 0) {
+    salaryData[idx].risk  = risk;
+    salaryData[idx].meal  = meal;
+    salaryData[idx].trans = trans;
+  } else {
+    salaryData.push({ month, base:0, ot:0, risk, meal, trans });
+  }
+  saveSalary();
+  renderSalaryList();
+  document.getElementById('salaryRisk').value  = '';
+  document.getElementById('salaryMeal').value  = '';
+  document.getElementById('salaryTrans').value = '';
+  updateSalAllowBtn();
+}
+
+
+function addSalaryRecord() {
+  const base = parseFloat(document.getElementById('salaryBase').value) || 0;
+  const ot   = parseFloat(document.getElementById('salaryOT').value) || 0;
+  if (!base && !ot) { alert('請至少填入應領或超勤金額'); return; }
+  const month = cY + '-' + String(cM+1).padStart(2,'0');
+  const idx = salaryData.findIndex(r => r.month === month);
+  if (idx >= 0) {
+    salaryData[idx].base = base;
+    salaryData[idx].ot   = ot;
+  } else {
+    salaryData.push({ month, base, ot, risk:0, meal:0, trans:0 });
+  }
+  saveSalary();
+  renderSalaryList();
+  document.getElementById('salaryOT').value = '';
+  if (!document.getElementById('salaryLock').checked) {
+    document.getElementById('salaryBase').value = '';
+  }
+}
+
+function deleteSalary(idx) {
+  salaryData.splice(idx, 1);
+  saveSalary();
+  renderSalaryList();
+}
+
+function initSalary() {
+  renderSalaryList();
+}
+
 function exportJSON() {
   const cfg = JSON.parse(localStorage.getItem('ss_config') || '{}');
   const payload = {
@@ -2650,6 +2965,7 @@ function exportJSON() {
     config: cfg,
     day: dayData,
     ot: otHours,
+    salary: salaryData,  // 薪資備份
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2676,6 +2992,7 @@ function importJSON(e) {
       if (!confirm(`確認匯入備份？\n${name ? '姓名：'+name+'\n' : ''}匯出時間：${ts}\n\n這會覆蓋目前所有資料。`)) return;
       dayData = d.day;
       otHours = d.ot || 0;
+      if (d.salary) { salaryData = d.salary; saveSalary(); renderSalaryList(); }
       if (d.config) {
         localStorage.setItem('ss_config', JSON.stringify(d.config));
         persist();
@@ -2783,6 +3100,16 @@ function openQuick(ky, d, dow) {
   document.getElementById('shiftLockBtn').textContent = '🔒 鎖定';
   document.getElementById('shiftLockBtn').style.color = 'var(--text-dim)';
   document.getElementById('compHoursRow').style.display = 'none';
+  // 補休按鈕：餘額不足 4h 則灰掉
+  const prevLH = (dayData[ky]||{}).leaveHours || 0;
+  const avail = Math.round((otHours - calcCompHoursUsed(ky) + prevLH) * 10) / 10;
+  const compBtn = document.querySelector('#quickOverlay .qb-comp');
+  if (compBtn) {
+    const noComp = avail < 4;
+    compBtn.style.opacity = noComp ? '.35' : '';
+    compBtn.style.pointerEvents = noComp ? 'none' : '';
+    compBtn.title = noComp ? `加班餘額不足（需至少4h，目前${avail}h）` : '';
+  }
   document.getElementById('quickOverlay').classList.add('open');
 }
 
@@ -2828,19 +3155,30 @@ function quickSet(type, val) {
 }
 
 function quickLeaveComp() {
-  // show hour selector instead of setting immediately
+  const prevLH = (dayData[_qKey]||{}).leaveHours || 0;
+  const avail = Math.round((otHours - calcCompHoursUsed(_qKey) + prevLH) * 10) / 10;
   const row = document.getElementById('compHoursRow');
   row.style.display = row.style.display === 'none' ? 'block' : 'none';
+  // Update hour buttons based on avail
+  const btns = row.querySelectorAll('.quick-btn');
+  btns.forEach(btn => {
+    const h = btn.textContent.includes('8') ? 8 : 4;
+    const disabled = avail < h;
+    btn.style.opacity = disabled ? '.35' : '';
+    btn.style.pointerEvents = disabled ? 'none' : '';
+    btn.title = disabled ? `需 ${h}h，目前餘額 ${avail}h` : '';
+  });
 }
 
 function quickSetComp(hours) {
   if (!_qKey) return;
   const prevRec = dayData[_qKey] || {};
   const prevLH = prevRec.leaveHours || 0;
+  const avail = Math.round((otHours - calcCompHoursUsed(_qKey) + prevLH) * 10) / 10;
+  if (avail < hours) return; // guard
   const rec = { ...(prevRec) };
   rec.leave = 'comp';
   rec.leaveHours = hours;
-  // adjust otHours
   otHours = Math.max(0, Math.round((otHours + prevLH - hours) * 10) / 10);
   dayData[_qKey] = rec;
   persist(); render(); closeQuick();
@@ -3177,7 +3515,7 @@ function renderFullMonth() {
 
 let _compTimer = null;
 let _confirmCb = null;
-let _lastCompReset = localStorage.getItem('ss_last_comp_reset') || '';
+
 
 function showConfirm(title, msg, okLabel, cb) {
   document.getElementById('confirmTitle').textContent = title;
@@ -3196,37 +3534,9 @@ function doConfirm() {
   closeConfirm();
   if (cb) cb();
 }
-function startCompLongPress(e) {
-  if (e.cancelable) e.preventDefault();
-  const touch = e.touches ? e.touches[0] : e;
-  showCellHint(touch.clientX, touch.clientY);
-  clearTimeout(_compTimer);
-  _compTimer = setTimeout(() => {
-    hideCellHint();
-    showConfirm('補休歸零', '清除所有補休標記，並還原被扣的加班時數。確認繼續？', '確認清除', () => {
-      // Clear comp leave from dayData and restore otHours
-      let restored = 0;
-      Object.entries(dayData).forEach(([k, r]) => {
-        if (r.leave === 'comp' && r.leaveHours) {
-          restored += r.leaveHours;
-          delete r.leave; delete r.leaveHours;
-          if (Object.keys(r).length === 0) delete dayData[k];
-        }
-      });
-      otHours = Math.round((otHours + restored) * 10) / 10;
-      const now = new Date();
-      _lastCompReset = (now.getMonth()+1) + '/' + now.getDate() + ' ' +
-        String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-      localStorage.setItem('ss_last_comp_reset', _lastCompReset);
-      persist(); render(); renderQuota();
-    });
-  }, 600);
-}
-function cancelCompLongPress() {
-  clearTimeout(_compTimer);
-  _compTimer = null;
-  hideCellHint();
-}
+
+
+
 
 // Bind comp card long press to overlay after DOM ready
 
@@ -3911,6 +4221,7 @@ function updateShareBtnState() {
 
 loadTheme();
 initCommonOffColor();
+initSalary();
 loadColors();
 buildColorPickers();
 initSetup();
