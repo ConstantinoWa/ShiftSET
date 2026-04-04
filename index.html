@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04041004</title>
+<title>Shift Go v.04041024</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1293,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041004</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041024</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1423,7 +1423,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04041004</div>
+      <div class="app-label" id="appLabel">Shift Go v.04041024</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1599,14 +1599,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <span style="font-size:1.2rem;flex-shrink:0;">💰</span>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
           <div style="position:relative;background:var(--surface2);border-right:1px solid var(--border2);">
-            <input type="number" id="salaryBase" min="0" max="999999" placeholder="實領" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 28px 8px 10px;">
+            <input type="number" id="salaryBase" min="0" max="999999" placeholder="實領" oninput="salNumOnly(this,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 28px 8px 10px;">
             <label style="position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;cursor:pointer;">
               <input type="checkbox" id="salaryLock" onchange="onSalaryLockChange()" style="accent-color:var(--accent);width:11px;height:11px;cursor:pointer;">
               <span style="font-size:.5rem;color:var(--text-mute);">鎖</span>
             </label>
           </div>
           <div style="background:var(--surface2);">
-            <input type="number" id="salaryOT" min="0" max="999999" placeholder="加班費" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 10px;">
+            <input type="number" id="salaryOT" min="0" max="999999" placeholder="加班費" oninput="salNumOnly(this,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 10px;">
           </div>
         </div>
         <button id="salMainBtn" onclick="addSalaryRecord()" disabled style="flex-shrink:0;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.72rem;cursor:default;white-space:nowrap;opacity:.35;">＋薪資</button>
@@ -1618,13 +1618,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         <span style="font-size:1.2rem;flex-shrink:0;">💵</span>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
           <div style="background:var(--surface2);border-right:1px solid var(--border2);">
-            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="危勞" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
+            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="危勞" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
           <div style="background:var(--surface2);border-right:1px solid var(--border2);">
-            <input type="number" id="salaryMeal" min="0" max="9999" placeholder="誤餐" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
+            <input type="number" id="salaryMeal" min="0" max="9999" placeholder="誤餐" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
           <div style="background:var(--surface2);">
-            <input type="number" id="salaryTrans" min="0" max="9999" placeholder="其他" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
+            <input type="number" id="salaryTrans" min="0" max="9999" placeholder="其他" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
         </div>
         <button id="salAllowBtn" onclick="addSalaryAllowance()" disabled style="flex-shrink:0;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.72rem;cursor:default;white-space:nowrap;opacity:.35;">＋津貼</button>
@@ -2179,7 +2179,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041004';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041024';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2884,9 +2884,13 @@ function onSalaryLockChange() {
   document.getElementById('salaryLockHint').style.display = locked ? 'block' : 'none';
 }
 
+function salNumOnly(el, max) {
+  el.value = el.value.replace(/[^0-9]/g, '').slice(0, max);
+}
+
 function updateSalMainBtn() {
-  const base = parseFloat(document.getElementById('salaryBase').value) || 0;
-  const ot   = parseFloat(document.getElementById('salaryOT').value)   || 0;
+  const base = document.getElementById('salaryBase').valueAsNumber || 0;
+  const ot   = document.getElementById('salaryOT').valueAsNumber   || 0;
   const btn  = document.getElementById('salMainBtn');
   const hasVal = base > 0 || ot > 0;
   btn.disabled      = !hasVal;
@@ -2934,9 +2938,9 @@ function calcMonthOTSummary() {
 }
 
 function updateSalAllowBtn() {
-  const risk  = parseFloat(document.getElementById('salaryRisk').value)  || 0;
-  const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
-  const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
+  const risk  = document.getElementById('salaryRisk').valueAsNumber  || 0;
+  const meal  = document.getElementById('salaryMeal').valueAsNumber  || 0;
+  const trans = document.getElementById('salaryTrans').valueAsNumber || 0;
   const btn = document.getElementById('salAllowBtn');
   const hasVal = risk > 0 || meal > 0 || trans > 0;
   btn.disabled      = !hasVal;
