@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.03312102</title>
+<title>Shift Go v.04041004</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1293,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.03312102</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041004</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1411,6 +1411,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
   <div class="setup-error" id="setupErr">請確認所有欄位都已填寫</div>
   <button class="btn-setup-next" onclick="startApp()">✓ 建立行事曆</button>
+  <div style="text-align:center;margin-top:10px;">
+    <button onclick="document.getElementById('setupImportFile').click()" style="background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-size:.75rem;padding:10px 20px;cursor:pointer;width:100%;font-family:inherit;">⬆ 匯入還原備份</button>
+    <input type="file" id="setupImportFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    <div style="font-size:.58rem;color:var(--text-mute);margin-top:5px;">已有備份？直接匯入還原，不需重新設定</div>
+  </div>
   <p style="font-size:.6rem;color:var(--text-mute);margin-top:10px;text-align:center">設定會儲存在本機，重新整理不會消失</p>
 </div>
 
@@ -1418,7 +1423,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.03312102</div>
+      <div class="app-label" id="appLabel">Shift Go v.04041004</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1589,46 +1594,44 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <!-- ══ SALARY ══ -->
     <div class="section-label" style="margin-top:6px">薪資（自填自看）</div>
     <div class="ot-card" style="padding:14px 16px;">
-      <!-- 上排：實領 + 超勤（平均兩格）＋新增 -->
-      <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:8px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;">
-          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
-              <span style="font-size:.58rem;color:var(--text-mute);">實領</span>
-              <label style="display:flex;align-items:center;gap:2px;cursor:pointer;">
-                <input type="checkbox" id="salaryLock" onchange="onSalaryLockChange()" style="accent-color:var(--accent);width:11px;height:11px;cursor:pointer;">
-                <span style="font-size:.52rem;color:var(--text-mute);">鎖</span>
-              </label>
-            </div>
-            <input type="number" id="salaryBase" min="0" max="999999" placeholder="0" oninput="this.value=this.value.slice(0,6);updateSalMainBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+      <!-- 上排：💰 + [實領 | 加班費] + ＋薪資 -->
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+        <span style="font-size:1.2rem;flex-shrink:0;">💰</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="position:relative;background:var(--surface2);border-right:1px solid var(--border2);">
+            <input type="number" id="salaryBase" min="0" max="999999" placeholder="實領" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 28px 8px 10px;">
+            <label style="position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;cursor:pointer;">
+              <input type="checkbox" id="salaryLock" onchange="onSalaryLockChange()" style="accent-color:var(--accent);width:11px;height:11px;cursor:pointer;">
+              <span style="font-size:.5rem;color:var(--text-mute);">鎖</span>
+            </label>
           </div>
-          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
-            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">超勤</div>
-            <input type="number" id="salaryOT" min="0" max="999999" placeholder="0" oninput="this.value=this.value.slice(0,6);updateSalMainBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          <div style="background:var(--surface2);">
+            <input type="number" id="salaryOT" min="0" max="999999" placeholder="加班費" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);updateSalMainBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 10px;">
           </div>
         </div>
-        <button id="salMainBtn" onclick="addSalaryRecord()" disabled style="flex-shrink:0;padding:7px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.76rem;cursor:default;white-space:nowrap;opacity:.35;align-self:stretch;">＋薪資</button>
+        <button id="salMainBtn" onclick="addSalaryRecord()" disabled style="flex-shrink:0;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.72rem;cursor:default;white-space:nowrap;opacity:.35;">＋薪資</button>
       </div>
       <div id="salaryLockHint" style="display:none;font-size:.58rem;color:var(--accent);margin-bottom:6px;">🔒 實領已鎖定</div>
 
-      <!-- 下排：津貼三格（平均）＋ 按鈕 -->
-      <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:10px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;flex:1;">
-          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
-            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">危勞津貼</div>
-            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+      <!-- 下排：💵 + [危勞 | 誤餐 | 其他] + ＋津貼 -->
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+        <span style="font-size:1.2rem;flex-shrink:0;">💵</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="background:var(--surface2);border-right:1px solid var(--border2);">
+            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="危勞" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
-          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
-            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">誤餐費</div>
-            <input type="number" id="salaryMeal" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          <div style="background:var(--surface2);border-right:1px solid var(--border2);">
+            <input type="number" id="salaryMeal" min="0" max="9999" placeholder="誤餐" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
-          <div style="border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;background:var(--surface2);">
-            <div style="font-size:.58rem;color:var(--text-mute);margin-bottom:3px;">交通津貼</div>
-            <input type="number" id="salaryTrans" min="0" max="9999" placeholder="0" oninput="this.value=this.value.slice(0,4);updateSalAllowBtn()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'DM Mono',monospace;outline:none;padding:0;">
+          <div style="background:var(--surface2);">
+            <input type="number" id="salaryTrans" min="0" max="9999" placeholder="其他" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
         </div>
-        <button id="salAllowBtn" onclick="addSalaryAllowance()" disabled style="flex-shrink:0;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.76rem;cursor:default;white-space:nowrap;opacity:.35;align-self:stretch;">＋津貼</button>
+        <button id="salAllowBtn" onclick="addSalaryAllowance()" disabled style="flex-shrink:0;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text-mute);font-size:.72rem;cursor:default;white-space:nowrap;opacity:.35;">＋津貼</button>
       </div>
+
+      <!-- 當月加班預估 -->
+      <div id="salaryOTPreview" style="display:none;font-size:.64rem;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;margin-bottom:10px;"></div>
 
       <div id="salaryList"></div>
     </div>
@@ -2176,7 +2179,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.03312102';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041004';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2855,19 +2858,23 @@ function renderSalaryList() {
     sorted.map((r) => {
       const total = (r.base||0)+(r.ot||0)+(r.risk||0)+(r.meal||0)+(r.trans||0);
       const idx = salaryData.findIndex(x => x.month === r.month);
-      const extras = [
+      const allowParts = [
         r.risk  ? `危勞 ${r.risk.toLocaleString()}` : '',
         r.meal  ? `誤餐 ${r.meal.toLocaleString()}`  : '',
-        r.trans ? `交通 ${r.trans.toLocaleString()}` : '',
+        r.trans ? `其他 ${r.trans.toLocaleString()}` : '',
       ].filter(Boolean).join('　');
+      const otLine = (r.otDays != null)
+        ? `<div style="font-size:.6rem;color:var(--text-mute);margin-top:3px;">加班時數：早、中、晚（${r.otDays} 天）× 4h ≈ <span style="color:var(--comp);">${r.otEst}h</span>（依實際上班時數為主）</div>`
+        : '';
       return `<div style="padding:7px 0;border-bottom:1px solid var(--border);">
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:.72rem;">
           <span style="color:var(--text-mute);font-family:monospace;">${r.month}</span>
-          <span style="color:var(--text);">應 <strong style="color:var(--early);">${(r.base||0).toLocaleString()}</strong>　超 <strong style="color:var(--comp);">${(r.ot||0).toLocaleString()}</strong></span>
+          <span>實 <strong style="color:var(--early);">${(r.base||0).toLocaleString()}</strong>　班 <strong style="color:var(--comp);">${(r.ot||0).toLocaleString()}</strong></span>
           <span style="color:var(--ot);font-weight:700;">= ${total.toLocaleString()}</span>
           <span onclick="deleteSalary(${idx})" style="cursor:pointer;color:var(--hol);padding:2px 8px;">✕</span>
         </div>
-        ${extras ? `<div style="font-size:.62rem;color:var(--text-mute);margin-top:2px;padding-left:2px;">${extras}</div>` : ''}
+        ${allowParts ? `<div style="font-size:.62rem;color:var(--text-mute);margin-top:2px;">${allowParts}</div>` : ''}
+        ${otLine}
       </div>`;
     }).join('') + '</div>';
 }
@@ -2890,18 +2897,54 @@ function updateSalMainBtn() {
   btn.style.borderColor = hasVal ? 'var(--accent)' : 'var(--border2)';
 }
 
+function updateSalPreview() {
+  const base  = parseFloat(document.getElementById('salaryBase').value) || 0;
+  const ot    = parseFloat(document.getElementById('salaryOT').value)   || 0;
+  const risk  = parseFloat(document.getElementById('salaryRisk').value) || 0;
+  const meal  = parseFloat(document.getElementById('salaryMeal').value) || 0;
+  const trans = parseFloat(document.getElementById('salaryTrans').value)|| 0;
+  const el = document.getElementById('salaryOTPreview');
+  if (!base && !ot && !risk && !meal && !trans) { el.style.display='none'; return; }
+  // Count early/mid/late days this month
+  const dim = new Date(cY, cM+1, 0).getDate();
+  let earlyMidLate = 0;
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(cY, cM, d);
+    const ky = k(cY, cM, d);
+    const rec = dayData[ky] || {};
+    const shift = rec.shift !== undefined ? rec.shift : getAutoShift(date);
+    if (shift === 'early' || shift === 'mid2' || shift === 'late') earlyMidLate++;
+  }
+  const estOT = earlyMidLate * 4;
+  el.style.display = 'block';
+  el.innerHTML = `加班時數：早、中、晚（<strong>${earlyMidLate}</strong> 天）× 4h ≈ <strong style="color:var(--comp);">${estOT}h</strong>（依實際上班時數為主）`;
+}
+
+function calcMonthOTSummary() {
+  const dim = new Date(cY, cM+1, 0).getDate();
+  let earlyMidLate = 0;
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(cY, cM, d);
+    const ky = k(cY, cM, d);
+    const rec = dayData[ky] || {};
+    const shift = rec.shift !== undefined ? rec.shift : getAutoShift(date);
+    if (shift === 'early' || shift === 'mid2' || shift === 'late') earlyMidLate++;
+  }
+  return { days: earlyMidLate, est: earlyMidLate * 4 };
+}
+
 function updateSalAllowBtn() {
   const risk  = parseFloat(document.getElementById('salaryRisk').value)  || 0;
   const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
   const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
   const btn = document.getElementById('salAllowBtn');
   const hasVal = risk > 0 || meal > 0 || trans > 0;
-  btn.disabled = !hasVal;
-  btn.style.opacity     = hasVal ? '1'               : '.35';
-  btn.style.cursor      = hasVal ? 'pointer'          : 'default';
-  btn.style.color       = hasVal ? '#fff'             : 'var(--text-mute)';
-  btn.style.background  = hasVal ? 'var(--accent)'    : 'var(--surface2)';
-  btn.style.borderColor = hasVal ? 'var(--accent)'    : 'var(--border2)';
+  btn.disabled      = !hasVal;
+  btn.style.opacity     = hasVal ? '1'            : '.35';
+  btn.style.cursor      = hasVal ? 'pointer'       : 'default';
+  btn.style.color       = hasVal ? '#fff'          : 'var(--text-mute)';
+  btn.style.background  = hasVal ? 'var(--accent)' : 'var(--surface2)';
+  btn.style.borderColor = hasVal ? 'var(--accent)' : 'var(--border2)';
 }
 
 function addSalaryAllowance() {
@@ -2930,14 +2973,17 @@ function addSalaryAllowance() {
 function addSalaryRecord() {
   const base = parseFloat(document.getElementById('salaryBase').value) || 0;
   const ot   = parseFloat(document.getElementById('salaryOT').value) || 0;
-  if (!base && !ot) { alert('請至少填入應領或超勤金額'); return; }
+  if (!base && !ot) { alert('請至少填入實領或加班費金額'); return; }
   const month = cY + '-' + String(cM+1).padStart(2,'0');
+  const otSum = calcMonthOTSummary();
   const idx = salaryData.findIndex(r => r.month === month);
   if (idx >= 0) {
-    salaryData[idx].base = base;
-    salaryData[idx].ot   = ot;
+    salaryData[idx].base  = base;
+    salaryData[idx].ot    = ot;
+    salaryData[idx].otDays = otSum.days;
+    salaryData[idx].otEst  = otSum.est;
   } else {
-    salaryData.push({ month, base, ot, risk:0, meal:0, trans:0 });
+    salaryData.push({ month, base, ot, risk:0, meal:0, trans:0, otDays:otSum.days, otEst:otSum.est });
   }
   saveSalary();
   renderSalaryList();
@@ -2945,6 +2991,8 @@ function addSalaryRecord() {
   if (!document.getElementById('salaryLock').checked) {
     document.getElementById('salaryBase').value = '';
   }
+  updateSalMainBtn();
+  updateSalPreview();
 }
 
 function deleteSalary(idx) {
