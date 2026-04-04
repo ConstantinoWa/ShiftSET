@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04041024</title>
+<title>Shift Go v.04041117</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1293,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041024</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041117</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1423,7 +1423,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04041024</div>
+      <div class="app-label" id="appLabel">Shift Go v.04041117</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2179,7 +2179,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041024';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041117';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2916,6 +2916,7 @@ function updateSalPreview() {
     const date = new Date(cY, cM, d);
     const ky = k(cY, cM, d);
     const rec = dayData[ky] || {};
+    if (rec.leave) continue; // 有請假不算加班
     const shift = rec.shift !== undefined ? rec.shift : getAutoShift(date);
     if (shift === 'early' || shift === 'mid2' || shift === 'late') earlyMidLate++;
   }
@@ -2931,6 +2932,7 @@ function calcMonthOTSummary() {
     const date = new Date(cY, cM, d);
     const ky = k(cY, cM, d);
     const rec = dayData[ky] || {};
+    if (rec.leave) continue; // 有請假不算加班
     const shift = rec.shift !== undefined ? rec.shift : getAutoShift(date);
     if (shift === 'early' || shift === 'mid2' || shift === 'late') earlyMidLate++;
   }
