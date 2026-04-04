@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04041117</title>
+<title>Shift Go v.04041207</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1293,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041117</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041207</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1423,7 +1423,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04041117</div>
+      <div class="app-label" id="appLabel">Shift Go v.04041207</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1592,7 +1592,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 
     <!-- ══ SALARY ══ -->
-    <div class="section-label" style="margin-top:6px">薪資（自填自看）</div>
+    <div class="section-label" style="margin-top:6px">薪資（自填自看）<span id="salaryMonthLabel" style="font-size:.6rem;color:var(--text-mute);font-weight:400;margin-left:6px;"></span></div>
     <div class="ot-card" style="padding:14px 16px;">
       <!-- 上排：💰 + [實領 | 加班費] + ＋薪資 -->
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
@@ -2179,7 +2179,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041117';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041207';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2958,7 +2958,7 @@ function addSalaryAllowance() {
   const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
   const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
   if (!risk && !meal && !trans) return;
-  const month = cY + '-' + String(cM+1).padStart(2,'0');
+  const _today = new Date(); const month = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0');
   const idx = salaryData.findIndex(r => r.month === month);
   if (idx >= 0) {
     salaryData[idx].risk  = risk;
@@ -2980,7 +2980,7 @@ function addSalaryRecord() {
   const base = parseFloat(document.getElementById('salaryBase').value) || 0;
   const ot   = parseFloat(document.getElementById('salaryOT').value) || 0;
   if (!base && !ot) { alert('請至少填入實領或加班費金額'); return; }
-  const month = cY + '-' + String(cM+1).padStart(2,'0');
+  const _today = new Date(); const month = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0');
   const otSum = calcMonthOTSummary();
   const idx = salaryData.findIndex(r => r.month === month);
   if (idx >= 0) {
@@ -3008,6 +3008,9 @@ function deleteSalary(idx) {
 }
 
 function initSalary() {
+  const _t = new Date();
+  const ml = document.getElementById('salaryMonthLabel');
+  if (ml) ml.textContent = `（新增 ${_t.getFullYear()}/${_t.getMonth()+1} 月）`;
   renderSalaryList();
 }
 
