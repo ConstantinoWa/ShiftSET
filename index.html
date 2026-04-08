@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04041207</title>
+<title>Shift Go v.04081245</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1293,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04041207</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04081245</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1423,7 +1423,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04041207</div>
+      <div class="app-label" id="appLabel">Shift Go v.04081245</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1588,6 +1588,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     <div id="cloudShareResult" style="display:none;margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);"></div>
     <div class="share-hint">分享後好友輸入短碼即可查看你的班表</div>
     <div style="font-size:.62rem;color:var(--comp);margin-top:6px;line-height:1.5;padding:6px 10px;background:var(--comp-dim);border:1px solid var(--comp);border-radius:var(--radius-sm);">🔒 僅分享行事曆班別內容，慰休／補休天數等假別數量不會分享</div>
+    <!-- 刪除雲端資料 -->
+    <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <button onclick="deleteCloudData()" style="font-size:.62rem;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--hol);color:var(--hol);background:transparent;cursor:pointer;">🗑 刪除我的雲端班表資料</button>
+      <button onclick="showPrivacyPolicy()" style="font-size:.62rem;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);color:var(--text-mute);background:transparent;cursor:pointer;">📄 隱私政策</button>
+    </div>
   </div>
 
 
@@ -1765,6 +1770,36 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ TAIWAN HOLIDAYS ══ -->
 <div id="cellHintBubble">⏳ 長按編輯</div>
+
+<!-- ══ PRIVACY POLICY OVERLAY ══ -->
+<div class="confirm-overlay" id="privacyOverlay" style="z-index:9999;">
+  <div class="confirm-box" style="max-height:80vh;overflow-y:auto;text-align:left;max-width:360px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="confirm-title" style="margin:0;">📄 隱私政策</div>
+      <button onclick="document.getElementById('privacyOverlay').classList.remove('open')" style="background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:.7rem;color:var(--text-dim);line-height:1.8;">
+      <p style="margin-bottom:8px;"><strong style="color:var(--text);">Shift Go</strong> 重視您的隱私，本政策說明我們如何處理您的資料。</p>
+
+      <p style="margin-bottom:4px;color:var(--text);font-weight:700;">我們收集什麼資料</p>
+      <p style="margin-bottom:8px;">• 您主動分享給好友的班表內容（班別：早/中/晚/休）<br>• 您自行輸入的顯示名稱<br>• 以上資料均為您主動操作才上傳，App 不會自動收集任何個人資料</p>
+
+      <p style="margin-bottom:4px;color:var(--text);font-weight:700;">我們不收集什麼</p>
+      <p style="margin-bottom:8px;">• 薪資、加班時數、假別天數<br>• 姓名、電話、身分證、位置資訊<br>• 裝置識別碼或任何追蹤資訊</p>
+
+      <p style="margin-bottom:4px;color:var(--text);font-weight:700;">資料存放在哪裡</p>
+      <p style="margin-bottom:8px;">• 班表、薪資等所有個人資料：存在您自己的手機本機，我們無法存取<br>• 好友分享的班表：暫存於雲端伺服器，您可隨時刪除</p>
+
+      <p style="margin-bottom:4px;color:var(--text);font-weight:700;">您的權利</p>
+      <p style="margin-bottom:8px;">• 您可以隨時點選「🗑 刪除我的雲端班表資料」移除雲端資料<br>• 本機資料由您自行管理，清除瀏覽器資料即可刪除</p>
+
+      <p style="margin-bottom:4px;color:var(--text);font-weight:700;">資料保留期限</p>
+      <p style="margin-bottom:8px;">雲端分享的班表資料，在您主動刪除或超過 90 天未更新後自動清除。</p>
+
+      <p style="color:var(--text-mute);font-size:.62rem;">最後更新：2026 年 4 月</p>
+    </div>
+  </div>
+</div>
 
 <!-- ══ CONFIRM OVERLAY ══ -->
 <div class="confirm-overlay" id="confirmOverlay">
@@ -2179,7 +2214,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04041207';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04081245';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -4041,9 +4076,52 @@ function renderFriendView() {
     : '';
 }
 
+
+// ══════════════════════════════════════════════════════
+// FIREBASE 設定（申請後填入，並將 USE_FIREBASE 改為 true）
+// ══════════════════════════════════════════════════════
+const USE_FIREBASE = false; // ← 申請完改成 true
+
+const FIREBASE_CONFIG = {
+  apiKey:            'YOUR_API_KEY',
+  authDomain:        'YOUR_PROJECT_ID.firebaseapp.com',
+  projectId:         'YOUR_PROJECT_ID',
+  storageBucket:     'YOUR_PROJECT_ID.appspot.com',
+  messagingSenderId: 'YOUR_SENDER_ID',
+  appId:             'YOUR_APP_ID',
+};
+const FIREBASE_COLLECTION = 'shiftgo_shares'; // Firestore 集合名稱
+// ══════════════════════════════════════════════════════
+
 // ── JSONBIN SHARE ──
 const JSONBIN_KEY = '$2a$10$5TiSGlmxudpVOMrsQZLOHOCBtwnr6U6Exsy.YCm0vm0S9nJJex5jq';
 const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+
+function showPrivacyPolicy() {
+  document.getElementById('privacyOverlay').classList.add('open');
+}
+
+async function deleteCloudData() {
+  const binId = localStorage.getItem('ss_cloud_bin_id');
+  if (!binId) { alert('你尚未分享過班表，沒有雲端資料需要刪除。'); return; }
+  if (!confirm('確認刪除雲端班表資料？\n好友將無法再用你的代碼查看班表。')) return;
+  try {
+    const res = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
+      method: 'DELETE',
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (res.ok) {
+      localStorage.removeItem('ss_cloud_bin_id');
+      alert('✅ 雲端班表資料已刪除。');
+      const r = document.getElementById('cloudShareResult');
+      if (r) r.style.display = 'none';
+    } else {
+      alert('刪除失敗，請稍後再試。');
+    }
+  } catch(e) {
+    alert('連線失敗，請確認網路後重試。');
+  }
+}
 
 async function shareToCloud() {
   const btn = document.getElementById('btnCloudShare');
