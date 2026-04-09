@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04081245</title>
+<title>Shift Go v.04092001</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -783,6 +783,62 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 [data-theme="light"] .settings-overlay,
 [data-theme="light"] .quick-overlay { background: rgba(0,0,0,.35); }
 
+/* 主題3：天空藍（淺色藍系） */
+[data-theme="navy"] {
+  --bg:        #e8f4ff;
+  --surface:   #ffffff;
+  --surface2:  #d0e8ff;
+  --surface3:  #b8d8f8;
+  --border:    #a0c8f0;
+  --border2:   #80b0e0;
+  --text:      #0a2a4a;
+  --text-dim:  #3a6a9a;
+  --text-mute: #80aad0;
+  --accent:    #1a6abf;
+}
+[data-theme="navy"] body { background-image: none; }
+[data-theme="navy"] .top-bar { background: rgba(232,244,255,.94); }
+[data-theme="navy"] .overlay,
+[data-theme="navy"] .settings-overlay,
+[data-theme="navy"] .quick-overlay { background: rgba(0,0,0,.35); }
+[data-theme="navy"] .cell.is-today .dnum { color: #0a2a4a; }
+
+/* 主題4：森林綠 */
+[data-theme="forest"] {
+  --bg:        #0d1a0e;
+  --surface:   #122014;
+  --surface2:  #182d1a;
+  --surface3:  #1f3a22;
+  --border:    #234528;
+  --border2:   #2e5c34;
+  --text:      #c8f0cc;
+  --text-dim:  #5a9462;
+  --text-mute: #2a4a2e;
+  --accent:    #4ecb6e;
+}
+[data-theme="forest"] .top-bar { background: rgba(13,26,14,.94); }
+[data-theme="forest"] .overlay,
+[data-theme="forest"] .settings-overlay,
+[data-theme="forest"] .quick-overlay { background: rgba(0,0,0,.5); }
+
+/* 主題5：暖棕咖啡 */
+[data-theme="coffee"] {
+  --bg:        #1a1008;
+  --surface:   #261810;
+  --surface2:  #342218;
+  --surface3:  #422c20;
+  --border:    #4a3020;
+  --border2:   #6a4530;
+  --text:      #f0dcc8;
+  --text-dim:  #9a7860;
+  --text-mute: #4a3020;
+  --accent:    #d4895a;
+}
+[data-theme="coffee"] .top-bar { background: rgba(26,16,8,.94); }
+[data-theme="coffee"] .overlay,
+[data-theme="coffee"] .settings-overlay,
+[data-theme="coffee"] .quick-overlay { background: rgba(0,0,0,.5); }
+
 
 /* ── COLOR PALETTE PICKER ── */
 .cp-palette-overlay {
@@ -1293,7 +1349,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04081245</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04092001</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1423,7 +1479,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04081245</div>
+      <div class="app-label" id="appLabel">Shift Go v.04092001</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1618,12 +1674,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       </div>
       <div id="salaryLockHint" style="display:none;font-size:.58rem;color:var(--accent);margin-bottom:6px;">🔒 實領已鎖定</div>
 
-      <!-- 下排：💵 + [危勞 | 誤餐 | 其他] + ＋津貼 -->
+      <!-- 下排：💵 + [深夜 | 誤餐 | 其他] + ＋津貼 -->
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
         <span style="font-size:1.2rem;flex-shrink:0;">💵</span>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;">
           <div style="background:var(--surface2);border-right:1px solid var(--border2);">
-            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="危勞" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
+            <input type="number" id="salaryRisk" min="0" max="9999" placeholder="深夜" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
           </div>
           <div style="background:var(--surface2);border-right:1px solid var(--border2);">
             <input type="number" id="salaryMeal" min="0" max="9999" placeholder="誤餐" oninput="salNumOnly(this,4);updateSalAllowBtn();updateSalPreview()" style="width:100%;background:transparent;border:none;color:var(--text);font-size:.84rem;font-family:'DM Mono',monospace;outline:none;padding:8px 8px;">
@@ -1969,6 +2025,10 @@ const DEFAULT_COLORS = {
   hol: '#f43f5e', accent: '#4f80ff'
 };
 
+const THEMES = ['dark','light','navy','forest','coffee'];
+const THEME_ICONS = { dark:'☀', light:'🌙', navy:'🩵', forest:'🌿', coffee:'☕' };
+const THEME_TIPS  = { dark:'淺色', light:'天空藍', navy:'森林綠', forest:'咖啡棕', coffee:'暗黑' };
+
 function loadTheme() {
   const t = localStorage.getItem('sg_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', t);
@@ -1977,7 +2037,8 @@ function loadTheme() {
 
 function toggleTheme() {
   const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = cur === 'dark' ? 'light' : 'dark';
+  const idx = THEMES.indexOf(cur);
+  const next = THEMES[(idx + 1) % THEMES.length];
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('sg_theme', next);
   updateThemeBtn(next);
@@ -1985,13 +2046,8 @@ function toggleTheme() {
 function updateThemeBtn(t) {
   const btn = document.getElementById('themeBtn');
   if (!btn) return;
-  if (t === 'light') {
-    btn.textContent = '🌙';
-    btn.setAttribute('data-tip', '切換深色介面');
-  } else {
-    btn.textContent = '☀';
-    btn.setAttribute('data-tip', '切換淺色介面');
-  }
+  btn.textContent = THEME_ICONS[t] || '☀';
+  btn.setAttribute('data-tip', THEME_TIPS[t] ? `切換${THEME_TIPS[t]}` : '切換主題');
 }
 
 function loadColors() {
@@ -2214,7 +2270,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04081245';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04092001';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2894,7 +2950,7 @@ function renderSalaryList() {
       const total = (r.base||0)+(r.ot||0)+(r.risk||0)+(r.meal||0)+(r.trans||0);
       const idx = salaryData.findIndex(x => x.month === r.month);
       const allowParts = [
-        r.risk  ? `危勞 ${r.risk.toLocaleString()}` : '',
+        r.risk  ? `深夜 ${r.risk.toLocaleString()}` : '',
         r.meal  ? `誤餐 ${r.meal.toLocaleString()}`  : '',
         r.trans ? `其他 ${r.trans.toLocaleString()}` : '',
       ].filter(Boolean).join('　');
@@ -3933,14 +3989,15 @@ function renderFriendView() {
     }
     document.getElementById('friendWeekLabel').textContent = `${cY}/${cM+1}/1 – ${cY}/${cM+1}/${lastDay.getDate()}`;
   } else {
-    const dow = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dow === 0 ? 6 : dow-1) + friendWeekOffset * 7);
-    const w2start = new Date(monday); w2start.setDate(monday.getDate()+7);
-    const endDate = new Date(monday); endDate.setDate(monday.getDate() + (showTwoWeeks ? 13 : 6));
+    const dow = today.getDay(); // 0=Sun
+    // 週日開始（與行事曆格子一致）
+    const sunday = new Date(today);
+    sunday.setDate(today.getDate() - dow + friendWeekOffset * 7);
+    const w2start = new Date(sunday); w2start.setDate(sunday.getDate()+7);
+    const endDate = new Date(sunday); endDate.setDate(sunday.getDate() + (showTwoWeeks ? 13 : 6));
     const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-    document.getElementById('friendWeekLabel').textContent = fmt(monday)+' – '+fmt(endDate);
-    weeks = showTwoWeeks ? [monday, w2start] : [monday];
+    document.getElementById('friendWeekLabel').textContent = fmt(sunday)+' – '+fmt(endDate);
+    weeks = showTwoWeeks ? [sunday, w2start] : [sunday];
   }
   const allOffSets = people.map(() => weeks.map(() => new Array(7).fill(false)));
   weeks.forEach((wstart, wi) => {
