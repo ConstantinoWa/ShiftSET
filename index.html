@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04241119</title>
+<title>Shift Go v.04241129</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1367,7 +1367,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04241119</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04241129</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1497,7 +1497,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04241119</div>
+      <div class="app-label" id="appLabel">Shift Go v.04241129</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -2308,7 +2308,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04241119';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04241129';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2881,7 +2881,7 @@ function openSheet(ky,d,dow){
   const fg=document.getElementById('leaveHoursFg');
   fg.style.display=pLeave==='comp'?'block':'none';
   if(fg.style.display==='block'){
-    const avail=Math.round((otHours-calcCompHoursUsed(ky)+(rec.leaveHours||0))*10)/10;
+    const avail=Math.round((otHours + (rec.leaveHours||0))*10)/10;
     document.getElementById('otBalance').textContent=avail+'h 可用';
   }
   updS(); updL(); updLH();
@@ -2896,7 +2896,7 @@ function pL(v){
   fg.style.display=v==='comp'?'block':'none';
   if(fg.style.display==='block'){
     const prevLH=eKey?((dayData[eKey]||{}).leaveHours||0):0;
-    const avail=Math.round((otHours-calcCompHoursUsed(eKey)+prevLH)*10)/10;
+    const avail=Math.round((otHours + prevLH)*10)/10;
     document.getElementById('otBalance').textContent=avail+'h 可用';
   }
 }
@@ -2904,7 +2904,7 @@ function pLH(h){pLeaveHours=h;updLH();}
 
 function updS(){['early','mid2','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
 function updL(){
-  const avail = eKey ? Math.round((otHours - calcCompHoursUsed(eKey) + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
+  const avail = eKey ? Math.round((otHours + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
   ['cons','comp','other','null'].forEach(v=>{
     const el=document.getElementById('lo-'+v);
     if(!el)return;
@@ -2919,7 +2919,7 @@ function updL(){
   });
 }
 function updLH(){
-  const avail = eKey ? Math.round((otHours - calcCompHoursUsed(eKey) + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
+  const avail = eKey ? Math.round((otHours + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
   [4,8].forEach(h=>{
     const el=document.getElementById('lh-'+h);
     if(!el)return;
@@ -3353,7 +3353,7 @@ function openQuick(ky, d, dow) {
   document.getElementById('compHoursRow').style.display = 'none';
   // 補休按鈕：餘額不足 1h 則灰掉
   const prevLH = (dayData[ky]||{}).leaveHours || 0;
-  const avail = Math.round((otHours - calcCompHoursUsed(ky) + prevLH) * 10) / 10;
+  const avail = Math.round((otHours + prevLH) * 10) / 10;
   const compBtn = document.querySelector('#quickOverlay .qb-comp');
   if (compBtn) {
     const noComp = avail < 1;
@@ -3414,7 +3414,7 @@ function buildCompBtns() {
   const prevOTH  = prevRec.leaveHoursOT  || 0;
   const prevSysH = prevRec.leaveHoursSys || 0;
   const sysTotal = getSysOTHours();
-  const otAvail  = Math.round((otHours   - calcCompHoursUsed(_qKey) + prevOTH)  * 10) / 10;
+  const otAvail  = Math.round((otHours + prevOTH)  * 10) / 10;
   const sysAvail = Math.round((sysTotal  - calcSysCompUsed(_qKey)   + prevSysH) * 10) / 10;
   const otCap  = Math.min(8, Math.floor(otAvail));
   const sysCap = Math.min(8, Math.floor(sysAvail));
@@ -3493,7 +3493,7 @@ function quickSetComp() {
   const prevRec = dayData[_qKey] || {};
   const prevOTH  = prevRec.leaveHoursOT  || 0;
   const prevSysH = prevRec.leaveHoursSys || 0;
-  const avail = Math.round((otHours - calcCompHoursUsed(_qKey) + prevOTH) * 10) / 10;
+  const avail = Math.round((otHours + prevOTH) * 10) / 10;
   if (otV > avail) {
     document.getElementById('compSrcErr').style.display = 'block';
     document.getElementById('compSrcErr').textContent = `加班餘額不足（可用 ${avail}h）`;
