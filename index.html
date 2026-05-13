@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.04241129</title>
+<title>Shift Go v.05131600</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -166,6 +166,58 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .today-pill:hover { border-color: var(--accent); color: var(--accent); }
 .settings-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); color: var(--text-dim); cursor: pointer; font-size: .85rem; display: flex; align-items: center; justify-content: center; transition: all .15s; }
 .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 設定/好友按鈕直欄容器，下方放通知開關 */
+.settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+}
+.notify-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: .58rem;
+  color: var(--text-dim);
+  user-select: none;
+  width: 70px; /* 與兩顆按鈕 (32px + 6px gap + 32px = 70px) 等寬 */
+  padding: 2px 0;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+}
+.notify-switch input { display: none; }
+.notify-slider {
+  width: 24px;
+  height: 12px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  position: relative;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.notify-slider::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  top: 1px; left: 1px;
+  transition: all .2s;
+}
+.notify-switch input:checked + .notify-slider {
+  background: var(--comp);
+  border-color: var(--comp);
+}
+.notify-switch input:checked + .notify-slider::after {
+  left: 13px;
+  background: #fff;
+}
+.notify-switch input:checked ~ .notify-text { color: var(--comp); }
 
 .body-wrap { padding: 12px 12px 0; }
 
@@ -1367,7 +1419,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.04241129</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.05131600</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1497,7 +1549,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.04241129</div>
+      <div class="app-label" id="appLabel">Shift Go v.05131600</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1509,8 +1561,17 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <button class="nav-btn" onclick="chM(-1)">‹</button>
       <button class="today-pill" onclick="goToday()">今天</button>
       <button class="nav-btn" onclick="chM(1)">›</button>
-      <button class="settings-btn" onclick="openFriendView()" title="好友班表" style="border-radius:8px;border-color:var(--comp);color:var(--comp);background:var(--comp-dim);font-size:.8rem;">👥</button>
-      <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
+      <div class="settings-col">
+        <div style="display:flex;gap:6px;">
+          <button class="settings-btn" onclick="openFriendView()" title="好友班表" style="border-radius:8px;border-color:var(--comp);color:var(--comp);background:var(--comp-dim);font-size:.8rem;">👥</button>
+          <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
+        </div>
+        <label class="notify-switch" for="notifyToggle" id="notifyToggleLabel">
+          <input type="checkbox" id="notifyToggle" onchange="onNotifyToggle()">
+          <span class="notify-slider"></span>
+          <span class="notify-text">🔔</span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -2067,6 +2128,101 @@ const THEMES = ['dark','light','navy','forest','coffee'];
 const THEME_ICONS = { dark:'☀', light:'🌙', navy:'🩵', forest:'🌿', coffee:'☕' };
 const THEME_TIPS  = { dark:'淺色', light:'天空藍', navy:'森林綠', forest:'咖啡棕', coffee:'暗黑' };
 
+// ══════════════════════════════════════════════════════
+// 通知提醒系統（純瀏覽器，不需後端）
+// ══════════════════════════════════════════════════════
+let _notifyTimer = null;
+
+function loadNotifyPref() {
+  const on = localStorage.getItem('sg_notify') === '1';
+  const cb = document.getElementById('notifyToggle');
+  if (cb) cb.checked = on;
+  if (on) scheduleNotify();
+}
+
+async function onNotifyToggle() {
+  const cb = document.getElementById('notifyToggle');
+  if (cb.checked) {
+    // 請求權限
+    if (!('Notification' in window)) {
+      alert('此瀏覽器不支援通知功能');
+      cb.checked = false;
+      return;
+    }
+    if (Notification.permission === 'default') {
+      const result = await Notification.requestPermission();
+      if (result !== 'granted') {
+        alert('未授權通知，無法啟用提醒。\n如需啟用，請至瀏覽器設定開啟通知權限。');
+        cb.checked = false;
+        return;
+      }
+    } else if (Notification.permission === 'denied') {
+      alert('通知權限被封鎖，請至瀏覽器設定解除封鎖。');
+      cb.checked = false;
+      return;
+    }
+    localStorage.setItem('sg_notify', '1');
+    scheduleNotify();
+    // 立即檢查今日是否有可通知事項，提示已啟用
+    new Notification('🔔 提醒通知已啟用', {
+      body: '當日有備註或請假時將會收到提醒（須保持瀏覽器或主畫面圖示開啟）',
+      tag: 'sg-enabled'
+    });
+  } else {
+    localStorage.setItem('sg_notify', '0');
+    if (_notifyTimer) { clearTimeout(_notifyTimer); _notifyTimer = null; }
+  }
+}
+
+function scheduleNotify() {
+  if (_notifyTimer) clearTimeout(_notifyTimer);
+  if (localStorage.getItem('sg_notify') !== '1') return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const now = new Date();
+  const lastFired = localStorage.getItem('sg_notify_last') || '';
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  // 若今天 08:00 之後且本日尚未通知過 → 立即檢查
+  const eightAM = new Date(now); eightAM.setHours(8, 0, 0, 0);
+  if (now >= eightAM && lastFired !== todayKey) {
+    checkAndNotify(todayKey);
+  }
+
+  // 排下次：明天 08:00（若今天未到 08:00 則排今天 08:00）
+  let next = new Date(now);
+  if (now < eightAM) {
+    next = eightAM;
+  } else {
+    next.setDate(next.getDate() + 1);
+    next.setHours(8, 0, 0, 0);
+  }
+  const ms = next - now;
+  _notifyTimer = setTimeout(() => {
+    const k = `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
+    checkAndNotify(k);
+    scheduleNotify(); // 連續排程
+  }, ms);
+}
+
+function checkAndNotify(todayKey) {
+  const rec = dayData[todayKey];
+  if (!rec) return;
+  const notes  = rec.note  ? `📝 ${rec.note}` : '';
+  const LN = { cons: '慰休', comp: '補休', other: '補放假' };
+  const leave = rec.leave ? `🏖 今天請：${LN[rec.leave]||rec.leave}` : '';
+  const parts = [];
+  if (leave) parts.push(leave);
+  if (notes) parts.push(notes);
+  if (parts.length === 0) return;
+  new Notification('Shift Go · 今日提醒', {
+    body: parts.join('\n'),
+    tag: `sg-${todayKey}`,
+    requireInteraction: false
+  });
+  localStorage.setItem('sg_notify_last', todayKey);
+}
+
 function loadTheme() {
   const t = localStorage.getItem('sg_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', t);
@@ -2308,7 +2464,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.04241129';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.05131600';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -4598,6 +4754,7 @@ buildColorPickers();
 initSetup();
 renderOTLog();
 loadSavedFriends();
+loadNotifyPref();
 
   const existingBin = localStorage.getItem('ss_cloud_bin_id');
   const existingShort = localStorage.getItem('ss_cloud_short');
