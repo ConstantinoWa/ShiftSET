@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.05131600</title>
+<title>Shift Go v.05301056</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1419,7 +1419,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.05131600</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.05301056</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1549,7 +1549,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.05131600</div>
+      <div class="app-label" id="appLabel">Shift Go v.05301056</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1566,7 +1566,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <button class="settings-btn" onclick="openFriendView()" title="好友班表" style="border-radius:8px;border-color:var(--comp);color:var(--comp);background:var(--comp-dim);font-size:.8rem;">👥</button>
           <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
         </div>
-        <label class="notify-switch" for="notifyToggle" id="notifyToggleLabel">
+        <label class="notify-switch" for="notifyToggle" id="notifyToggleLabel" ondblclick="testNotify(event)" title="開啟提醒（雙擊可測試通知）">
           <input type="checkbox" id="notifyToggle" onchange="onNotifyToggle()">
           <span class="notify-slider"></span>
           <span class="notify-text">🔔</span>
@@ -1876,12 +1876,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
         </div>
       </div>
       <div class="fg" id="leaveHoursFg" style="display:none">
-        <label>請假時數（從加班時數扣除）</label>
-        <div class="opts">
-          <div class="opt" id="lh-8" onclick="pLH(8)">全天　8h</div>
-          <div class="opt" id="lh-4" onclick="pLH(4)">半天　4h</div>
+        <label>補休時數　已選：<span id="sheetCompSelDisplay" style="color:var(--comp);font-weight:700;">—</span></label>
+        <div style="font-size:.56rem;color:var(--ot);margin-bottom:3px;">加班</div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:6px;" id="sheetCompOTBtns"></div>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:4px;">
+          <input type="checkbox" id="sheetSysToggle" onchange="buildSheetCompBtns()" style="accent-color:var(--hol);width:13px;height:13px;margin:0;cursor:pointer;">
+          <span style="font-size:.62rem;color:var(--hol);">使用系統補休時數</span>
+        </label>
+        <div id="sheetSysWrap" style="display:none;">
+          <div style="font-size:.56rem;color:var(--hol);margin-bottom:3px;">系統</div>
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:6px;" id="sheetCompSysBtns"></div>
         </div>
-        <div style="font-size:.6rem;color:var(--text-dim);margin-top:5px">目前加班餘額：<span id="otBalance" style="color:var(--ot);font-weight:700"></span></div>
+        <div style="font-size:.6rem;color:var(--text-dim);margin-top:4px">加班餘額：<span id="otBalance" style="color:var(--ot);font-weight:700"></span></div>
       </div>
       <div class="fg">
         <label style="display:flex;align-items:center;gap:6px;">
@@ -2132,18 +2138,53 @@ const THEME_TIPS  = { dark:'淺色', light:'天空藍', navy:'森林綠', forest
 // 通知提醒系統（純瀏覽器，不需後端）
 // ══════════════════════════════════════════════════════
 let _notifyTimer = null;
+let _swReg = null;
+
+// 註冊 Service Worker（提升背景通知穩定度）
+async function registerNotifySW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const swCode = `
+      self.addEventListener('notificationclick', e => {
+        e.notification.close();
+        e.waitUntil(clients.matchAll({type:'window'}).then(cl => {
+          for (const c of cl) { if ('focus' in c) return c.focus(); }
+          if (clients.openWindow) return clients.openWindow('/');
+        }));
+      });
+    `;
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    _swReg = await navigator.serviceWorker.register(url);
+  } catch(e) { /* SW 失敗不影響前景通知 */ }
+}
+
+async function testNotify(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (!('Notification' in window)) { alert('此瀏覽器不支援通知'); return; }
+  if (Notification.permission !== 'granted') {
+    const r = await Notification.requestPermission();
+    if (r !== 'granted') { alert('未授權通知'); return; }
+  }
+  await registerNotifySW();
+  showNotify('Shift Go · 測試通知', '通知功能正常運作 ✓', 'sg-test');
+}
 
 function loadNotifyPref() {
   const on = localStorage.getItem('sg_notify') === '1';
   const cb = document.getElementById('notifyToggle');
   if (cb) cb.checked = on;
-  if (on) scheduleNotify();
+  if (on) {
+    registerNotifySW();
+    // 開啟 App 立即檢查今日（不限早上8點）
+    checkTodayNotify();
+    scheduleNotify();
+  }
 }
 
 async function onNotifyToggle() {
   const cb = document.getElementById('notifyToggle');
   if (cb.checked) {
-    // 請求權限
     if (!('Notification' in window)) {
       alert('此瀏覽器不支援通知功能');
       cb.checked = false;
@@ -2162,16 +2203,50 @@ async function onNotifyToggle() {
       return;
     }
     localStorage.setItem('sg_notify', '1');
+    await registerNotifySW();
+    showNotify('🔔 提醒通知已啟用', '當日有備註或請假時會提醒。建議將本頁「加入主畫面」，通知較穩定。');
+    checkTodayNotify();
     scheduleNotify();
-    // 立即檢查今日是否有可通知事項，提示已啟用
-    new Notification('🔔 提醒通知已啟用', {
-      body: '當日有備註或請假時將會收到提醒（須保持瀏覽器或主畫面圖示開啟）',
-      tag: 'sg-enabled'
-    });
   } else {
     localStorage.setItem('sg_notify', '0');
     if (_notifyTimer) { clearTimeout(_notifyTimer); _notifyTimer = null; }
   }
+}
+
+// 統一發通知（優先用 Service Worker，否則用一般 Notification）
+function showNotify(title, body, tag) {
+  const opts = { body, tag: tag || 'sg-notify', requireInteraction: false, icon: '', badge: '' };
+  try {
+    if (_swReg && _swReg.showNotification) {
+      _swReg.showNotification(title, opts);
+    } else {
+      new Notification(title, opts);
+    }
+  } catch(e) {
+    try { new Notification(title, opts); } catch(_) {}
+  }
+}
+
+function todayKeyStr() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+
+// 檢查今日是否有備註或請假，有就通知（同一天只通知一次）
+function checkTodayNotify() {
+  if (localStorage.getItem('sg_notify') !== '1') return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const tk = todayKeyStr();
+  if (localStorage.getItem('sg_notify_last') === tk) return; // 今天已通知過
+  const rec = dayData[tk];
+  if (!rec) return;
+  const LN = { cons: '慰休', comp: '補休', other: '補放假' };
+  const parts = [];
+  if (rec.leave) parts.push(`🏖 今天請：${LN[rec.leave]||rec.leave}`);
+  if (rec.note)  parts.push(`📝 ${rec.note}`);
+  if (parts.length === 0) return;
+  showNotify('Shift Go · 今日提醒', parts.join('\n'), `sg-${tk}`);
+  localStorage.setItem('sg_notify_last', tk);
 }
 
 function scheduleNotify() {
@@ -2180,17 +2255,9 @@ function scheduleNotify() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
   const now = new Date();
-  const lastFired = localStorage.getItem('sg_notify_last') || '';
-  const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-  // 若今天 08:00 之後且本日尚未通知過 → 立即檢查
-  const eightAM = new Date(now); eightAM.setHours(8, 0, 0, 0);
-  if (now >= eightAM && lastFired !== todayKey) {
-    checkAndNotify(todayKey);
-  }
-
-  // 排下次：明天 08:00（若今天未到 08:00 則排今天 08:00）
+  // 排下次早上 08:00
   let next = new Date(now);
+  const eightAM = new Date(now); eightAM.setHours(8, 0, 0, 0);
   if (now < eightAM) {
     next = eightAM;
   } else {
@@ -2199,28 +2266,9 @@ function scheduleNotify() {
   }
   const ms = next - now;
   _notifyTimer = setTimeout(() => {
-    const k = `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
-    checkAndNotify(k);
-    scheduleNotify(); // 連續排程
+    checkTodayNotify();
+    scheduleNotify();
   }, ms);
-}
-
-function checkAndNotify(todayKey) {
-  const rec = dayData[todayKey];
-  if (!rec) return;
-  const notes  = rec.note  ? `📝 ${rec.note}` : '';
-  const LN = { cons: '慰休', comp: '補休', other: '補放假' };
-  const leave = rec.leave ? `🏖 今天請：${LN[rec.leave]||rec.leave}` : '';
-  const parts = [];
-  if (leave) parts.push(leave);
-  if (notes) parts.push(notes);
-  if (parts.length === 0) return;
-  new Notification('Shift Go · 今日提醒', {
-    body: parts.join('\n'),
-    tag: `sg-${todayKey}`,
-    requireInteraction: false
-  });
-  localStorage.setItem('sg_notify_last', todayKey);
 }
 
 function loadTheme() {
@@ -2464,7 +2512,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.05131600';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.05301056';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -3017,6 +3065,9 @@ function toggleQ(hd){
   r.textContent=r.textContent.replace(b.classList.contains('collapsed')?'▾':'▸',b.classList.contains('collapsed')?'▸':'▾');
 }
 
+let _sheetOTSel = 0;
+let _sheetSysSel = 0;
+
 function openSheet(ky,d,dow){
   eKey=ky;
   const rec=dayData[ky]||{};
@@ -3033,14 +3084,14 @@ function openSheet(ky,d,dow){
   else holEl.style.display='none';
   pShift=rec.shift!==undefined?rec.shift:undefined;
   pLeave=rec.leave||null;
-  pLeaveHours=rec.leaveHours||8;
+  // 載入既有補休時數分配
+  _sheetOTSel  = rec.leave==='comp' ? (rec.leaveHoursOT  || 0) : 0;
+  _sheetSysSel = rec.leave==='comp' ? (rec.leaveHoursSys || 0) : 0;
+  document.getElementById('sheetSysToggle').checked = _sheetSysSel > 0;
   const fg=document.getElementById('leaveHoursFg');
   fg.style.display=pLeave==='comp'?'block':'none';
-  if(fg.style.display==='block'){
-    const avail=Math.round((otHours + (rec.leaveHours||0))*10)/10;
-    document.getElementById('otBalance').textContent=avail+'h 可用';
-  }
-  updS(); updL(); updLH();
+  if(fg.style.display==='block') buildSheetCompBtns();
+  updS(); updL();
   document.getElementById('overlay').classList.add('open');
 }
 function closeSheet(){document.getElementById('overlay').classList.remove('open');eKey=null;}
@@ -3051,12 +3102,65 @@ function pL(v){
   const fg=document.getElementById('leaveHoursFg');
   fg.style.display=v==='comp'?'block':'none';
   if(fg.style.display==='block'){
-    const prevLH=eKey?((dayData[eKey]||{}).leaveHours||0):0;
-    const avail=Math.round((otHours + prevLH)*10)/10;
-    document.getElementById('otBalance').textContent=avail+'h 可用';
+    if (_sheetOTSel === 0 && _sheetSysSel === 0) { _sheetOTSel = 0; _sheetSysSel = 0; }
+    buildSheetCompBtns();
   }
 }
-function pLH(h){pLeaveHours=h;updLH();}
+
+function buildSheetCompBtns() {
+  const prevRec  = dayData[eKey] || {};
+  const prevOTH  = prevRec.leaveHoursOT  || 0;
+  const prevSysH = prevRec.leaveHoursSys || 0;
+  const sysTotal = getSysOTHours();
+  const sysAvail = Math.round((sysTotal - calcSysCompUsed(eKey)) * 10) / 10;
+  const otAvail  = Math.round((otHours - sysAvail + prevOTH + prevSysH) * 10) / 10;
+  const otCap  = Math.min(8, Math.floor(otAvail));
+  const sysCap = Math.min(8, Math.floor(sysAvail));
+  const sysOn  = document.getElementById('sheetSysToggle').checked;
+  document.getElementById('sheetSysWrap').style.display = sysOn ? 'block' : 'none';
+  if (!sysOn) _sheetSysSel = 0;
+
+  // 加班排
+  const otC = document.getElementById('sheetCompOTBtns');
+  otC.innerHTML = '';
+  for (let h = 1; h <= 8; h++) {
+    const d = document.createElement('div');
+    d.className = 'cbt cbt-ot' + (h === _sheetOTSel ? ' selected' : '') + (((h > otCap) || (h > 8 - _sheetSysSel)) && h !== _sheetOTSel ? ' disabled' : '');
+    d.textContent = h;
+    d.onclick = () => clickSheetComp('ot', h);
+    otC.appendChild(d);
+  }
+  // 系統排
+  if (sysOn) {
+    const sysC = document.getElementById('sheetCompSysBtns');
+    sysC.innerHTML = '';
+    for (let h = 1; h <= 8; h++) {
+      const d = document.createElement('div');
+      d.className = 'cbt cbt-sys' + (h === _sheetSysSel ? ' selected' : '') + (((h > sysCap) || (h > 8 - _sheetOTSel)) && h !== _sheetSysSel ? ' disabled' : '');
+      d.textContent = h;
+      d.onclick = () => clickSheetComp('sys', h);
+      sysC.appendChild(d);
+    }
+  }
+  const total = _sheetOTSel + _sheetSysSel;
+  const disp = total === 0 ? '—'
+    : total === 8 ? `${_sheetOTSel}h加班＋${_sheetSysSel}h系統＝1天`
+    : `${total}h（加班${_sheetOTSel}＋系統${_sheetSysSel}）`;
+  document.getElementById('sheetCompSelDisplay').textContent = disp;
+  document.getElementById('otBalance').textContent = `${otAvail}h${sysOn?` ／ 系統 ${sysAvail}h`:''}`;
+  pLeaveHours = total;
+}
+
+function clickSheetComp(type, h) {
+  if (type === 'ot') {
+    _sheetOTSel = (_sheetOTSel === h) ? 0 : h;
+    if (_sheetOTSel + _sheetSysSel > 8) _sheetSysSel = 8 - _sheetOTSel;
+  } else {
+    _sheetSysSel = (_sheetSysSel === h) ? 0 : h;
+    if (_sheetOTSel + _sheetSysSel > 8) _sheetOTSel = 8 - _sheetSysSel;
+  }
+  buildSheetCompBtns();
+}
 
 function updS(){['early','mid2','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
 function updL(){
@@ -3129,7 +3233,16 @@ function saveDay(){
   const prevSysH=prevRec.leaveHoursSys||0; // 補休中系統來源時數
   const rec={};
   if(pShift!==undefined) rec.shift=pShift;
-  if(pLeave){rec.leave=pLeave;if(pLeave==='comp'||pLeave==='other')rec.leaveHours=pLeaveHours;}
+  if(pLeave){
+    rec.leave=pLeave;
+    if(pLeave==='comp'){
+      rec.leaveHoursOT  = _sheetOTSel;
+      rec.leaveHoursSys = _sheetSysSel;
+      rec.leaveHours    = _sheetOTSel + _sheetSysSel;
+    } else if(pLeave==='other'){
+      rec.leaveHours = pLeaveHours;
+    }
+  }
   if(note) rec.note=note;
   if(newOT>0) rec.ot=newOT;
   if(Object.keys(rec).length===0){delete dayData[eKey];}else{dayData[eKey]=rec;}
@@ -3153,6 +3266,7 @@ function saveDay(){
   const tog = document.getElementById('sheetOTDetailToggle');
   if(tog){ tog.checked=false; document.getElementById('sheetOTDetailRow').style.display='none'; }
   persist(); closeSheet(); render(); renderOTLog();
+  if (localStorage.getItem('sg_notify') === '1') { localStorage.removeItem('sg_notify_last'); checkTodayNotify(); }
 }
 function clearDay(){
   if(eKey){
@@ -3221,6 +3335,12 @@ function onSalaryLockChange() {
   inp.style.opacity = locked ? '.6' : '1';
   inp.style.cursor  = locked ? 'not-allowed' : '';
   if (icon) icon.textContent = locked ? '🔒' : '🔓';
+  // 鎖定時保存實領數字，解鎖時清除
+  if (locked) {
+    localStorage.setItem('sg_salary_base', inp.value || '');
+  } else {
+    localStorage.removeItem('sg_salary_base');
+  }
 }
 
 function salNumOnly(el, max) {
@@ -3356,6 +3476,9 @@ function initSalary() {
   const icon = document.getElementById('salaryLockIcon');
   if (wasLocked && cb) {
     cb.checked        = true;
+    // 還原鎖定時保存的實領數字
+    const savedBase = localStorage.getItem('sg_salary_base');
+    if (savedBase !== null && inp) inp.value = savedBase;
     inp.readOnly      = true;
     inp.style.opacity = '.6';
     inp.style.cursor  = 'not-allowed';
@@ -3570,8 +3693,10 @@ function buildCompBtns() {
   const prevOTH  = prevRec.leaveHoursOT  || 0;
   const prevSysH = prevRec.leaveHoursSys || 0;
   const sysTotal = getSysOTHours();
-  const otAvail  = Math.round((otHours + prevOTH)  * 10) / 10;
-  const sysAvail = Math.round((sysTotal  - calcSysCompUsed(_qKey)   + prevSysH) * 10) / 10;
+  // 系統可用 = 系統總時數 − 已用系統補休（本日除外）
+  const sysAvail = Math.round((sysTotal - calcSysCompUsed(_qKey)) * 10) / 10;
+  // 純加班可用 = 總餘額 − 系統可用 + 本日已扣的加班與系統（重新編輯時還原）
+  const otAvail  = Math.round((otHours - sysAvail + prevOTH + prevSysH) * 10) / 10;
   const otCap  = Math.min(8, Math.floor(otAvail));
   const sysCap = Math.min(8, Math.floor(sysAvail));
 
