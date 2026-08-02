@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.06080934</title>
+<title>Shift Go v.08020925</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -20,6 +20,8 @@
   --comp:      #14b8a6;  --comp-dim:  rgba(20,184,166,.15);
   --other:     #f472b6;  --other-dim: rgba(244,114,182,.15);
   --rest:      #b91c1c;  --rest-dim:  rgba(185,28,28,.18);
+  --dis:       #ea580c;  --dis-dim:   rgba(234,88,12,.18);
+  --well:      #0ea5e9;  --well-dim:  rgba(14,165,233,.18);
   --ot:#fbbf24;
   --accent:#4f80ff; --today-ring:#ffffff;
   --radius-sm:6px; --radius:10px; --radius-lg:16px;
@@ -270,7 +272,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .cell.leave-comp  { border-color:var(--comp)  !important; background:var(--comp-dim)  !important; }
 .cell.leave-other { border-color:var(--other) !important; background:var(--other-dim) !important; }
 .cell.leave-rest  { border-color:var(--rest)  !important; background:var(--rest-dim)  !important; }
+.cell.leave-dis   { border-color:var(--dis)   !important; background:var(--dis-dim)   !important; }
+.cell.leave-well  { border-color:var(--well)  !important; background:var(--well-dim)  !important; }
 .cell.leave-rest  .dnum { color:var(--rest)  !important; }
+.cell.leave-dis   .dnum { color:var(--dis)   !important; }
 
 .cell-head { display:flex; justify-content:space-between; align-items:flex-start; gap:2px; }
 .dnum { font-family:'DM Mono',monospace; font-size:1.1rem; font-weight:700; color:var(--text); line-height:1; flex-shrink:0; }
@@ -290,6 +295,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .l-comp  { background:var(--comp-dim);  color:var(--comp); }
 .l-other { background:var(--other-dim); color:var(--other); }
 .l-rest  { background:var(--rest-dim);  color:var(--rest); }
+.l-dis   { background:var(--dis-dim);   color:var(--dis); }
+.l-well  { background:var(--well-dim);  color:var(--well); }
 .ot-badge { font-size:.5rem; padding:1px 4px; border-radius:3px; background:rgba(251,191,36,.12); color:var(--ot); width:fit-content; }
 .note-lbl { font-size:.5rem; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
@@ -334,14 +341,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .quarter-hd-right { font-size:.6rem; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .quarter-body { padding:0 10px 10px; }
 .quarter-body.collapsed { display:none; }
-.q-month-row { display:grid; grid-template-columns:2rem repeat(10, 1fr); gap:2px; align-items:center; padding:4px 3px; border-bottom:1px solid var(--border); }
+.q-month-row { display:grid; grid-template-columns:1.9rem repeat(11, 1fr); gap:2px; align-items:center; padding:4px 3px; border-bottom:1px solid var(--border); }
 .q-month-row:last-child { border-bottom:none; }
 .q-month-name { font-size:.6rem; font-weight:700; color:var(--text-dim); font-family:'DM Mono',monospace; }
 .q-cell { text-align:center; font-family:'DM Mono',monospace; font-size:.6rem; }
 .q-cell-val { font-weight:700; font-size:.64rem; }
-.q-col-hd { display:grid; grid-template-columns:2rem repeat(10, 1fr); gap:2px; padding:6px 3px 3px; }
+.q-col-hd { display:grid; grid-template-columns:1.9rem repeat(11, 1fr); gap:2px; padding:6px 3px 3px; }
 .q-col-hd-cell { text-align:center; font-size:.5rem; font-family:'DM Mono',monospace; color:var(--text-mute); letter-spacing:.02em; }
-.q-total-row { display:grid; grid-template-columns:2rem repeat(10, 1fr); gap:2px; padding:5px 3px 2px; border-top:1px solid var(--border2); margin-top:2px; }
+.q-total-row { display:grid; grid-template-columns:1.9rem repeat(11, 1fr); gap:2px; padding:5px 3px 2px; border-top:1px solid var(--border2); margin-top:2px; }
 .q-total-lbl { font-size:.55rem; color:var(--text-dim); font-family:'DM Mono',monospace; font-weight:700; }
 .q-total-val { text-align:center; font-family:'DM Mono',monospace; font-size:.62rem; font-weight:700; }
 
@@ -376,6 +383,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .opt.on-comp  { background:var(--comp-dim);  color:var(--comp);  border-color:var(--comp); }
 .opt.on-other { background:var(--other-dim); color:var(--other); border-color:var(--other); }
 .opt.on-rest  { background:var(--rest-dim);  color:var(--rest);  border-color:var(--rest); }
+.opt.on-dis   { background:var(--dis-dim);   color:var(--dis);   border-color:var(--dis); }
+.opt.on-well  { background:var(--well-dim);  color:var(--well);  border-color:var(--well); }
 .sheet-btns { display:flex; gap:8px; margin-top:16px; }
 .btn-save { flex:1; background:var(--accent); border:none; color:#fff; padding:13px; border-radius:var(--radius); cursor:pointer; font-family:inherit; font-size:.88rem; font-weight:700; transition:opacity .15s; }
 .btn-save:hover { opacity:.85; }
@@ -690,6 +699,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 .quick-btn.qb-comp  { background: var(--comp-dim);  color: var(--comp);  border-color: var(--comp); }
 .quick-btn.qb-other { background: var(--other-dim); color: var(--other); border-color: var(--other); }
 .quick-btn.qb-rest  { background: var(--rest-dim);  color: var(--rest);  border-color: var(--rest); }
+.quick-btn.qb-dis   { background: var(--dis-dim);   color: var(--dis);   border-color: var(--dis); }
+.quick-btn.qb-well  { background: var(--well-dim);  color: var(--well);  border-color: var(--well); }
 /* 小顆補休時數按鈕 */
 .cbt {
   padding: 5px 2px;
@@ -1423,7 +1434,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.06080934</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.08020925</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1553,7 +1564,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.06080934</div>
+      <div class="app-label" id="appLabel">Shift Go v.08020925</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1669,6 +1680,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <div class="q-top"><div><div class="q-title">職假</div><span id="restNum" class="q-number" style="color:var(--rest);">0天</span></div><div class="q-denom">本月</div></div>
           <div class="q-track"><div class="q-fill" id="restFill" style="background:var(--rest)"></div></div>
           <div class="q-sub" id="restSub">本月已休 0 天</div>
+      </div>
+      <div class="q-card">
+          <div class="q-top"><div><div class="q-title">身心調適假</div><span id="wellNum" class="q-number" style="color:var(--well);">0天</span></div><div class="q-denom">/ 3 天</div></div>
+          <div class="q-track"><div class="q-fill" id="wellFill" style="background:var(--well)"></div></div>
+          <div class="q-sub" id="wellSub">本年剩餘 3 天（每年重製，不影響考績）</div>
       </div>
     </div>
 
@@ -1818,6 +1834,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
       <div class="quick-btn qb-comp"  onclick="quickLeaveComp()">補休</div>
       <div class="quick-btn qb-other" onclick="quickSet('leave','other')">補放假</div>
       <div class="quick-btn qb-rest"  onclick="quickSet('leave','rest')">職假</div>
+      <div class="quick-btn qb-dis"   onclick="quickSet('leave','dis')">災防假</div>
+      <div class="quick-btn qb-well"  onclick="quickSet('leave','well')">身心假</div>
     </div>
     <div id="compHoursRow" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
       <div style="font-size:.6rem;color:var(--text-mute);margin-bottom:6px;">補休時數　已選：<span id="compSelDisplay" style="color:var(--comp);font-weight:700;">—</span></div>
@@ -1883,6 +1901,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <div class="opt" id="lo-comp"  onclick="pL('comp')">↺ 補休</div>
           <div class="opt" id="lo-other" onclick="pL('other')">＋補放假</div>
           <div class="opt" id="lo-rest"  onclick="pL('rest')">🛑 職假</div>
+          <div class="opt" id="lo-dis"   onclick="pL('dis')">⚠ 災防假</div>
+          <div class="opt" id="lo-well"  onclick="pL('well')">💙 身心假</div>
           <div class="opt" id="lo-null"  onclick="pL(null)">— 無</div>
         </div>
       </div>
@@ -2137,7 +2157,7 @@ function updateConsFromSeniority() {
 const DEFAULT_COLORS = {
   early: '#10b981', mid2: '#f97316', late: '#3b82f6',
   mid: '#a855f7', off: '#64748b',
-  cons: '#eab308', comp: '#14b8a6', other: '#f472b6', rest: '#b91c1c',
+  cons: '#eab308', comp: '#14b8a6', other: '#f472b6', rest: '#b91c1c', dis: '#ea580c', well: '#0ea5e9',
   hol: '#f43f5e', accent: '#4f80ff'
 };
 
@@ -2251,7 +2271,7 @@ function checkTodayNotify() {
   if (localStorage.getItem('sg_notify_last') === tk) return; // 今天已通知過
   const rec = dayData[tk];
   if (!rec) return;
-  const LN = { cons: '慰休', comp: '補休', other: '補放假', rest: '職假' };
+  const LN = { cons: '慰休', comp: '補休', other: '補放假', rest: '職假', dis: '災防假', well: '身心假' };
   const parts = [];
   if (rec.leave) parts.push(`🏖 今天請：${LN[rec.leave]||rec.leave}`);
   if (rec.note)  parts.push(`📝 ${rec.note}`);
@@ -2308,7 +2328,7 @@ function loadColors() {
   Object.entries(DEFAULT_COLORS).forEach(([k, def]) => {
     const v = saved[k] || def;
     document.documentElement.style.setProperty('--' + k, v);
-    if (['early','mid2','late','mid','off','cons','comp','other','rest'].includes(k)) {
+    if (['early','mid2','late','mid','off','cons','comp','other','rest','dis','well'].includes(k)) {
       const r=parseInt(v.slice(1,3),16), g=parseInt(v.slice(3,5),16), b=parseInt(v.slice(5,7),16);
       document.documentElement.style.setProperty('--'+k+'-dim', `rgba(${r},${g},${b},.15)`);
     }
@@ -2320,7 +2340,7 @@ function saveColor(key, val) {
   saved[key] = val;
   localStorage.setItem('sg_colors', JSON.stringify(saved));
   document.documentElement.style.setProperty('--' + key, val);
-  if (['early','mid2','late','mid','off','cons','comp','other','rest'].includes(key)) {
+  if (['early','mid2','late','mid','off','cons','comp','other','rest','dis','well'].includes(key)) {
     const r=parseInt(val.slice(1,3),16), g=parseInt(val.slice(3,5),16), b=parseInt(val.slice(5,7),16);
     document.documentElement.style.setProperty('--'+key+'-dim', `rgba(${r},${g},${b},.15)`);
   }
@@ -2331,7 +2351,7 @@ function resetColors() {
   localStorage.removeItem('sg_colors');
   Object.entries(DEFAULT_COLORS).forEach(([k,v]) => {
     document.documentElement.style.setProperty('--'+k, v);
-    if (['early','mid2','late','mid','off','cons','comp','other','rest'].includes(k)) {
+    if (['early','mid2','late','mid','off','cons','comp','other','rest','dis','well'].includes(k)) {
       const r=parseInt(v.slice(1,3),16), g=parseInt(v.slice(3,5),16), b=parseInt(v.slice(5,7),16);
       document.documentElement.style.setProperty('--'+k+'-dim', `rgba(${r},${g},${b},.15)`);
     }
@@ -2371,7 +2391,7 @@ function buildColorPickers() {
     {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
     {k:'off',label:'排休'},{k:'cons',label:'慰休'},
     {k:'comp',label:'補休'},{k:'other',label:'補放假'},
-    {k:'rest',label:'職假'},
+    {k:'rest',label:'職假'},{k:'dis',label:'災防假'},{k:'well',label:'身心假'},
     {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
   ];
   el.innerHTML = items.map(i => {
@@ -2524,7 +2544,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.06080934';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.08020925';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2636,7 +2656,7 @@ function lunarDisp(gY,gM,gD){
 }
 
 const SN = { early:'早', mid2:'中', late:'晚', mid:'小夜', off:'休' };
-const LN = { cons:'慰', comp:'補', other:'補放', rest:'職' };
+const LN = { cons:'慰', comp:'補', other:'補放', rest:'職', dis:'災', well:'身' };
 const DOW = ['日','一','二','三','四','五','六'];
 const MN  = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
@@ -2848,7 +2868,7 @@ function render() {
   const dim = new Date(cY,cM+1,0).getDate();
   for(let i=0;i<fd;i++) grid.innerHTML+=`<div class="cell empty"></div>`;
 
-  const stats = {early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,rest:0};
+  const stats = {early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,rest:0,dis:0,well:0};
 
   for(let d=1;d<=dim;d++){
     const ky = k(cY,cM,d);
@@ -2872,7 +2892,7 @@ function render() {
 
     const holHtml = hw?`<div class="hol-lbl is-${hw.type}">${hw.label}</div>`:'';
     const stag = shift?`<div class="s-badge s-${shift}">${SN[shift]}</div>`:'';
-    const ltag = (rec.leave && rec.leave!=='rest')?`<div class="l-badge l-${rec.leave}">${LN[rec.leave]}${rec.leave==='comp'&&rec.leaveHours?(rec.leaveHours===8?' 1天':` ${rec.leaveHours}/8`):''}</div>`:'';
+    const ltag = (rec.leave && rec.leave!=='rest' && rec.leave!=='dis')?`<div class="l-badge l-${rec.leave}">${LN[rec.leave]}${rec.leave==='comp'&&rec.leaveHours?(rec.leaveHours===8?' 1天':` ${rec.leaveHours}/8`):''}</div>`:'';
     const ottag= rec.ot?`<div class="ot-badge">+${rec.ot}h</div>`:'';
     const ntag = rec.note?`<div class="note-lbl">${rec.note}</div>`:'';
 
@@ -2891,6 +2911,8 @@ function render() {
     if(rec.leave==='comp') stats.comp++;
     if(rec.leave==='other') stats.other++;
     if(rec.leave==='rest') stats.rest++;
+    if(rec.leave==='dis') stats.dis++;
+    if(rec.leave==='well') stats.well++;
   }
   renderStats(stats); renderQuota(); renderQuarter();
   // Update full month view if open
@@ -2906,13 +2928,24 @@ function renderStats(s) {
 }
 
 function renderQuota() {
-  let cU=0, cpH=0, restU=0;
+  let cU=0, cpH=0, restU=0, wellU=0;
   const monthPrefix = `${cY}-${String(cM+1).padStart(2,'0')}`;
+  const yearPrefix  = `${cY}-`;
   Object.entries(dayData).forEach(([k,r])=>{
     if(r.leave==='cons') cU++;
     if((r.leave==='comp'||r.leave==='other')&&r.leaveHours) cpH+=r.leaveHours;
     if(r.leave==='rest' && k.startsWith(monthPrefix)) restU++;
+    if(r.leave==='well' && k.startsWith(yearPrefix)) wellU++; // 身心假：本年度計算
   });
+  // 身心調適假（一年3天，每年重製）
+  const wellMax = 3;
+  const wellLeft = Math.max(0, wellMax - wellU);
+  const wn = document.getElementById('wellNum');
+  if (wn) {
+    wn.textContent = wellU + '天';
+    document.getElementById('wellFill').style.width = Math.min(100, wellU/wellMax*100) + '%';
+    document.getElementById('wellSub').textContent = `本年剩餘 ${wellLeft} 天（每年重製，不影響考績）`;
+  }
   // 休假統計卡（當月）
   const restCard = document.getElementById('restCard');
   if (restCard) {
@@ -3007,12 +3040,13 @@ function renderQuarter() {
     {key:'civHol',label:'假',color:'var(--hol)'},
     {key:'cons',label:'慰',color:'var(--cons)'},{key:'comp',label:'補',color:'var(--comp)'},
     {key:'other',label:'補放',color:'var(--other)'},
+    {key:'well',label:'身',color:'var(--well)'},
     {key:'_dev',label:'誤差',color:'var(--text-dim)'},
   ];
   const MNS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   function calcM(y,m){
     const dim=new Date(y,m+1,0).getDate();
-    const s={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0,devOff:0,devCivil:0};
+    const s={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0,well:0,devOff:0,devCivil:0};
     for(let d=1;d<=dim;d++){
       const ky=k(y,m,d); const rec=dayData[ky]||{};
       const date=new Date(y,m,d);
@@ -3023,26 +3057,28 @@ function renderQuarter() {
       else if(rec.leave==='comp') s.comp++;
       else if(rec.leave==='other') s.other++;
       else if(rec.leave==='rest') {} // 職假計入「假」欄，不計班別/休
+      else if(rec.leave==='dis') {}  // 災防假計入「假」欄
+      else if(rec.leave==='well') s.well++;
       else if(shift) s[shift]++; // 含 off → 休（輪班排休）
-      // 「假」欄＝公務人員紅字假日 ＋ 職假
+      // 「假」欄＝公務人員紅字假日 ＋ 職假 ＋ 災防假
       if(isCivHol) s.civHol++;
-      if(rec.leave==='rest') s.civHol++;
-      // 誤差：休（輪班排休）− 假（公務員假＋職假）
+      if(rec.leave==='rest'||rec.leave==='dis') s.civHol++;
+      // 誤差：休（輪班排休）− 假
       if(!rec.leave && shift==='off') s.devOff++;
       if(isCivHol) s.devCivil++;
-      if(rec.leave==='rest') s.devCivil++;
+      if(rec.leave==='rest'||rec.leave==='dis') s.devCivil++;
     }
     return s;
   }
   const curQ=Math.floor(cM/3);
   const allMs = [0,1,2,3,4,5,6,7,8,9,10,11].map(m=>calcM(cY,m));
-  const yearTot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0,devOff:0,devCivil:0};
+  const yearTot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0,well:0,devOff:0,devCivil:0};
   allMs.forEach(s=>{ COLS.forEach(c=>{ if(c.key!=='_dev') yearTot[c.key]+=s[c.key]; }); yearTot.devOff+=s.devOff; yearTot.devCivil+=s.devCivil; });
   const yearDev=yearTot.devOff-yearTot.devCivil;
 
   document.getElementById('quarterSection').innerHTML = QUARTERS.map((q,qi)=>{
     const ms=q.months.map(m=>({m,s:calcM(cY,m)}));
-    const tot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0};
+    const tot={early:0,mid2:0,late:0,mid:0,off:0,cons:0,comp:0,other:0,civHol:0,well:0};
     ms.forEach(({s})=>COLS.forEach(c=>{tot[c.key]+=s[c.key];}));
     const tL=tot.cons+tot.comp+tot.other;
     const isOpen=qi===curQ;
@@ -3194,7 +3230,7 @@ function clickSheetComp(type, h) {
 function updS(){['early','mid2','late','mid','off','null'].forEach(v=>{const el=document.getElementById('so-'+v);if(!el)return;el.className='opt';if(pShift===(v==='null'?null:v))el.classList.add('on-'+v);});}
 function updL(){
   const avail = eKey ? Math.round((otHours + ((dayData[eKey]||{}).leaveHours||0)) * 10) / 10 : otHours;
-  ['cons','comp','other','rest','null'].forEach(v=>{
+  ['cons','comp','other','rest','dis','well','null'].forEach(v=>{
     const el=document.getElementById('lo-'+v);
     if(!el)return;
     el.className='opt';
@@ -3441,12 +3477,40 @@ function updateSalAllowBtn() {
   btn.style.borderColor = hasVal ? 'var(--accent)' : 'var(--border2)';
 }
 
+// 取得當前真實月份 key
+function currentSalaryMonth() {
+  const t = new Date();
+  return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0');
+}
+
+// 帶入本月已登打的數值（隔月自動歸零，因為找不到該月紀錄）
+function fillSalaryFromCurrentMonth() {
+  const month = currentSalaryMonth();
+  const rec = salaryData.find(r => r.month === month);
+  const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v && v > 0) ? v : ''; };
+  if (rec) {
+    setV('salaryOT',    rec.ot);
+    setV('salaryRisk',  rec.risk);
+    setV('salaryMeal',  rec.meal);
+    setV('salaryTrans', rec.trans);
+    // 實領未鎖定時也帶入
+    const lockCb = document.getElementById('salaryLock');
+    if (lockCb && !lockCb.checked) setV('salaryBase', rec.base);
+  } else {
+    // 新的月份 → 全部清空（實領若鎖定則保留）
+    setV('salaryOT', 0); setV('salaryRisk', 0); setV('salaryMeal', 0); setV('salaryTrans', 0);
+    const lockCb = document.getElementById('salaryLock');
+    if (lockCb && !lockCb.checked) setV('salaryBase', 0);
+  }
+  updateSalMainBtn(); updateSalAllowBtn(); updateSalPreview();
+}
+
 function addSalaryAllowance() {
   const risk  = parseFloat(document.getElementById('salaryRisk').value)  || 0;
   const meal  = parseFloat(document.getElementById('salaryMeal').value)  || 0;
   const trans = parseFloat(document.getElementById('salaryTrans').value) || 0;
   if (!risk && !meal && !trans) return;
-  const _today = new Date(); const month = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0');
+  const month = currentSalaryMonth();
   const idx = salaryData.findIndex(r => r.month === month);
   if (idx >= 0) {
     salaryData[idx].risk  = risk;
@@ -3457,10 +3521,7 @@ function addSalaryAllowance() {
   }
   saveSalary();
   renderSalaryList();
-  document.getElementById('salaryRisk').value  = '';
-  document.getElementById('salaryMeal').value  = '';
-  document.getElementById('salaryTrans').value = '';
-  updateSalAllowBtn();
+  fillSalaryFromCurrentMonth(); // 保留本月已登打數值
 }
 
 
@@ -3468,7 +3529,7 @@ function addSalaryRecord() {
   const base = parseFloat(document.getElementById('salaryBase').value) || 0;
   const ot   = parseFloat(document.getElementById('salaryOT').value) || 0;
   if (!base && !ot) { alert('請至少填入實領或加班費金額'); return; }
-  const _today = new Date(); const month = _today.getFullYear() + '-' + String(_today.getMonth()+1).padStart(2,'0');
+  const month = currentSalaryMonth();
   const otSum = calcMonthOTSummary();
   const idx = salaryData.findIndex(r => r.month === month);
   if (idx >= 0) {
@@ -3481,18 +3542,14 @@ function addSalaryRecord() {
   }
   saveSalary();
   renderSalaryList();
-  document.getElementById('salaryOT').value = '';
-  if (!document.getElementById('salaryLock').checked) {
-    document.getElementById('salaryBase').value = '';
-  }
-  updateSalMainBtn();
-  updateSalPreview();
+  fillSalaryFromCurrentMonth(); // 保留本月已登打數值
 }
 
 function deleteSalary(idx) {
   salaryData.splice(idx, 1);
   saveSalary();
   renderSalaryList();
+  fillSalaryFromCurrentMonth();
 }
 
 function initSalary() {
@@ -3514,6 +3571,7 @@ function initSalary() {
     if (icon) icon.textContent = '🔒';
   }
   renderSalaryList();
+  fillSalaryFromCurrentMonth(); // 帶入本月已登打數值
 }
 
 function exportJSON() {
@@ -3551,7 +3609,7 @@ function importJSON(e) {
       if (!confirm(`確認匯入備份？\n${name ? '姓名：'+name+'\n' : ''}匯出時間：${ts}\n\n這會覆蓋目前所有資料。`)) return;
       dayData = d.day;
       otHours = d.ot || 0;
-      if (d.salary) { salaryData = d.salary; saveSalary(); renderSalaryList(); }
+      if (d.salary) { salaryData = d.salary; saveSalary(); renderSalaryList(); fillSalaryFromCurrentMonth(); }
       if (d.config) {
         localStorage.setItem('ss_config', JSON.stringify(d.config));
         persist();
@@ -3704,6 +3762,12 @@ function quickSet(type, val) {
       // 再點同一假別 → 取消
       delete rec.leave; delete rec.leaveHours;
     } else {
+      // 身心調適假：一年上限 3 天
+      if (val === 'well') {
+        const yearPrefix = `${cY}-`;
+        const used = Object.entries(dayData).filter(([k,r]) => r.leave==='well' && k.startsWith(yearPrefix) && k!==_qKey).length;
+        if (used >= 3) { alert(`身心調適假本年度已用完（上限 3 天）`); return; }
+      }
       rec.leave = val;
       delete rec.leaveHours; // 非補休不需要時數
     }
@@ -3953,7 +4017,7 @@ function doExport(btn) {
     other:['#fb923c','rgba(251,146,60,.15)'],
   };
   const SN_img = {early:'早',mid2:'中',late:'晚',mid:'小夜',off:'休'};
-  const LN_img = {cons:'慰',comp:'補',other:'補放',rest:'職'};
+  const LN_img = {cons:'慰',comp:'補',other:'補放',rest:'職',dis:'災',well:'身'};
 
   for (let i=0; i<fd; i++) {
     const blank = document.createElement('div');
@@ -4121,7 +4185,7 @@ function renderFullMonth() {
   if (!el) return;
   const dim = new Date(cY, cM+1, 0).getDate();
   const SN_S = {early:'早',mid2:'中',late:'晚',mid:'夜',off:'休'};
-  const LN_S = {cons:'慰',comp:'補',other:'補放',rest:'職'};
+  const LN_S = {cons:'慰',comp:'補',other:'補放',rest:'職',dis:'災',well:'身'};
   const DOW_S = ['日','一','二','三','四','五','六'];
   let rows = '';
   for (let d = 1; d <= dim; d++) {
@@ -4197,7 +4261,7 @@ function pickColor(key, currentVal) {
     {k:'late',label:'晚/大夜'},{k:'mid',label:'小夜'},
     {k:'off',label:'排休'},{k:'cons',label:'慰休'},
     {k:'comp',label:'補休'},{k:'other',label:'補放假'},
-    {k:'rest',label:'職假'},
+    {k:'rest',label:'職假'},{k:'dis',label:'災防假'},{k:'well',label:'身心假'},
     {k:'hol',label:'假日'},{k:'accent',label:'主色調'},
   ];
   const item = items.find(i => i.k === key);
@@ -4453,7 +4517,7 @@ function renderFriendView() {
   document.getElementById('friendNext').disabled = !fullMonth && friendWeekOffset >= MAX_FRIEND_OFFSET;
 
   const SN_F = {early:'早',mid2:'中',late:'晚',mid:'夜',off:'休'};
-  const LN_F = {cons:'慰',comp:'補',other:'補放',rest:'職'};
+  const LN_F = {cons:'慰',comp:'補',other:'補放',rest:'職',dis:'災',well:'身'};
   const DOW_L = ['日','一','二','三','四','五','六'];
   const dowHtml = DOW_L.map((d,i) => `<div class="friend-dow${i===0?' sun':i===6?' sat':''}">${d}</div>`).join('');
 
