@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shift Go v.08020925</title>
+<title>Shift Go v.08021025</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1434,7 +1434,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 
 <!-- ══ SETUP WIZARD ══ -->
 <div id="setupWrap">
-  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.08020925</span></div>
+  <div class="setup-logo">Shift Go <span style="font-size:1.2rem;letter-spacing:.02em">v.08021025</span></div>
   <div class="setup-sub">初次使用設定</div>
 
   <!-- ☐ 同公務人員行事曆 -->
@@ -1564,7 +1564,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
 <div id="appWrap">
   <div class="top-bar">
     <div class="top-bar-left">
-      <div class="app-label" id="appLabel">Shift Go v.08020925</div>
+      <div class="app-label" id="appLabel">Shift Go v.08021025</div>
       <div class="month-display-wrap">
         <div class="month-display" id="hdMonth" onclick="toggleMonthDropdown()"></div>
         <div class="month-dropdown" id="monthDropdown"></div>
@@ -1581,7 +1581,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
           <button class="settings-btn" onclick="openFriendView()" title="好友班表" style="border-radius:8px;border-color:var(--comp);color:var(--comp);background:var(--comp-dim);font-size:.8rem;">👥</button>
           <button class="settings-btn" onclick="openSettings()" title="設定">⚙</button>
         </div>
-        <label class="notify-switch" for="notifyToggle" id="notifyToggleLabel" ondblclick="testNotify(event)" title="開啟提醒（雙擊可測試通知）">
+        <label class="notify-switch" for="notifyToggle" id="notifyToggleLabel" title="開啟提醒（長按可測試／診斷）">
           <input type="checkbox" id="notifyToggle" onchange="onNotifyToggle()">
           <span class="notify-slider"></span>
           <span class="notify-text">🔔</span>
@@ -1644,6 +1644,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
   </div>
 
   <div class="body-wrap">
+    <div id="todayReminder" style="display:none;"></div>
     <div class="dow-row" id="dowRow"></div>
     <div class="cal-grid" id="calGrid"></div>
 
@@ -1800,6 +1801,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-seri
     </div>
 
     <!-- ══ BACKUP ══ -->
+    <!-- ══ 國定假日更新 ══ -->
+    <div class="section-label" style="margin-top:6px">國定假日</div>
+    <div class="backup-card">
+      <button id="btnUpdateHol" onclick="updateHolidays()" style="width:100%;padding:11px;background:var(--surface2);border:1px solid var(--hol);border-radius:var(--radius);color:var(--hol);font-size:.78rem;cursor:pointer;font-family:inherit;">🔄 檢查並更新國定假日</button>
+      <div id="holUpdateStatus" style="display:none;font-size:.62rem;line-height:1.6;margin-top:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dim);"></div>
+      <div style="font-size:.58rem;color:var(--text-mute);margin-top:6px;line-height:1.5;">內建至 2027 年。明年度日曆表通常每年 6 月底公布，屆時按此鈕即可自動下載，不需更新 App。</div>
+    </div>
+
     <div class="section-label" style="margin-top:6px">資料備份</div>
     <div class="backup-card">
       <div class="backup-row">
@@ -2099,7 +2108,105 @@ const TW_HOL = {
   "2026-10-24":{label:"光復節連假",type:"hol"},"2026-10-25":{label:"台灣光復節",type:"hol"},
   "2026-10-26":{label:"光復節補假",type:"hol"},"2026-12-25":{label:"行憲紀念日",type:"hol"},
   "2026-12-26":{label:"行憲紀念連假",type:"hol"},"2026-12-27":{label:"行憲紀念連假",type:"hol"},
+  // ── 116年（2027）行政院核定辦公日曆表，總放假121日 ──
+  "2027-01-01":{label:"元旦",type:"hol"},"2027-01-02":{label:"元旦連假",type:"hol"},
+  "2027-01-03":{label:"元旦連假",type:"hol"},"2027-02-04":{label:"小年夜",type:"hol"},
+  "2027-02-05":{label:"除夕",type:"hol"},"2027-02-06":{label:"春節初一",type:"hol"},
+  "2027-02-07":{label:"春節初二",type:"hol"},"2027-02-08":{label:"春節初三",type:"hol"},
+  "2027-02-09":{label:"春節補假",type:"hol"},"2027-02-10":{label:"春節補假",type:"hol"},
+  "2027-02-27":{label:"和平紀念連假",type:"hol"},"2027-02-28":{label:"和平紀念日",type:"hol"},
+  "2027-03-01":{label:"和平紀念補假",type:"hol"},"2027-04-03":{label:"兒童節連假",type:"hol"},
+  "2027-04-04":{label:"兒童節",type:"hol"},"2027-04-05":{label:"清明節",type:"hol"},
+  "2027-04-06":{label:"兒童節補假",type:"hol"},"2027-04-30":{label:"勞動節補假",type:"hol"},
+  "2027-05-01":{label:"勞動節",type:"hol"},"2027-05-02":{label:"勞動節連假",type:"hol"},
+  "2027-06-09":{label:"端午節",type:"hol"},"2027-09-15":{label:"中秋節",type:"hol"},
+  "2027-09-28":{label:"教師節",type:"hol"},"2027-10-09":{label:"國慶連假",type:"hol"},
+  "2027-10-10":{label:"國慶日",type:"hol"},"2027-10-11":{label:"國慶日補假",type:"hol"},
+  "2027-10-23":{label:"光復節連假",type:"hol"},"2027-10-24":{label:"光復節連假",type:"hol"},
+  "2027-10-25":{label:"台灣光復節",type:"hol"},"2027-12-24":{label:"行憲紀念補假",type:"hol"},
+  "2027-12-25":{label:"行憲紀念日",type:"hol"},"2027-12-26":{label:"行憲紀念連假",type:"hol"},
+  "2027-12-31":{label:"元旦補假",type:"hol"},
 };
+
+// ══════════════════════════════════════════════════════
+// 國定假日自動更新（資料來源：政府資料開放平台）
+// ══════════════════════════════════════════════════════
+const HOL_CDN = 'https://cdn.jsdelivr.net/gh/ruyut/TaiwanCalendar/data/';
+
+// 啟動時把使用者下載過的假日合併進 TW_HOL
+function loadExtraHolidays() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('sg_extra_hol') || '{}');
+    Object.assign(TW_HOL, saved);
+    const last = localStorage.getItem('sg_hol_updated');
+    if (last) {
+      const yrs = [...new Set(Object.keys(saved).map(k => k.slice(0,4)))].sort();
+      const st = document.getElementById('holUpdateStatus');
+      if (st) {
+        st.style.display = 'block';
+        st.innerHTML = `已下載：${yrs.join('、')} 年<br><span style="color:var(--text-mute)">上次更新 ${last}</span>`;
+      }
+    }
+  } catch(e) {}
+}
+
+async function fetchYearHolidays(year) {
+  const res = await fetch(HOL_CDN + year + '.json', { cache: 'no-cache' });
+  if (!res.ok) throw new Error('no data');
+  const arr = await res.json();
+  const out = {};
+  arr.forEach(d => {
+    const desc = (d.description || '').trim();
+    if (!desc) return; // 一般週末無說明 → 略過（程式已自動判斷週末）
+    const ky = `${d.date.slice(0,4)}-${d.date.slice(4,6)}-${d.date.slice(6,8)}`;
+    if (d.isHoliday) {
+      out[ky] = { label: desc, type: 'hol' };
+    } else if (desc.includes('上班')) {
+      out[ky] = { label: '補上班', type: 'mkp' };
+    }
+  });
+  return out;
+}
+
+async function updateHolidays() {
+  const btn = document.getElementById('btnUpdateHol');
+  const st  = document.getElementById('holUpdateStatus');
+  const y0 = new Date().getFullYear();
+  const years = [y0, y0 + 1, y0 + 2];
+  btn.disabled = true;
+  const oldTxt = btn.textContent;
+  btn.textContent = '⏳ 下載中…';
+  st.style.display = 'block';
+  st.textContent = '正在連線政府資料開放平台…';
+
+  const store = JSON.parse(localStorage.getItem('sg_extra_hol') || '{}');
+  const done = [], fail = [];
+  for (const y of years) {
+    try {
+      const data = await fetchYearHolidays(y);
+      const n = Object.keys(data).length;
+      if (n > 0) {
+        Object.assign(store, data);
+        Object.assign(TW_HOL, data);
+        done.push(`${y} 年（${n} 筆）`);
+      } else fail.push(y);
+    } catch(e) { fail.push(y); }
+  }
+
+  btn.disabled = false;
+  btn.textContent = oldTxt;
+
+  if (done.length) {
+    localStorage.setItem('sg_extra_hol', JSON.stringify(store));
+    localStorage.setItem('sg_hol_updated', new Date().toISOString().slice(0,10));
+    st.innerHTML = `✅ 已更新 ${done.join('、')}`
+      + (fail.length ? `<br><span style="color:var(--text-mute)">${fail.join('、')} 年尚未公布</span>` : '')
+      + `<br><span style="color:var(--text-mute)">資料來源：政府資料開放平台</span>`;
+    render(); renderQuarter(); renderQuota();
+  } else {
+    st.innerHTML = '⚠ 沒有取得新資料<br><span style="color:var(--text-mute)">可能是網路問題，或明年度日曆表尚未公布（通常每年 6 月底）</span>';
+  }
+}
 
 // ══ SPECIAL PERIODS SETUP ══
 let spCounter = 0;
@@ -2166,140 +2273,170 @@ const THEME_ICONS = { dark:'☀', light:'🌙', navy:'🩵', forest:'🌿', coff
 const THEME_TIPS  = { dark:'淺色', light:'天空藍', navy:'森林綠', forest:'咖啡棕', coffee:'暗黑' };
 
 // ══════════════════════════════════════════════════════
-// 通知提醒系統（純瀏覽器，不需後端）
+// 提醒系統：App 內橫幅（一定有效）＋ 瀏覽器通知（有權限才發）
 // ══════════════════════════════════════════════════════
 let _notifyTimer = null;
-let _swReg = null;
 
-// 註冊 Service Worker（提升背景通知穩定度）
-async function registerNotifySW() {
-  if (!('serviceWorker' in navigator)) return;
+const LEAVE_NAME = { cons:'慰休', comp:'補休', other:'補放假', rest:'職假', dis:'災防假', well:'身心調適假' };
+
+function dkey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// 收集今天／明天的提醒事項
+function collectReminders() {
+  const out = [];
+  const today = new Date();
+  const tmr = new Date(today); tmr.setDate(today.getDate()+1);
+  [[today,'今天'],[tmr,'明天']].forEach(([d,lbl]) => {
+    const rec = dayData[dkey(d)];
+    if (!rec) return;
+    const parts = [];
+    if (rec.leave) parts.push(LEAVE_NAME[rec.leave] || '請假');
+    if (rec.note)  parts.push(rec.note);
+    if (parts.length) out.push({ when: lbl, date: `${d.getMonth()+1}/${d.getDate()}`, leave: rec.leave, note: rec.note, text: parts.join('　') });
+  });
+  return out;
+}
+
+// App 內橫幅（不需任何權限，開啟就看得到）
+function renderTodayReminder() {
+  const el = document.getElementById('todayReminder');
+  if (!el) return;
+  if (localStorage.getItem('sg_notify') !== '1') { el.style.display='none'; return; }
+  const items = collectReminders();
+  if (!items.length) { el.style.display='none'; return; }
+  const todayKey = dkey(new Date());
+  if (localStorage.getItem('sg_banner_hide') === todayKey) { el.style.display='none'; return; }
+
+  el.style.display = 'block';
+  el.innerHTML = items.map(it => {
+    const col = it.leave ? `var(--${it.leave==='cons'?'cons':it.leave==='comp'?'comp':it.leave==='other'?'other':it.leave==='rest'?'rest':it.leave==='dis'?'dis':'well'})` : 'var(--accent)';
+    return `<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid ${col};border-left:3px solid ${col};border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;">
+      <span style="font-size:.9rem;">🔔</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.58rem;color:var(--text-mute);">${it.when} ${it.date}</div>
+        <div style="font-size:.72rem;color:${col};font-weight:700;overflow:hidden;text-overflow:ellipsis;">${it.text}</div>
+      </div>
+      <span onclick="hideReminderToday()" style="cursor:pointer;color:var(--text-mute);font-size:.9rem;padding:0 4px;">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function hideReminderToday() {
+  localStorage.setItem('sg_banner_hide', dkey(new Date()));
+  renderTodayReminder();
+}
+
+// 瀏覽器通知（能發就發，發不了也不影響橫幅）
+function showNotify(title, body) {
   try {
-    const swCode = `
-      self.addEventListener('notificationclick', e => {
-        e.notification.close();
-        e.waitUntil(clients.matchAll({type:'window'}).then(cl => {
-          for (const c of cl) { if ('focus' in c) return c.focus(); }
-          if (clients.openWindow) return clients.openWindow('/');
-        }));
-      });
-    `;
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    _swReg = await navigator.serviceWorker.register(url);
-  } catch(e) { /* SW 失敗不影響前景通知 */ }
+    if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+    new Notification(title, { body, tag: 'sg-' + Date.now(), requireInteraction: false });
+    return true;
+  } catch(e) { return false; }
+}
+
+function checkTodayNotify(force) {
+  renderTodayReminder();
+  if (localStorage.getItem('sg_notify') !== '1') return;
+  const tk = dkey(new Date());
+  if (!force && localStorage.getItem('sg_notify_last') === tk) return;
+  const items = collectReminders().filter(i => i.when === '今天');
+  if (!items.length) return;
+  if (showNotify('Shift Go · 今日提醒', items.map(i=>i.text).join('\n'))) {
+    localStorage.setItem('sg_notify_last', tk);
+  }
+}
+
+// 診斷：為什麼收不到通知
+function notifyDiagnosis() {
+  const lines = [];
+  const proto = location.protocol;
+  if (proto === 'file:') {
+    lines.push('⚠ 目前用 file:// 開啟檔案，瀏覽器會封鎖系統通知。');
+    lines.push('　解法：把檔案放上 GitHub Pages（https）或用「加到主畫面」開啟。');
+  }
+  if (!('Notification' in window)) {
+    lines.push('⚠ 此瀏覽器不支援系統通知。');
+  } else {
+    const p = Notification.permission;
+    if (p === 'denied') lines.push('⚠ 通知權限被封鎖，請至瀏覽器設定 → 網站權限 → 通知，解除封鎖。');
+    if (p === 'default') lines.push('ℹ 尚未授權通知，開啟開關時會詢問。');
+    if (p === 'granted') lines.push('✅ 通知權限正常。');
+  }
+  lines.push('ℹ App 內橫幅提醒不受上述限制，開啟 App 就會顯示。');
+  return lines.join('\n');
 }
 
 async function testNotify(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (!('Notification' in window)) { alert('此瀏覽器不支援通知'); return; }
-  if (Notification.permission !== 'granted') {
-    const r = await Notification.requestPermission();
-    if (r !== 'granted') { alert('未授權通知'); return; }
+  // 先強制刷新橫幅
+  localStorage.removeItem('sg_banner_hide');
+  renderTodayReminder();
+  const items = collectReminders();
+  let msg = notifyDiagnosis() + '\n\n';
+  msg += items.length
+    ? '目前提醒事項：\n' + items.map(i=>`・${i.when} ${i.date}　${i.text}`).join('\n')
+    : '今天與明天都沒有請假或備註，所以不會有提醒。';
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
   }
-  await registerNotifySW();
-  showNotify('Shift Go · 測試通知', '通知功能正常運作 ✓', 'sg-test');
+  const sent = showNotify('Shift Go · 測試通知', items.length ? items[0].text : '通知功能正常 ✓');
+  alert(msg + (sent ? '\n\n✅ 已送出一則測試通知' : ''));
 }
 
 function loadNotifyPref() {
   const on = localStorage.getItem('sg_notify') === '1';
   const cb = document.getElementById('notifyToggle');
   if (cb) cb.checked = on;
-  if (on) {
-    registerNotifySW();
-    // 開啟 App 立即檢查今日（不限早上8點）
-    checkTodayNotify();
-    scheduleNotify();
+  // 長按 🔔 → 測試／診斷
+  const lbl = document.getElementById('notifyToggleLabel');
+  if (lbl && !lbl._lpBound) {
+    lbl._lpBound = true;
+    let t = null, moved = false;
+    const start = e => { moved = false; t = setTimeout(() => { t = null; testNotify(e); }, 600); };
+    const cancel = () => { if (t) { clearTimeout(t); t = null; } };
+    lbl.addEventListener('touchstart', start, {passive:true});
+    lbl.addEventListener('touchmove', () => { moved = true; cancel(); }, {passive:true});
+    lbl.addEventListener('touchend', e => { if (!t) e.preventDefault(); cancel(); });
+    lbl.addEventListener('mousedown', start);
+    lbl.addEventListener('mouseup', cancel);
+    lbl.addEventListener('mouseleave', cancel);
   }
+  if (on) { checkTodayNotify(); scheduleNotify(); }
 }
 
 async function onNotifyToggle() {
   const cb = document.getElementById('notifyToggle');
   if (cb.checked) {
-    if (!('Notification' in window)) {
-      alert('此瀏覽器不支援通知功能');
-      cb.checked = false;
-      return;
-    }
-    if (Notification.permission === 'default') {
-      const result = await Notification.requestPermission();
-      if (result !== 'granted') {
-        alert('未授權通知，無法啟用提醒。\n如需啟用，請至瀏覽器設定開啟通知權限。');
-        cb.checked = false;
-        return;
-      }
-    } else if (Notification.permission === 'denied') {
-      alert('通知權限被封鎖，請至瀏覽器設定解除封鎖。');
-      cb.checked = false;
-      return;
-    }
     localStorage.setItem('sg_notify', '1');
-    await registerNotifySW();
-    showNotify('🔔 提醒通知已啟用', '當日有備註或請假時會提醒。建議將本頁「加入主畫面」，通知較穩定。');
-    checkTodayNotify();
+    localStorage.removeItem('sg_banner_hide');
+    if ('Notification' in window && Notification.permission === 'default') {
+      try { await Notification.requestPermission(); } catch(e) {}
+    }
+    renderTodayReminder();
+    checkTodayNotify(true);
     scheduleNotify();
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      alert('已開啟提醒。\n\n系統通知未授權，但 App 內仍會在頂端顯示提醒橫幅。\n（長按 🔔 可查看詳細診斷）');
+    }
   } else {
     localStorage.setItem('sg_notify', '0');
     if (_notifyTimer) { clearTimeout(_notifyTimer); _notifyTimer = null; }
+    renderTodayReminder();
   }
-}
-
-// 統一發通知（優先用 Service Worker，否則用一般 Notification）
-function showNotify(title, body, tag) {
-  const opts = { body, tag: tag || 'sg-notify', requireInteraction: false, icon: '', badge: '' };
-  try {
-    if (_swReg && _swReg.showNotification) {
-      _swReg.showNotification(title, opts);
-    } else {
-      new Notification(title, opts);
-    }
-  } catch(e) {
-    try { new Notification(title, opts); } catch(_) {}
-  }
-}
-
-function todayKeyStr() {
-  const n = new Date();
-  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
-}
-
-// 檢查今日是否有備註或請假，有就通知（同一天只通知一次）
-function checkTodayNotify() {
-  if (localStorage.getItem('sg_notify') !== '1') return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const tk = todayKeyStr();
-  if (localStorage.getItem('sg_notify_last') === tk) return; // 今天已通知過
-  const rec = dayData[tk];
-  if (!rec) return;
-  const LN = { cons: '慰休', comp: '補休', other: '補放假', rest: '職假', dis: '災防假', well: '身心假' };
-  const parts = [];
-  if (rec.leave) parts.push(`🏖 今天請：${LN[rec.leave]||rec.leave}`);
-  if (rec.note)  parts.push(`📝 ${rec.note}`);
-  if (parts.length === 0) return;
-  showNotify('Shift Go · 今日提醒', parts.join('\n'), `sg-${tk}`);
-  localStorage.setItem('sg_notify_last', tk);
 }
 
 function scheduleNotify() {
   if (_notifyTimer) clearTimeout(_notifyTimer);
   if (localStorage.getItem('sg_notify') !== '1') return;
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
   const now = new Date();
-  // 排下次早上 08:00
   let next = new Date(now);
   const eightAM = new Date(now); eightAM.setHours(8, 0, 0, 0);
-  if (now < eightAM) {
-    next = eightAM;
-  } else {
-    next.setDate(next.getDate() + 1);
-    next.setHours(8, 0, 0, 0);
-  }
-  const ms = next - now;
-  _notifyTimer = setTimeout(() => {
-    checkTodayNotify();
-    scheduleNotify();
-  }, ms);
+  if (now < eightAM) next = eightAM;
+  else { next.setDate(next.getDate()+1); next.setHours(8,0,0,0); }
+  _notifyTimer = setTimeout(() => { checkTodayNotify(); scheduleNotify(); }, next - now);
 }
 
 function loadTheme() {
@@ -2544,7 +2681,7 @@ function applyConfig(cfg) {
   document.getElementById('setupWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
   if (cfg.name) {
-    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.08020925';
+    document.getElementById('appLabel').textContent = cfg.name + ' ‧ Shift Go v.08021025';
   }
   document.getElementById('consMax').textContent = cfg.consTotal;
   initCalendar(cfg);
@@ -2914,7 +3051,7 @@ function render() {
     if(rec.leave==='dis') stats.dis++;
     if(rec.leave==='well') stats.well++;
   }
-  renderStats(stats); renderQuota(); renderQuarter();
+  renderStats(stats); renderQuota(); renderQuarter(); renderTodayReminder();
   // Update full month view if open
   if (document.getElementById('showFullMonthToggle')?.checked) renderFullMonth();
 }
@@ -3331,7 +3468,7 @@ function saveDay(){
   const tog = document.getElementById('sheetOTDetailToggle');
   if(tog){ tog.checked=false; document.getElementById('sheetOTDetailRow').style.display='none'; }
   persist(); closeSheet(); render(); renderOTLog();
-  if (localStorage.getItem('sg_notify') === '1') { localStorage.removeItem('sg_notify_last'); checkTodayNotify(); }
+  if (localStorage.getItem('sg_notify') === '1') { localStorage.removeItem('sg_notify_last'); localStorage.removeItem('sg_banner_hide'); checkTodayNotify(); }
 }
 function clearDay(){
   if(eKey){
@@ -3350,13 +3487,21 @@ let salaryData = JSON.parse(localStorage.getItem('ss_salary') || '[]');
 
 function saveSalary() { localStorage.setItem('ss_salary', JSON.stringify(salaryData)); }
 
+let _salaryExpanded = false;
+
+function toggleSalaryList() {
+  _salaryExpanded = !_salaryExpanded;
+  renderSalaryList();
+}
+
 function renderSalaryList() {
   const el = document.getElementById('salaryList');
   if (!el) return;
   if (salaryData.length === 0) { el.innerHTML = ''; return; }
   const sorted = [...salaryData].sort((a,b) => b.month.localeCompare(a.month));
-  el.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">' +
-    sorted.map((r) => {
+  const shown = _salaryExpanded ? sorted.slice(0, 6) : sorted.slice(0, 2);
+
+  const rows = shown.map((r) => {
       const total = (r.base||0)+(r.ot||0)+(r.risk||0)+(r.meal||0)+(r.trans||0);
       const idx = salaryData.findIndex(x => x.month === r.month);
       const allowParts = [
@@ -3372,12 +3517,28 @@ function renderSalaryList() {
           <span style="color:var(--text-mute);font-family:monospace;">${r.month}</span>
           <span>實 <strong style="color:var(--early);">${(r.base||0).toLocaleString()}</strong>　班 <strong style="color:var(--comp);">${(r.ot||0).toLocaleString()}</strong></span>
           <span style="color:var(--ot);font-weight:700;">= ${total.toLocaleString()}</span>
-          <span onclick="deleteSalary(${idx})" style="cursor:pointer;color:var(--hol);padding:2px 8px;">✕</span>
+          <span onclick="event.stopPropagation();deleteSalary(${idx})" style="cursor:pointer;color:var(--hol);padding:2px 8px;">✕</span>
         </div>
         ${allowParts ? `<div style="font-size:.62rem;color:var(--text-mute);margin-top:2px;">${allowParts}</div>` : ''}
         ${otLine}
       </div>`;
-    }).join('') + '</div>';
+    }).join('');
+
+  const wrapStyle = _salaryExpanded
+    ? 'max-height:260px;overflow-y:auto;-webkit-overflow-scrolling:touch;'
+    : '';
+  const more = sorted.length > 2;
+  const hint = more
+    ? `<div onclick="toggleSalaryList()" style="text-align:center;font-size:.6rem;color:var(--text-mute);padding:5px 0 2px;cursor:pointer;user-select:none;">
+         ${_salaryExpanded ? '▲ 收合' : `▼ 展開全部（共 ${sorted.length} 筆）`}
+       </div>`
+    : '';
+
+  el.innerHTML =
+    `<div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+       <div style="${wrapStyle}">${rows}</div>
+       ${hint}
+     </div>`;
 }
 
 function toggleSalaryLock() {
@@ -3583,6 +3744,7 @@ function exportJSON() {
     day: dayData,
     ot: otHours,
     salary: salaryData,  // 薪資備份
+    extraHol: JSON.parse(localStorage.getItem('sg_extra_hol') || '{}'), // 下載的國定假日
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3610,6 +3772,7 @@ function importJSON(e) {
       dayData = d.day;
       otHours = d.ot || 0;
       if (d.salary) { salaryData = d.salary; saveSalary(); renderSalaryList(); fillSalaryFromCurrentMonth(); }
+      if (d.extraHol) { localStorage.setItem('sg_extra_hol', JSON.stringify(d.extraHol)); Object.assign(TW_HOL, d.extraHol); }
       if (d.config) {
         localStorage.setItem('ss_config', JSON.stringify(d.config));
         persist();
@@ -4965,6 +5128,7 @@ function updateShareBtnState() {
   }
 }
 
+loadExtraHolidays();
 loadTheme();
 initCommonOffColor();
 initSalary();
